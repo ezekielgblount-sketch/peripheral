@@ -40,6 +40,21 @@ export class Acts {
   }
 
   _registerInteractables() {
+    // Act 1 chores: guide the player through settling in. These never gate the
+    // bed — a beeliner can still sleep immediately — they just give the night
+    // somewhere to go while the house works on them.
+    this.chores = { unpack: false, shower: false };
+    this.choreDresser = this.g.registerInteractable({
+      position: this.g.props.dresser.position.clone(),
+      radius: 1.7, label: 'Unpack your clothes', enabled: false,
+      onInteract: () => this._doChore('unpack'),
+    });
+    this.choreShower = this.g.registerInteractable({
+      position: this.g.props.shower.position.clone(),
+      radius: 1.7, label: 'Take a shower', enabled: false,
+      onInteract: () => this._doChore('shower'),
+    });
+
     // bed ends Act 1
     this.bedIt = this.g.registerInteractable({
       position: this.g.house.anchors.bed.clone().add(new THREE.Vector3(0, 0.75, 0)),
@@ -70,10 +85,26 @@ export class Acts {
     this.g.player.setFlashlight(false);
     this.bedIt.enabled = true;
     this.breakerIt.enabled = false;
+    this.choreDresser.enabled = true;
+    this.choreShower.enabled = true;
+    this.chores.unpack = false;
+    this.chores.shower = false;
     this.g.audio.setCrickets(false);
     this.g.audio.setHouseTone(false);
     this._insideTimer = 0;
     this._objShown = false;
+  }
+
+  _doChore(name) {
+    if (this.chores[name]) return;
+    this.chores[name] = true;
+    this.g.audio.thud();
+    if (name === 'unpack') { this.g.props.dresser.open(); this.choreDresser.enabled = false; }
+    if (name === 'shower') { this.choreShower.enabled = false; }
+    const left = (!this.chores.unpack ? 1 : 0) + (!this.chores.shower ? 1 : 0);
+    if (left === 0) this.g.hud.objective('Now get some sleep.', 8000);
+    else if (name === 'unpack') this.g.hud.objective('Clothes away. Wash up before bed.', 6000);
+    else this.g.hud.objective('Clean. Unpack, then get some sleep.', 6000);
   }
 
   reset() {
@@ -89,6 +120,8 @@ export class Acts {
     this.entity.cooldown = 2;
     if (this.bedIt) this.bedIt.enabled = false;
     if (this.breakerIt) this.breakerIt.enabled = false;
+    if (this.choreDresser) this.choreDresser.enabled = false;
+    if (this.choreShower) this.choreShower.enabled = false;
     this.g.player.setFlashlight(false);
     this.g.hud.setFadeInstant(0);
   }
@@ -107,13 +140,14 @@ export class Acts {
     if (inside && !this._timeInside) {
       this._timeInside = true;
       this.g.audio.setHouseTone(true);
+      this.g.audio.setAmbient('act1');
       this.g.director.setEnabled(true);
     }
     if (inside) {
       this._insideTimer += dt;
-      if (!this._objShown && this._insideTimer > 20) {
+      if (!this._objShown && this._insideTimer > 8) {
         this._objShown = true;
-        this.g.hud.objective('Look around. Then get some sleep.', 7000);
+        this.g.hud.objective('Settle in. Unpack, wash up, then get some sleep.', 8000);
       }
     }
   }
@@ -125,11 +159,14 @@ export class Acts {
     this.lockLook = true;
     this.g.director.enabled = false;
     this.bedIt.enabled = false;
+    this.choreDresser.enabled = false;
+    this.choreShower.enabled = false;
     this.g.hud.setPrompt('');
     this.g.hud.clearObjective();
 
     await this.g.hud.fadeTo(1, 1200);      // to black
     this.g.audio.setHouseTone(false);
+    this.g.audio.setAmbient('off');         // silence for the transition
     await wait(3000);                       // held silence
     this.g.audio.swell();                   // single low sub-bass swell
     await wait(2600);
@@ -158,6 +195,7 @@ export class Acts {
     this.g.signage.yardSign.anomaly.arm();
 
     this.g.audio.setCrickets(true);        // will be gated by proximity
+    this.g.audio.setAmbient('act2');       // sparser, lower piano at night
     this.breakerIt.enabled = true;
     this.entity.group.visible = false;
     this.entity.dist = 14;

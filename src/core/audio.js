@@ -15,6 +15,10 @@ export class AudioEngine {
 
     this._stepDist = 0;
     this._stepPhase = 0;
+
+    // airy synth-piano ambient
+    this.ambientMode = 'off';   // 'off' | 'act1' | 'act2'
+    this._noteTimer = 3;
   }
 
   resume() {
@@ -35,8 +39,62 @@ export class AudioEngine {
     const data = this.noiseBuf.getChannelData(0);
     for (let i = 0; i < n; i++) data[i] = Math.random() * 2 - 1;
 
+    this._buildReverb();
     this._buildHouseTone();
     this._buildCrickets();
+  }
+
+  // A convolution reverb from a generated impulse — gives the piano its air.
+  _buildReverb() {
+    const dur = 2.8, sr = this.ctx.sampleRate;
+    const len = Math.floor(dur * sr);
+    const imp = this.ctx.createBuffer(2, len, sr);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = imp.getChannelData(ch);
+      for (let i = 0; i < len; i++) {
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.4);
+      }
+    }
+    const conv = this.ctx.createConvolver(); conv.buffer = imp;
+    this.reverbIn = this.ctx.createGain();
+    const wet = this.ctx.createGain(); wet.gain.value = 0.55;
+    this.reverbIn.connect(conv); conv.connect(wet); wet.connect(this.master);
+    this.pianoDry = this.ctx.createGain(); this.pianoDry.gain.value = 0.5;
+    this.pianoDry.connect(this.master);
+  }
+
+  // One struck, decaying piano-ish voice: a few sine partials through a lowpass,
+  // sent both dry and into the reverb.
+  pianoNote(freq, t0, vel = 0.16) {
+    if (!this.ctx) return;
+    const t = t0 ?? this.ctx.currentTime;
+    const voice = this.ctx.createGain(); voice.gain.value = 0;
+    voice.gain.setValueAtTime(0, t);
+    voice.gain.linearRampToValueAtTime(vel, t + 0.008);
+    voice.gain.exponentialRampToValueAtTime(0.0006, t + 2.6);
+    const lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400;
+    const partials = [[1, 1], [2, 0.5], [3, 0.22], [4, 0.1]];
+    for (const [mult, amp] of partials) {
+      const o = this.ctx.createOscillator(); o.type = 'sine'; o.frequency.value = freq * mult;
+      const g = this.ctx.createGain(); g.gain.value = amp;
+      o.connect(g); g.connect(voice); o.start(t); o.stop(t + 2.7);
+    }
+    voice.connect(lp); lp.connect(this.pianoDry); lp.connect(this.reverbIn);
+  }
+
+  setAmbient(mode) { this.ambientMode = mode; if (mode !== 'off') this._noteTimer = 1.5; }
+
+  _playPhrase() {
+    // sparse, slow, uneven — a note or two, well spaced, mostly high and airy
+    const scale = this.ambientMode === 'act2'
+      ? [110, 130.81, 146.83, 164.81, 196]                 // lower, sparser at night
+      : [146.83, 164.81, 196, 220, 261.63, 293.66, 329.63]; // A-minor-ish, brighter by day
+    const n = 1 + (Math.random() < 0.45 ? 1 : 0);
+    const t0 = this.ctx.currentTime + 0.05;
+    for (let i = 0; i < n; i++) {
+      const f = scale[Math.floor(Math.random() * scale.length)];
+      this.pianoNote(f, t0 + i * (0.45 + Math.random() * 0.85), 0.13 + Math.random() * 0.06);
+    }
   }
 
   _buildHouseTone() {
@@ -140,10 +198,22 @@ export class AudioEngine {
     if (!this.ctx) return;
     this.setCrickets(false);
     this.setHouseTone(false);
+    this.setAmbient('off');
   }
 
   update(dt, player, acts) {
     if (!this.ctx || this.paused) return;
+
+    // sparse airy piano ambient
+    if (this.ambientMode !== 'off') {
+      this._noteTimer -= dt;
+      if (this._noteTimer <= 0) {
+        this._playPhrase();
+        const base = this.ambientMode === 'act2' ? 8 : 5.5;
+        const spread = this.ambientMode === 'act2' ? 7 : 6;
+        this._noteTimer = base + Math.random() * spread;
+      }
+    }
 
     // cricket level ramp: silence is fast (0.4s), return is a touch slower.
     const rate = this.cricketTarget > this.cricketLevel ? dt / 0.6 : dt / 0.4;

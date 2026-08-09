@@ -242,9 +242,58 @@ export function buildProps(scene, house) {
     });
   }
 
+  // ---- more "it's standing there" reveals (same rules as every anomaly) ----
+  // A reusable figure-reveal: normal = empty, off = the figure is simply there.
+  function figureReveal(room, x, z, ry, scale = 1.0) {
+    const g = new THREE.Group();
+    const shape = makeFigure({ scale });
+    shape.visible = false; g.add(shape);
+    const anchor = new THREE.Object3D(); anchor.position.y = 1.2 * scale; g.add(anchor);
+    g.position.set(x, 0, z); g.rotation.y = ry; group.add(g);
+    anomalyProp({
+      root: g, room, anchor,
+      setOff() { shape.visible = true; },
+      setNormal() { shape.visible = false; },
+    });
+  }
+  // through the living-room window, out in the west yard
+  figureReveal('living', -1.6, 3.1, Math.PI / 2, 1.0);
+  // at the far end of the long hallway sightline, facing back down it
+  figureReveal('hallway', 6.0, 13.4, 0, 1.02);
+
+  // ================= CHORE FIXTURES (Act 1, non-gating) =================
+  // dresser with a drawer that slides open when the player unpacks
+  const dresser = (() => {
+    const g = new THREE.Group();
+    const body = box(0.9, 0.9, 0.5, M.wood); body.position.y = 0.45; g.add(body);
+    const drawer = box(0.8, 0.24, 0.48, M.pale); drawer.position.set(0, 0.62, 0.02); g.add(drawer);
+    const h1 = box(0.06, 0.04, 0.04, M.metal); h1.position.set(0, 0.62, 0.26); g.add(h1);
+    const drawer2 = box(0.8, 0.24, 0.48, M.pale); drawer2.position.set(0, 0.32, 0.02); g.add(drawer2);
+    g.position.set(8.15, 0, 6.5); group.add(g); // bedroom, against the shared wall
+    let t = 0, target = 0;
+    return {
+      group: g, position: new THREE.Vector3(8.15, 0.75, 6.7),
+      open() { target = 0.34; },
+      update(dt) { const d = target - t; if (Math.abs(d) > 1e-4) { t += d * Math.min(1, dt * 5); drawer.position.z = 0.02 + t; h1.position.z = 0.26 + t; } },
+    };
+  })();
+
+  // shower over the tub: a rail, a head, a translucent curtain
+  const shower = (() => {
+    const rail = box(0.06, 0.06, 0.8, M.metal); rail.position.set(2.2, 2.0, 9.3); group.add(rail);
+    const pipe = box(0.04, 0.5, 0.04, M.metal); pipe.position.set(1.55, 1.85, 9.3); group.add(pipe);
+    const head = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.06, 0.06, 10), M.metal);
+    head.position.set(1.62, 1.6, 9.3); head.rotation.z = Math.PI / 2; group.add(head);
+    const curtainMat = new THREE.MeshStandardMaterial({ color: PAL.light, roughness: 1, transparent: true, opacity: 0.5 });
+    const curtain = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.4), curtainMat);
+    curtain.position.set(2.9, 1.3, 9.3); curtain.rotation.y = Math.PI / 2; group.add(curtain);
+    return { position: new THREE.Vector3(2.0, 1.4, 9.3) };
+  })();
+
   function updateDoors(dt) {
     for (const d of hallDoors) d.update(dt);
+    dresser.update(dt);
   }
 
-  return { group, list, updateDoors, hallDoors };
+  return { group, list, updateDoors, hallDoors, dresser, shower };
 }

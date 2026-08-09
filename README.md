@@ -97,10 +97,21 @@ sitting on the 11 deg boundary doesn't flicker.
 straight ahead leaves it exactly as it was; the flip waits for a frame where you
 genuinely cannot see it.
 
-The eight anomalies: floor lamp leans, a hallway door yawns open, a kitchen chair
+The anomalies: floor lamp leans, a hallway door yawns open, a kitchen chair
 turns to face the hall, a portrait's head cranks toward the room, a coat fills
 out as if worn, a shape stands in the bathroom mirror, a fifth door appears in
-the four-door hallway, and a figure waits in the treeline past the bedroom window.
+the four-door hallway, a figure waits in the treeline past the bedroom window,
+another past the living-room window, one at the far end of the hallway, the
+realtor's painted smile is gone leaving only the eyes, and — in Act 2 only — the
+buyer's name is simply absent from the yard sign. Every "a figure is there"
+reveal uses the same grounded silhouette (`world/figure.js`), so the presence
+reads as one thing.
+
+### Settling in (Act 1)
+
+The night has small chores — unpack at the dresser, wash up at the shower —
+that guide you toward bed without ever gating it: a player who walks straight to
+the bed still sleeps immediately (Act 2 just has a thinner profile to work with).
 
 ### 3. The Director learns you
 
