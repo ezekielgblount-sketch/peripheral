@@ -33,15 +33,16 @@ export class Director {
     this.timer -= dt;
     if (this.timer > 0) return;
     this.timer = this._nextInterval();
-    this._armOne(player);
+    this._armOne(player, act);
   }
 
-  _armOne(player) {
+  _armOne(player, act) {
     player.eyePosition(this._eye);
     const candidates = [];
     let wsum = 0;
     for (const p of this.props.list) {
       if (p.anomaly.state !== State.DORMANT) continue;
+      if (p.actOnly && p.actOnly !== act) continue; // e.g. the Act 2 yard sign
       p.getAnchor(this._anchor);
       const neglect = this.profile.neglectFor(this._eye, this._anchor);
       // avoid arming something the player is staring straight at right now

@@ -31,6 +31,13 @@ if you deploy to a user/organization root page.
 
 `WASD` move · mouse look · `Shift` walk slower · `E` interact · `Esc` pause.
 
+## Your name
+
+The **BUYER** line on the menu is optional. If you fill it in, it's kept only in
+your browser's `localStorage` (`peripheral.buyer`) and painted once on the yard
+sign outside — it is never sent anywhere and never leaves your machine. Leave it
+blank and the sign reads `NEW OWNER`.
+
 ## The two acts
 
 1. **Settling in.** You arrive on the path in flat grey daylight. Walk to the

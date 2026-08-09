@@ -152,6 +152,11 @@ export class Acts {
     this._wakeT = 0;
     this.g.player.setFlashlight(true);
 
+    // clear any Act 1 anomalies, then arm the Act-2-only yard sign so it drops
+    // to its blank state while the player is inside / not looking at it.
+    for (const p of this.g.props.list) p.anomaly.forceNormal();
+    this.g.signage.yardSign.anomaly.arm();
+
     this.g.audio.setCrickets(true);        // will be gated by proximity
     this.breakerIt.enabled = true;
     this.entity.group.visible = false;

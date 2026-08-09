@@ -10,6 +10,7 @@ import { buildHouse } from './world/house.js';
 import { buildYard } from './world/yard.js';
 import { buildLighting, setAct } from './world/lighting.js';
 import { buildProps } from './world/props.js';
+import { buildSignage } from './world/signage.js';
 import { Fovea } from './game/fovea.js';
 import { PlayerProfile } from './game/profile.js';
 import { Director } from './game/director.js';
@@ -70,7 +71,7 @@ class Game {
     });
 
     this.state = 'menu';
-    this.colliders = [...this.house.colliders, ...this.yard.colliders];
+    this.colliders = [...this.house.colliders, ...this.yard.colliders, ...this.signage.colliders];
     this.player.colliders = this.colliders;
 
     this.menu.onStart = () => this.start();
@@ -95,6 +96,10 @@ class Game {
     this.lighting.porch = this.yard.porchLight;
     setAct(this.lighting, 1);
     this.props = buildProps(this.scene, this.house);
+    // Exterior signage. Its two anomaly-capable signs join the anomaly list so
+    // they are updated and (for the realtor portrait) armable by the Director.
+    this.signage = buildSignage(this.scene);
+    this.props.list.push(...this.signage.anomalies);
   }
 
   registerInteractable(obj) {
@@ -105,6 +110,7 @@ class Game {
   // --- state transitions ---
   start() {
     this.audio.resume();       // AudioContext must init on the click
+    this.signage.setBuyer(this.menu.getBuyer()); // paint the name on the yard sign
     this.menu.hideAll();
     this.state = 'playing';
     this.input.requestLock();
