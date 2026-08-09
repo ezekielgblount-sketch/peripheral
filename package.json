@@ -1,0 +1,18 @@
+{
+  "name": "peripheral",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A first-person horror game about what you can see but aren't looking at.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  },
+  "dependencies": {
+    "three": "^0.169.0"
+  }
+}
