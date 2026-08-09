@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { PAL, CRICKET_STOP_DIST, CRICKET_RESUME_DELAY, FOVEA_COS } from '../constants.js';
 import { setAct, powerOn } from '../world/lighting.js';
+import { makeFigure } from '../world/figure.js';
 import { State } from './anomaly.js';
 
 // Act flow: Act 1 (settling in), the transition, Act 2 (the power), and the
@@ -24,12 +25,8 @@ export class Acts {
   }
 
   _buildEntity() {
-    const box = (w, h, d) => new THREE.Mesh(new THREE.BoxGeometry(w, h, d),
-      new THREE.MeshStandardMaterial({ color: 0x0a0a09, roughness: 1, metalness: 0 }));
-    const g = new THREE.Group();
-    const torso = box(0.45, 1.25, 0.28); torso.position.y = 1.0; g.add(torso);
-    const head = box(0.28, 0.32, 0.26); head.position.y = 1.78; g.add(head);
-    const anchor = new THREE.Object3D(); anchor.position.y = 1.4; g.add(anchor);
+    const g = makeFigure({ scale: 1.02, color: 0x070706 });
+    const anchor = g.userData.anchor;
     g.visible = false;
     this.g.scene.add(g);
     this.entity = {

@@ -44,24 +44,36 @@ export function buildYard() {
     step.position.set(6, 0.06 - (i + 1) * 0.12, -1.7 - i * 0.35);
     group.add(step);
   }
-  // porch posts + railing
+  // porch posts (tall enough to carry the roof) + railing
   for (const px of [4.7, 7.3]) {
-    const post = box(0.12, 2.2, 0.12, matWood);
-    post.position.set(px, 1.1, -1.7);
+    const post = box(0.12, 2.45, 0.12, matWood);
+    post.position.set(px, 1.225, -1.7);
     post.castShadow = true;
     group.add(post);
   }
   const rail = box(2.86, 0.08, 0.08, matWood);
   rail.position.set(6, 0.9, -1.7);
   group.add(rail);
+  // front beam across the posts, just under the roof
+  const beam = box(3.0, 0.14, 0.12, matWood);
+  beam.position.set(6, 2.36, -1.7);
+  group.add(beam);
+  // porch roof: a flat overhang so the door and bulb are sheltered
+  const roof = box(3.4, 0.12, 2.1, matWood);
+  roof.position.set(6, 2.5, -0.85);
+  roof.castShadow = true;
+  group.add(roof);
 
-  // porch bulb (Act 2 will light this; starts off)
+  // porch bulb, hung from the roof underside on a short stem (Act 2 lights it)
+  const stem = box(0.02, 0.16, 0.02, matWood);
+  stem.position.set(6, 2.36, -0.5);
+  group.add(stem);
   const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8),
     new THREE.MeshBasicMaterial({ color: PAL.pale }));
-  bulb.position.set(6, 2.3, -0.4);
+  bulb.position.set(6, 2.25, -0.5);
   group.add(bulb);
   const porchLight = new THREE.PointLight(PAL.warm, 0, 6, 2);
-  porchLight.position.set(6, 2.25, -0.5);
+  porchLight.position.set(6, 2.2, -0.5);
   group.add(porchLight);
 
   // ---- perimeter fence (with a gap for the path at the front) ----

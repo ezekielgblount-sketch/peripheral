@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { PAL } from '../constants.js';
 import { Anomaly } from '../game/anomaly.js';
 import { makeDoor } from './house.js';
+import { makeFigure } from './figure.js';
 
 // Every prop in the house. Eight of them are anomaly-capable: each has an
 // instantaneous setOff()/setNormal() and an anchor point the fovea math uses.
@@ -40,8 +41,10 @@ export function buildProps(scene, house) {
   // sofa
   {
     const g = new THREE.Group();
-    const base = box(2.0, 0.4, 0.8, M.cloth); base.position.y = 0.25; g.add(base);
+    const base = box(2.0, 0.4, 0.8, M.cloth); base.position.y = 0.2; g.add(base); // seat sits on the floor
     const back = box(2.0, 0.5, 0.2, M.cloth); back.position.set(0, 0.6, -0.3); g.add(back);
+    const armL = box(0.2, 0.5, 0.8, M.cloth); armL.position.set(-0.9, 0.35, 0); g.add(armL);
+    const armR = box(0.2, 0.5, 0.8, M.cloth); armR.position.set(0.9, 0.35, 0); g.add(armR);
     g.position.set(2.2, 0, 1.2); g.rotation.y = 0; group.add(g);
   }
   // low table
@@ -195,12 +198,13 @@ export function buildProps(scene, house) {
   {
     const g = new THREE.Group();
     const plane = box(0.6, 0.8, 0.02, M.mirror); plane.userData.noOcclude = true; g.add(plane);
-    // the shape lives just "inside" the mirror (behind the plane), hidden normally
-    const shape = new THREE.Group();
-    const torso = box(0.24, 0.5, 0.08, M.shadow); torso.position.set(0.02, 0.0, -0.12); shape.add(torso);
-    const head = box(0.16, 0.18, 0.08, M.shadow); head.position.set(0.02, 0.34, -0.12); shape.add(head);
+    // The reflection: the same figure as everything else, standing "in" the
+    // mirror. It is placed so the mirror opening frames it chest-up; its feet
+    // are on the ground behind the plane, so nothing floats.
+    const shape = makeFigure({ scale: 0.62 });
+    shape.position.set(0, -1.5, -0.35); // mirror group sits at y=1.5, so feet land near the floor
     shape.visible = false; g.add(shape);
-    const anchor = new THREE.Object3D(); anchor.position.set(0, 0.1, -0.05); g.add(anchor);
+    const anchor = new THREE.Object3D(); anchor.position.set(0, 0.05, -0.2); g.add(anchor);
     g.position.set(0.09, 1.5, 6.8); g.rotation.y = Math.PI / 2; group.add(g); // west wall of bathroom
     anomalyProp({
       root: g, room: 'bathroom', anchor,
@@ -224,12 +228,10 @@ export function buildProps(scene, house) {
     g.position.set(10.4, 0, 8.2); group.add(g);
     house.bedMesh = g;
   }
-  // bedroom WINDOW shape (ANOMALY): empty yard -> a shape in the treeline
+  // bedroom WINDOW shape (ANOMALY): empty yard -> a figure in the treeline
   {
     const g = new THREE.Group();
-    const shape = new THREE.Group();
-    const torso = box(0.4, 1.2, 0.3, M.shadow); torso.position.y = 0.9; shape.add(torso);
-    const head = box(0.28, 0.3, 0.28, M.shadow); head.position.y = 1.7; shape.add(head);
+    const shape = makeFigure({ scale: 1.0 });
     shape.visible = false; g.add(shape);
     const anchor = new THREE.Object3D(); anchor.position.y = 1.2; g.add(anchor);
     g.position.set(13.6, 0, 7.8); group.add(g); // outside, in the east treeline beyond the window
