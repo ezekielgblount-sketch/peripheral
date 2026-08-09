@@ -172,7 +172,7 @@ class Game {
 
   _updateInteractables() {
     const eye = this.player.eyePosition();
-    let best = null, bestDot = 0.86; // must be roughly looked-at
+    let best = null, bestDot = 0.8; // must be roughly looked-at (~37deg cone)
     for (const it of this.interactables) {
       if (it.enabled === false) continue;
       const d = it.position.distanceTo(eye);

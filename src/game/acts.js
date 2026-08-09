@@ -45,8 +45,8 @@ export class Acts {
   _registerInteractables() {
     // bed ends Act 1
     this.bedIt = this.g.registerInteractable({
-      position: this.g.house.anchors.bed.clone().add(new THREE.Vector3(0, 0.6, 0)),
-      radius: 1.8,
+      position: this.g.house.anchors.bed.clone().add(new THREE.Vector3(0, 0.75, 0)),
+      radius: 2.0,
       label: 'Sleep',
       enabled: false,
       onInteract: () => this._endAct1(),
