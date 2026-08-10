@@ -82,6 +82,72 @@ hallway into one walkable loop.
 
 ---
 
+## Session — 2026-08-10 — unattended overnight build, STAGE 3 (cut doorways)
+
+**Did:**
+- Chose door height **210uu** (leaving a 40uu header strip below the 250uu
+  ceiling). Reasoning: no number is given anywhere in the spec/handoff for
+  this, so this is a judgment call — 210uu is a standard real-world door-height
+  proportion (matches ~2.1m, a normal residential door) and leaves enough
+  header room above it to read visually as a proper opening with a lintel once
+  door frames/leaves go in during the Stage 6 door Blueprint work, rather than
+  a floor-to-ceiling gap that would look wrong with a frame inserted later.
+  Opening width is the one fixed number from the spec: 90uu.
+- Mechanically, cut each shared wall into 3 pieces (2 full-height side jambs,
+  Z[0,250], + 1 header spanning the opening's width at Z[210,250]) by
+  `remove_from_scene` on the original wall actor, then `add_to_scene_from_class`
+  ×3 (or ×5 where a single wall needed two separate openings — see below),
+  each new piece getting the same mesh/material setup as Stage 2
+  (`SM_Cube` + `OverrideMaterials[M_PrototypeGrid]`) and filed into the same
+  `Blockout/<Room>` folder the original wall belonged to. Named
+  `Wall_<Room>_<Side>_JambX`/`_HeaderX`.
+- **Two walls needed two separate openings each, not one**: `Wall_Hallway_W`
+  borders both Bathroom (Y600-1000) and Study (Y1000-1400) along its full
+  Y300-1400 span, and `Wall_Hallway_E` borders both Bedroom and Utility the
+  same way. Each of those became **5 pieces** (jamb / header / middle-pier
+  jamb / header / jamb) instead of 3 — the general instruction's "3 pieces"
+  assumed one opening per wall, which doesn't hold for the hallway's long
+  side walls. Everywhere else, one opening per wall as expected (3 pieces).
+- Verified a sample of the new header pieces with `get_actor_bounds` after
+  creation (3 spot-checks across different rooms/orientations) — all matched
+  the intended opening X/Y span and Z[210,250] exactly.
+- **Openings cut, by center coordinate** (all 90uu wide, header Z210-250):
+  - Hallway ↔ Bathroom: shared wall at X=450, opening centered **Y=800**
+    (Y[755,845]) — cuts `Wall_Hallway_W` (one of its two) and `Wall_Bathroom_E`.
+  - Hallway ↔ Bedroom: shared wall at X=750, opening centered **Y=800**
+    (Y[755,845]) — cuts `Wall_Hallway_E` (one of two) and `Wall_Bedroom_W`.
+  - Hallway ↔ Study: shared wall at X=450, opening centered **Y=1200**
+    (Y[1155,1245]) — cuts `Wall_Hallway_W` (the other of two) and `Wall_Study_E`.
+  - Hallway ↔ Utility: shared wall at X=750, opening centered **Y=1200**
+    (Y[1155,1245]) — cuts `Wall_Hallway_E` (the other of two) and `Wall_Utility_W`.
+  - Entry ↔ Hallway: shared wall at Y=300, opening centered **X=600**
+    (X[555,645]) — cuts `Wall_Entry_N` and `Wall_Hallway_S`.
+  - Entry ↔ Living room: shared wall at X=450, opening centered **Y=150**
+    (Y[105,195]) — cuts `Wall_Entry_W` and `Wall_LivingRoom_E`.
+  - Entry ↔ Kitchen: shared wall at X=750, opening centered **Y=150**
+    (Y[105,195]) — cuts `Wall_Entry_E` and `Wall_Kitchen_W`.
+  - Front door (Entry ↔ exterior, exterior not built): Entry's south wall,
+    opening centered **X=600** (X[555,645]) — cuts `Wall_Entry_S` only, no
+    matching cut on the far side since there's nothing built there yet. No
+    door-frame prop, per instruction (Stage 6 handles that separately).
+- **Room-connectivity graph after all cuts**: Entry connects to Living room,
+  Kitchen, Hallway, and the exterior (front door). Hallway connects to Entry,
+  Bathroom, Bedroom, Study, and Utility. Every room is reachable from Entry
+  in one hop except the two behind the hallway's far cuts, which are also one
+  hop from Hallway — so at most two hops from Entry to any room. Confirmed
+  fully connected, no isolated rooms, no dead-end walkable pockets.
+- Saved and confirmed via `git status`: 43 new external-actor packages (the
+  replacement segments) and 13 deletions (the original sealed walls that got
+  cut), no unexpected changes elsewhere.
+
+**Blocked / not resolved:** nothing this stage.
+
+**Pushed:** no — local commit only, human should review before pushing.
+
+**Next:** Stage 4 — placeholder lighting for the 7 new rooms.
+
+---
+
 ## Session — 2026-08-10 — unattended overnight build, STAGE 1 (anomaly bug fix)
 
 Human is offline for the rest of this session. Working the numbered stages
