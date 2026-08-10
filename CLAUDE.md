@@ -175,6 +175,13 @@ startle. This one's unchanged.
   log, check `git diff`, and decide before it goes to the remote.
 - One driver at a time. Unreal has no live multi-user editing. Discord call, one
   person streams and drives, everyone else feeds ideas.
+- **Only the Unreal-connected session commits `unreal/`.** A second Claude session
+  working the same local checkout in parallel (docs, chat-driven git ops, whatever)
+  must not `git add`/`commit` anything under `unreal/` — that session doesn't know
+  about OFPA's save lag (external-actor package files can land on disk a beat
+  *after* the main asset save) and can commit a level mid-write. Root-level docs
+  (`CLAUDE.md`, `FEATURE_LIST.md`, `AGENT_LOG.md`, etc.) are fine from either
+  session, same rule as always — commit locally, ask before pushing.
 - Push when you finish a chunk, say so in chat, next person pulls before starting.
 - `.uasset` and `.umap` are binary and **cannot be merged**. If two people edit the
   same asset, one version wins. This is why push-then-pull is a rule, not a habit.
