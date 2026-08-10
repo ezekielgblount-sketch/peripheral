@@ -10,6 +10,145 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-10 — playtest fix ITEM 1 (exterior yard content)
+
+Second of tonight's two playtest fixes, done after item 2 (blocked doorway,
+separate commit) per instruction. Read `PERIPHERAL_UNREAL_HANDOFF.md` §6
+for the original treeline/gravel-path/porch description before building —
+human wants the same grey-box primitive approach used everywhere else
+tonight, not the full polish pass that section describes.
+
+**Lighting verification — genuinely broken, fixed as a prerequisite before
+placing anything:**
+- Confirmed `BP_DayNightDebug`'s `bIsNight` was `false` (day state, the
+  correct default) and the live `DirectionalLight_0`/`SkyLight_0` actors
+  matched the documented "Day" preset (Intensity 6 and 1 respectively).
+  So the day/night toggle itself wasn't the problem — the "day" preset
+  values themselves were.
+- Took an actual viewport screenshot from inside the yard
+  (`EditorAppToolset.CaptureViewport`) before placing anything, per
+  instruction not to dress a space nobody can see: **confirmed pitch
+  black** — only an editor-only actor-icon sprite was visible, nothing of
+  the ground/fence/sky rendered at all.
+- Root cause: the "Day" preset values (6 lux / 1 for sky) are extremely
+  dim in absolute terms — plausible as a leftover placeholder from before
+  the interior rooms' own `PointLight`s (15000 lumens each) became the
+  project's real light source, since interior rooms never depended on the
+  sun/sky at all. Nobody had ever pointed a camera outside to notice.
+  Iteratively raised both via `ObjectTools.set_properties` and re-captured
+  the viewport after each change (screenshots decoded from the tool's
+  base64 payload via a PowerShell helper script, since the raw MCP
+  response is too large to return inline) until the exterior actually
+  read as daylight: ground and sky visible immediately; the house's
+  south-facing exterior wall stayed pure black even at `DirectionalLight
+  8000` because it's outside the sun's direct-light azimuth (confirmed by
+  computing the light's forward vector from its rotation — sun arrives
+  from the west/north, so south- and east-facing walls get zero direct
+  light, physically correct) — it only became visible once `SkyLight`
+  (the omnidirectional ambient fill) was raised to `400`. Final values:
+  `DirectionalLight_0` Intensity **6 → 8000**, `SkyLight_0` Intensity
+  **1 → 400**. Confirmed via repeated screenshots from multiple sides of
+  the house (south wall, east wall) that no exterior face renders as pure
+  black anymore.
+- **Also updated `BP_DayNightDebug`'s hardcoded day-preset constants**,
+  not just the live scene actors — the F10 toggle's `ApplyDayNight`
+  function had its own `MakeLiteralFloat` nodes feeding the day/night
+  `Select` nodes (found via `find_nodes`/`get_node_infos`, confirmed
+  which `Select` `Option` pin was the "day" value against the DSL's
+  `(select isNight nightVal dayVal)` semantics — matches the project's
+  established convention, verified against the same node type an earlier
+  session had already checked). Without this fix, pressing F10 twice
+  (night then back to day) would have silently reset the yard to
+  pitch-black again. Used `set_pin_value` on the two `MakeLiteralFloat`
+  nodes directly (6.0→8000.0, 1.0→400.0) rather than `write_graph_dsl`,
+  since it was unclear whether a full-graph DSL rewrite would cleanly
+  replace the existing function body or duplicate nodes — a scoped pin
+  edit avoided that risk entirely. Left the night-preset values (0.05
+  each) and the point-light day/night values untouched — out of scope.
+  Recompiled the Blueprint after.
+
+**Content built, all under `Blockout/Yard` (existing folder), all
+`M_FlatCol`-derived instances already in the project, no new materials or
+imported assets:**
+- **12 conifer trees** (cone + cylinder per tree, via a batched
+  `ProgrammaticToolset` script rather than 24 individual placement calls):
+  cone = `/Engine/BasicShapes/Cone` (confirmed center-pivoted on all 3 axes
+  by placing a test instance and reading its bounds back), material
+  `MI_Anomaly_Dark` (the palette's darkest tone, `#1A1916`); trunk =
+  `SM_Cylinder` (center-pivoted X/Y, min-corner Z — the established
+  convention from tonight's furniture pass), material `MI_Floor_Dark`.
+  Base dimensions trunk 26⌀×65 tall, foliage 85⌀×125 tall, each tree
+  individually scaled by a manually-varied multiplier (0.8–1.2, no two
+  the same) since there's no RNG available in this scripted context —
+  manual variation substitutes for it. Placed denser toward the east yard
+  edge (facing the bedroom, X[750,1200]) and along the north/back edge
+  (high Y), sparser west, per instruction; confirmed against the fence's
+  actual measured extent (`X[-500,1700] Y[-900,1700]`, read from the
+  fence actors' bounds rather than assumed) so no tree clips through the
+  perimeter.
+- **Gravel path**: single flat `SM_Cube` slab, `MI_Ceiling_Pale` (the
+  palette's palest tone, reads clearly distinct from the ground's
+  `MI_Floor_Dark`), running from the handoff spec's converted exterior
+  spawn anchor (`(600,-600)`) up to the bottom porch step at `Y=-105`,
+  100uu wide (`X[550,650]`), sitting 0.5uu proud of the yard ground's own
+  top face (same anti-Z-fighting trick tonight's earlier yard session used
+  for the ground-vs-interior-floor seam). Confirmed the south fence
+  already has a gap here (`X[500,700]`, well clear of the path) before
+  assuming it, per instruction.
+- **Front porch**, centered on `X=600` (the door's own center) and flush
+  against the house's south wall face at `Y=-15` (confirmed via the actual
+  `Wall_Entry_S_Jamb/Header` actor bounds rather than assumed): 3 ascending
+  `SM_Cube` steps (120 wide, treads 90/60/30uu deep, total rise 9uu — kept
+  deliberately small since the real gap between yard ground `Z=-1` and the
+  interior floor `Z=0` is only 1uu; a physically-accurate stair would be
+  imperceptible, so this is a stylized "stoop" sized to read clearly rather
+  than match the literal 1uu threshold), two posts (`SM_Cube`, 15×15
+  footprint, 231 tall), a beam spanning their tops, and a flat roof
+  overhang (180×100, 15 thick) extending from the posts back to the wall
+  face — plus a thin railing on each side connecting post to house wall at
+  hand-rail height. All porch pieces use `MI_Wall_Light`. Did **not** move
+  `PlayerStart_0` — confirmed its transform first (`(600,150,110)`,
+  unchanged from Stage 5) and left it alone, per instruction; it's an
+  interior-testing spawn point, unrelated to this exterior decoration pass.
+- Verified visually, not just by bounds math: viewport screenshots from
+  several angles (trees against the sky near the east yard edge, path
+  leading up to the porch head-on, porch interior looking back at the
+  house's front door) all read correctly — path clearly distinct in tone
+  from the ground, porch proportioned reasonably against the 90uu-wide
+  doorway, trees read as legible dark conifer silhouettes.
+
+**Blocked / not resolved:** nothing. The lighting fix was the one
+prerequisite blocker and it's resolved and verified.
+
+**Saved and verified**: `AssetTools.save_assets([])`; `is_dirty` false on
+both the level and `BP_DayNightDebug`; `git status` shows the expected
+changes only (`BP_DayNightDebug.uasset`, the two light actors' external-
+actor packages, and new external-actor packages for the 12 trees × 2
+pieces + 10 porch/path pieces = 34 new actors).
+
+**Pushed:** no — local commit only, per the standing rule. Human should
+review before pushing.
+
+**This one especially benefits from a human PIE/visual pass** — everything
+here was checked via editor-viewport screenshots and bounds math, never an
+actual player walkthrough:
+- The exterior brightness (`DirectionalLight 8000` / `SkyLight 400`) was
+  tuned by eye against single-frame editor captures, not a live PIE session
+  — worth a real walk outside to confirm it doesn't feel too bright/flat
+  for the game's intended mood (this is still meant to be a *dim*, uneasy
+  game per `CLAUDE.md`; "not pitch black" was tonight's bar, not "well-lit").
+  The values only affect the day preset — night is untouched.
+  Also worth deciding whether this exterior brightness level is the right
+  long-term choice or just enough to unblock tonight's grey-box pass.
+- Tree placement pattern (denser east/north) and scale variation are a
+  first-pass judgment call, easiest to evaluate by eye in PIE walking the
+  yard perimeter.
+- The porch's 9uu step rise is a deliberate stylization (see above) —
+  worth confirming it doesn't look like a jarring floating step in person
+  rather than just in a static screenshot.
+
+---
+
 ## Session — 2026-08-10 — playtest fix ITEM 2 (blocked west-side doorway)
 
 Human is actively playtesting tonight and reported two issues after the last
