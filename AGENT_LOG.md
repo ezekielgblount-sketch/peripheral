@@ -144,6 +144,93 @@ than claim it "looks right" from headless inspection alone.
 
 ---
 
+## Session — 2026-08-10 — unattended overnight build, NEXT_TASKS #3 (peripheral-vision post-process)
+
+Nothing existed for this before tonight — movement, rooms, and one anomaly's
+logic only. Read `CLAUDE.md`'s "Peripheral vision technique" section first per
+instruction, since it explicitly supersedes the original handoff spec's
+radial-blur/fully-sharp-centre model.
+
+**Did:**
+- Created `PP_PeripheralVision` (`/Game/LevelPrototyping/Materials/`), set
+  `materialDomain = MD_PostProcess`, `blendableLocation = BL_AfterTonemapping`.
+  Added it to the existing `PPV_Global` volume's `settings.weightedBlendables`
+  array (weight 1.0) via `ObjectTools.set_properties` — did **not** create a
+  second volume. Verified after the edit that `bUnbound` and every earlier
+  zeroed override (bloom, lens flare, motion blur, chromatic aberration, film
+  grain — all still `0` with their override flags still `true`) are untouched.
+- Discovered the exact pin names for every node type before wiring anything,
+  via `get_expression_input_names`/`get_expression_output_names` on one
+  instance of each class first (`ScreenPosition`, `SceneTexture`,
+  `Desaturation`, `ComponentMask`, `LinearInterpolate`, `SceneTexelSize`,
+  `Constant`/`Constant2Vector`/`Constant3Vector`, `Add`/`Subtract`/`Multiply`/
+  `Divide`/`AppendVector`/`Length`/`Saturate`) rather than guessing — several
+  are non-obvious: `ComponentMask`/`Length`/`Saturate`'s single input pin
+  reports as the literal string `"None"`, not an empty string, and
+  `Desaturation`'s color input is the same `"None"` name with a separate
+  `"Fraction"` pin alongside it.
+- Built the full graph (~50 `MaterialExpression` nodes) in two
+  `ProgrammaticToolset` script passes:
+  1. **Radial degradation driver**: `ScreenPosition.ViewportUV` minus a
+     (0.5,0.5) constant gives screen-centered coords; aspect-corrected by
+     multiplying the X component by `SceneTexelSize.R / SceneTexelSize.G`
+     (texel-size ratio = width/height) so the falloff reads circular rather
+     than stretched to the screen's aspect ratio; `Length` of that vector,
+     divided by a 0.6 max-radius constant, saturated to `t` in 0-1.
+     **Degradation = Lerp(0.35, 1.0, t)** — confirmed by reading back the two
+     `Constant` nodes wired to the Lerp's A/B pins (0.35 and 1.0, not
+     swapped) that centre (t=0) never drops below 35% degradation, i.e.
+     clarity caps at ~65% even dead centre — this is the exact detail the
+     brief flagged as easy to get wrong by copying the handoff spec's
+     unclamped version.
+  2. **Detail reduction, driven by that single degradation value, not a flat
+     blur**: a cheap 5-tap box blur (centre + 4 cardinal `SceneTexture`
+     samples at `PPI_PostProcessInput0`, offset by texel-size × a blur radius
+     that itself scales 2→9 texels with degradation) blended against the
+     sharp centre tap; a `Desaturation` node whose `Fraction` is degradation
+     × 0.55 (capped, never fully grey); a final `Lerp` toward mid-grey
+     (0.5/0.5/0.5) at degradation × 0.45 for contrast reduction. Every stage
+     caps below 100% specifically so silhouettes stay legible even at the
+     extreme screen edge, per the "preserving silhouettes" requirement in
+     `CLAUDE.md`. Output wired to `MP_EmissiveColor`.
+- `MaterialTools.recompile` succeeded with no shader errors on the first
+  attempt after full wiring — no iteration needed.
+- Took an editor-viewport screenshot (`EditorAppToolset.CaptureViewport`,
+  camera placed mid-hallway) as a sanity check that the effect is actually
+  live, not just compiling silently — periphery (side walls near the frame
+  edges) is visibly softer/blurrier than the centre in the capture, which is
+  the expected signature of this effect. This is **not** a substitute for a
+  real PIE pass — it doesn't confirm the blur/desaturation balance feels
+  right, whether it reads as "detail reduction" rather than "blur" at a
+  glance, or how it behaves with actual player look-around motion, only that
+  the material is doing something and not silently no-op'ing or rendering
+  black.
+- Saved; `git status` showed exactly 2 changes: the new
+  `PP_PeripheralVision.uasset` and `PPV_Global`'s external-actor package
+  (the new blendable reference) — nothing else touched.
+
+**Blocked / not resolved:** nothing structurally, but per the brief this task
+explicitly cannot be fully verified headlessly.
+
+**Pushed:** no — local commit only (`57751bd`), human should review before
+pushing per the standing rule.
+
+**Needs a human PIE pass before trusting this further** (top priority item
+from tonight's whole session to check first): walk through several rooms and
+the hallway, look around at normal speed, and judge whether the degradation
+curve (35% floor at centre, ramping to 100% by ~60% of the way to screen edge)
+feels like "peripheral vision that never resolves" or whether the blur/
+desaturation/contrast weights (2-9 texel blur, 55% max desaturation, 45% max
+contrast-pull) need retuning — none of those specific numbers came from the
+spec, they're a first-pass judgment call per the brief's explicit permission
+to ship "acceptable as v1, can be refined later."
+
+**Next:** task 4 from `NEXT_TASKS.md` — F10 day/night lighting toggle, a debug
+tool (not the real Act 2 system). Reuse `BP_Anomaly`'s F9 `AutoReceiveInput`/
+raw `InputKey` pattern per the brief's pointer.
+
+---
+
 ## Session — 2026-08-10 — unattended overnight build, STAGE 6 (BP_Door)
 
 Continuing the numbered stages, same unattended rules. Human asked specifically
