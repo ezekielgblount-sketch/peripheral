@@ -1,0 +1,83 @@
+# Next Tasks — queued, not yet started
+
+Read this after finishing whatever's currently in progress (check `AGENT_LOG.md`
+for the most recent session to see where things stand). Work top to bottom,
+same discipline as the last overnight run: commit after each numbered task,
+write an `AGENT_LOG.md` entry per task, don't push, don't stop to ask for
+confirmation unless something is genuinely ambiguous enough to guess wrong.
+
+Avoid creating Blueprint enums via the asset factory — known to freeze the
+editor. Plain int/byte variables instead, same pattern already used in
+`BP_Anomaly`.
+
+---
+
+## 1. Delete leftover First Person template practice geometry
+
+The stock template ships with ~55 demo/practice objects (`SM_Cube`,
+`SM_Cylinder`, `SM_QuarterCylinder`, `SM_Ramp` instances, from the very first
+actor inventory taken when MCP access was first verified) — an obstacle
+course that was never part of our house design. `PlayerStart` now sits at
+Entry's centre (moved there in Stage 5 of the last session) and a human
+tester got physically boxed into a corner by this leftover junk — no jump
+exists by design, so this is a hard blocker, not cosmetic.
+
+Identify actors NOT under our own organizational outliner folders (our
+geometry is grouped — hallway under `Blockout/Hallway`, the 7 new rooms under
+whatever folder naming the last session used, the anomaly under
+`Anomalies`). Delete everything else matching those stock class names.
+Double-check `PlayerStart`'s surroundings specifically are clear after
+deletion — walk/trace a short radius around it and confirm nothing solid is
+overlapping.
+
+---
+
+## 2. Build the actual peripheral-vision post-process pass
+
+This hasn't been built at all yet — everything so far is movement, rooms,
+and one anomaly's logic. This is the single most recognizable piece of the
+whole game (the "eerie edges" effect from the web prototype) and it's
+currently completely absent. `PPV_Global` already exists and is already
+`Unbound` with UE's default junk (bloom/lens flare/etc.) zeroed — build on
+top of that volume, don't create a second one.
+
+Read `CLAUDE.md`'s "Peripheral vision technique" section first — full spec
+of what's changed from the original handoff doc. Key points to implement:
+
+- **Detail-reduction, not blur** — reduce contrast and saturation toward
+  screen edges rather than a literal box/gaussian blur. A practical first
+  pass: modest blur + reduced contrast + reduced saturation together reads
+  close enough to "can't resolve detail" without needing a true edge-
+  preserving custom shader — acceptable as v1, can be refined later.
+- **Radial falloff from screen centre** — use `ViewportUV`/screen position
+  in a Post Process Material, distance from centre (aspect-corrected) drives
+  a 0–1 "degradation amount" parameter.
+- **Nothing ever reaches full clarity, even dead centre.** This is the part
+  that's easy to get wrong by copying the original handoff spec's algorithm
+  verbatim — that version goes to 0% degradation at centre. **Clamp the
+  degradation parameter so it never drops below roughly 30–40% even at
+  r=0** (i.e., centre clarity caps around 60–70%, never 100%).
+- No specular/highlight interaction needed here — this is a fullscreen pass,
+  separate from the material-level specular fix already done.
+
+Verify by hand once built (this one genuinely needs eyes on it, unlike the
+anomaly logic) — but don't block the rest of this file on that, note it as
+needing a visual check in `AGENT_LOG.md` and move on to task 3.
+
+---
+
+## 3. Day/night lighting toggle (debug tool, not final Act 1/2 systems)
+
+A simple debug keybind — **F10** (F9 is already the anomaly force-arm) —
+that swaps between two lighting presets for testing/preview purposes only.
+Not the full Act 2 system (no flashlight, no breaker box, no power-restore
+sequence — those are much bigger separate features, out of scope here).
+
+- **Day preset** (current default): existing lighting as-is.
+- **Night preset**: drop `DirectionalLight` intensity near zero, drop
+  `SkyLight` intensity, dim or disable the room `PointLight`s added in
+  Stage 4. Toggling F10 flips between the two instantly (no fade needed,
+  this is a debug tool, not a gameplay moment).
+
+Keep it dumb and simple — a bool + two hardcoded intensity sets. This is for
+previewing what dark will look like, not the real implementation.
