@@ -4,27 +4,27 @@ dist
 *.log
 .vite
 
-# ── Unreal Engine 5 (unreal/) ────────────────────────────────────
+# ── Unreal Engine 5 (unreal/Peripheral/) ──────────────────────────
 # Generated locally on every machine. Committing these bloats the
 # repo enormously and causes merge conflicts constantly.
-unreal/Binaries/
-unreal/Build/
-unreal/DerivedDataCache/
-unreal/Intermediate/
-unreal/Saved/
-unreal/.vs/
-unreal/*.sln
-unreal/*.suo
-unreal/*.opensdf
-unreal/*.sdf
-unreal/*.VC.db
-unreal/*.VC.opendb
-unreal/Plugins/**/Binaries/
-unreal/Plugins/**/Intermediate/
+unreal/Peripheral/Binaries/
+unreal/Peripheral/Build/
+unreal/Peripheral/DerivedDataCache/
+unreal/Peripheral/Intermediate/
+unreal/Peripheral/Saved/
+unreal/Peripheral/.vs/
+unreal/Peripheral/*.sln
+unreal/Peripheral/*.suo
+unreal/Peripheral/*.opensdf
+unreal/Peripheral/*.sdf
+unreal/Peripheral/*.VC.db
+unreal/Peripheral/*.VC.opendb
+unreal/Peripheral/Plugins/**/Binaries/
+unreal/Peripheral/Plugins/**/Intermediate/
 
 # MCP client config — machine-specific, regenerate per machine with:
 # ModelContextProtocol.GenerateClientConfig ClaudeCode
-unreal/.mcp.json
+unreal/Peripheral/.mcp.json
 
 # OS noise
 Thumbs.db

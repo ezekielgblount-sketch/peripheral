@@ -78,7 +78,7 @@ animation. One frame. It must look like it was never anything else.
 ## Conventions
 
 ```
-unreal/
+unreal/Peripheral/       (.uproject lives here — this is the project root)
   Content/
     Blueprints/    BP_Anomaly (base), BP_Director, BP_PeripheralCharacter
     Components/    FoveaComponent, PlayerProfileComponent
