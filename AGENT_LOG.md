@@ -10,6 +10,83 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-10 — playtest fix: blocked Hallway-Utility doorway (back room, same failure mode as Entry-Hallway)
+
+Fresh session, no memory of prior ones — bootstrapped from `CLAUDE.md` +
+this file per instruction. Given two bug reports (a sealed-off back-left
+room, a misplaced garage). This entry covers the first.
+
+**Diagnosis, not assumption:** the brief specifically asked to check
+whether this was the same failure mode as the earlier Entry-Hallway bug
+(a replacement door-frame added on top of an un-deleted original wall)
+before doing anything else.
+
+- Identified the room layout from this file's Stage 2/3 entries: Entry/
+  LivingRoom/Kitchen up front, Bathroom/Bedroom in the middle, Study/
+  Utility at the back (Y[1000,1400], the house's north wall). Checked
+  **Study** first as the "back-left" candidate — bounds and a live
+  `trace_world` both came back completely clean, matching the pattern of
+  every working doorway (closed-door trace hits at distance 16, matching
+  the leaf's near face; this exact doorway was also already confirmed
+  clean+live-tested in the prior playtest-fix session, commit `c834c9c`).
+- Since the room I guessed didn't reproduce the bug, ran a **full fresh
+  PIE sweep of all 7 doors** rather than guess again (per instruction):
+  scripted, for each door, teleport the player pawn within 150uu,
+  confirm `bPlayerNearby`, press E (`SlateInspectorToolset.PressKey`),
+  read back `bIsOpen`/`currentYaw`, trace across the opening, press E
+  again to close, trace again. 6 of 7 doors passed cleanly (open: no
+  hit; closed: hit at the leaf, distance 16). **`Hallway↔Utility` failed**:
+  even with `bIsOpen=true`/`currentYaw=-90` (door genuinely reporting
+  open), the trace hit something at distance **5** in both the open and
+  closed state — a blockage independent of the door's own state, meaning
+  something other than the door leaf was in the way.
+- Root cause, confirmed via `find_actors` bounds query around the
+  doorway: a leftover, never-deleted **`Wall_Utility_W`** actor, full
+  length, world bounds `X[735,750] Y[1000,1400] Z[0,250]` — the original
+  Stage-2 wall panel, still sitting directly behind/alongside the
+  correctly-cut `Wall_Utility_W_JambS/Header/JambN` replacement pieces
+  from Stage 3. **Exactly the same failure mode as the Entry-Hallway bug**
+  (original wall never deleted when Stage 3 replaced it), just on a
+  different doorway — confirms this wasn't a one-off after all, it's a
+  second miss from the same Stage 3 session.
+- **Fix**: deleted `Wall_Utility_W`
+  (`StaticMeshActor_UAID_D8BBC1A6E88375F602_1819628903`) via
+  `SceneTools.remove_from_scene`. Re-verified with a **fresh** PIE session
+  (not hot-reloaded, per the project's standing rule) re-running the same
+  7-door sweep script: all 7 doors, including Utility, now show identical
+  behavior (open: clear trace; closed: hit at distance 16, matching every
+  other doorway).
+
+**Search for other instances of this bug:** the full 7-door sweep is
+exactly this check, run against every doorway in the project, not just
+the two known-bad ones — no other doorway showed the anomalous
+state-independent blockage.
+
+**Blocked / not resolved:** nothing — root cause found and fixed, verified
+live via a fresh PIE session.
+
+**Saved and verified**: `AssetTools.save_assets([])` after the fix;
+`git status` shows exactly one file deleted (the removed actor's
+external-actor package), nothing else touched.
+
+**Pushed:** no — local commit only, human should review before pushing
+per the standing rule.
+
+**Worth flagging to the human:** the "back-left room" description in the
+original bug report doesn't quite match this room's actual position
+(Utility is the back-**right** room, X[750,1200], under this project's
+established left/right convention — Study, the actual back-left room, is
+fine). Possible the report meant "the last room worked on" or used a
+different left/right convention; either way, the full sweep would have
+caught the bug regardless of which room was named, so it's fixed either
+way. Also worth noting: no Blueprint enum was touched.
+
+**Next:** see the separate entry below for the garage (bug #2), built in
+the same session as a fresh addition since no garage existed anywhere in
+the project prior to this.
+
+---
+
 ## Session — 2026-08-10 — playtest fix ITEM 1 (exterior yard content)
 
 Second of tonight's two playtest fixes, done after item 2 (blocked doorway,
