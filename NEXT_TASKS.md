@@ -32,7 +32,52 @@ overlapping.
 
 ---
 
-## 2. Build the actual peripheral-vision post-process pass
+## 2. Replace the grey placeholder material with real palette colors, add simple room-defining furniture
+
+Every wall/floor/ceiling currently uses `M_PrototypeGrid` — the grey-box
+blockout material. Replace it project-wide with **flat colors from the
+existing 5-color palette**, not textures — `CLAUDE.md`/handoff spec §10 is a
+hard constraint here: matte, no surface detail, no highlights, because any
+texture/glint tells the player where to look and undercuts the entire
+mechanic. Use `M_FlatCol` instances (already fixed for specular=0,
+roughness=1, metallic=0 in an earlier session) in these colors:
+
+| Surface | Color | Hex |
+|---|---|---|
+| Walls | Light | `#B3A78F` |
+| Floors | Dark | `#4E4B44` |
+| Ceilings | Pale | `#E6DFCC` |
+
+Apply consistently across every room, not per-room variation — the palette is
+deliberately uniform, distinctness comes from furniture, not wall color.
+
+**Furniture** — simple primitive shapes (boxes/cylinders combined, same
+approach as the existing hallway/anomaly geometry, no imported assets), one
+or two per room, enough to make each room read as what it is:
+
+- Bedroom: bed (a low wide box + a slightly raised box for the mattress),
+  dresser (a box)
+- Bathroom: toilet (box + cylinder), sink (box + basin shape)
+- Kitchen: counter (box along a wall), table + a couple chairs (boxes)
+- Living room: sofa (box), coffee table (low box)
+- Study: desk (box), bookshelf (tall thin box)
+- Utility: shelving unit (box)
+- Entry: skip, or a small table — it's a pass-through space
+
+**Important — don't collide with future anomaly work.** Several of these
+rooms have specific objects reserved for anomalies later (handoff spec §3):
+the living room's floor lamp and wall portrait, the kitchen chair, the
+bathroom mirror, the bedroom window. If a natural furniture placement would
+be one of those specific objects, place a plain placeholder version with no
+special logic — it gets upgraded into a real anomaly actor in a later
+session, don't build anomaly behavior into it now.
+
+Use the same `M_FlatCol` palette on furniture too (Mid `#7C7870` works well
+for furniture pieces — metal/chairs/mid-tone surfaces per spec §10).
+
+---
+
+## 3. Build the actual peripheral-vision post-process pass
 
 This hasn't been built at all yet — everything so far is movement, rooms,
 and one anomaly's logic. This is the single most recognizable piece of the
@@ -66,7 +111,7 @@ needing a visual check in `AGENT_LOG.md` and move on to task 3.
 
 ---
 
-## 3. Day/night lighting toggle (debug tool, not final Act 1/2 systems)
+## 4. Day/night lighting toggle (debug tool, not final Act 1/2 systems)
 
 A simple debug keybind — **F10** (F9 is already the anomaly force-arm) —
 that swaps between two lighting presets for testing/preview purposes only.
