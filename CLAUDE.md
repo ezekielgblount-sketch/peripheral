@@ -149,15 +149,24 @@ unreal/Isolation/       (.uproject lives here — this is the project root)
 
 ## The "don't" list (spec §13 — still true except where Isolation overrides it)
 
-- No jumpscares, screamer stings, or loud transients. Ever. **(unchanged)**
+- ~~No jumpscares, screamer stings, or loud transients. Ever.~~ **One narrow,
+  explicit exception: the single Act 27 jump scare in `DAY3_FINAL_ACT_SPEC.md` —
+  the game's one and only ending, deliberately justified in that doc as landing
+  hard *because* it's the only violation of this rule in the whole game. Not a
+  precedent for anything else. Everywhere else, including the Day 3 chase itself
+  (Acts 17–19, footsteps + cricket-silence), this rule still holds exactly as
+  written — that sequence reuses the existing quiet dread technique, not a new
+  sting.**
 - No blood, gore, or written lore. **(unchanged)**
 - ~~The entity never chases, touches, or kills the player.~~ **Isolation has a Day 3
   running-footsteps/back-door sequence that reads as chase-adjacent — build to
   Isolation's version. It still never touches/kills the player (that part holds);
-  the "never approaches fast" part doesn't.**
+  the "never approaches fast" part doesn't. See `DAY3_FINAL_ACT_SPEC.md`.**
 - ~~No stamina, inventory, collectibles, or notes.~~ **Isolation's collectible-memory
-  and comfort-item-attrition systems are a core pillar — build them. No stamina, no
-  jump, no crouch, no sprint still hold.**
+  and comfort-item-attrition systems are a core pillar — build them.** No stamina,
+  no jump, no crouch still hold everywhere. ~~No sprint~~ **one narrow exception:
+  Act 19's running-inside sequence in `DAY3_FINAL_ACT_SPEC.md`, player-controlled,
+  scoped to that sequence only — not a general movement-system change.**
 - No post-processing beyond the single peripheral pass — **still true, but see the
   Isolation vision-technique section above for what that pass actually is now.**
 - The buyer's name is local-only... **N/A, Isolation has a named protagonist
@@ -196,7 +205,13 @@ startle. This one's unchanged.
 
 ### Next up
 
-First slice: block out the hallway, strip the First Person template (no gun, no
-jump), and get **one** anomaly running the full five-state machine — anomaly #10,
-the hallway-end figure. Grey box and a black capsule. If the look-away/look-back
-loop feels right, everything else is content.
+First slice (movement, one anomaly's state machine, the full house grey-boxed,
+doors, flashlight, day/night toggle) is done — see `AGENT_LOG.md` for the full
+build history. Currently in the playtesting/bug-fixing pass on that build.
+
+`DAY3_FINAL_ACT_SPEC.md` — the full final-act design, from Ezekiel — is written
+and implementation-ready, but **deliberately not being built yet.** Per the agreed
+build order: prove the core loop, the space, and the visual/audio identity first;
+the big Isolation-scale systems (this spec, collectibles, comfort-item attrition)
+are Phase 4, after the smaller single-evening experience is solid. Don't start on
+it just because it's ready — wait for an explicit go-ahead.
