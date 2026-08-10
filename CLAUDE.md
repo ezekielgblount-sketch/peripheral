@@ -144,8 +144,21 @@ unreal/Isolation/       (.uproject lives here — this is the project root)
 - Anomaly actors implement the base class and override `SetOff()` / `SetNormal()`.
 - `FoveaComponent` is a **service the anomalies pull from** — `GetAngleTo()`,
   `IsOccluded()`. It never pushes state into them.
-- Palette is five colours (spec §10). The Act 2 flashlight warm `#FFE6B8` is the
-  only saturated colour permitted anywhere in the game.
+- ~~Palette is five colours (spec §10). The Act 2 flashlight warm `#FFE6B8` is the
+  only saturated colour permitted anywhere in the game.~~ **Superseded — final
+  palette confirmed twice (`VISUAL_REFERENCE.md`, `HOUSE_ENVIRONMENT_SPEC.md`),
+  zero exceptions, including the flashlight:**
+
+  | Name | Hex |
+  |---|---|
+  | Void Charcoal | `#0B0A08` |
+  | Soot Brown | `#211E1A` |
+  | Dust Taupe | `#49433D` |
+  | Dead Beige | `#776F65` |
+  | Faded Bone | `#C8C1B6` |
+
+  Materials already built against the old palette (`#1A1916` family) need
+  redoing — this is a real, known rework item, not optional cleanup.
 
 ## The "don't" list (spec §13 — still true except where Isolation overrides it)
 
