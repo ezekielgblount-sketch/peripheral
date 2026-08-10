@@ -1,150 +1,108 @@
-# PERIPHERAL — master feature list
+﻿# PERIPHERAL — master feature list
 
-> Supplied verbatim by the user as a consolidated "single source of truth,"
-> intended to supersede build brief 0.1, revision 0.2, and the signage
-> addendum 0.2b. Saved as instructed. **Not reconciled against the shipped
-> build, the other repo docs, or itself** — see the conflict list immediately
-> below before treating any single line here as settled. Nothing was changed
-> in the game or in other docs to match this file; that's a decision for
-> whoever owns the design, not something to resolve silently.
+> Originally supplied as a consolidated "single source of truth" intended to
+> supersede build brief 0.1, revision 0.2, and the signage addendum 0.2b. The
+> conflicts that document raised against the shipped build and the other repo
+> docs were reviewed with the project director in chat and ratified below —
+> **the "Ratified decisions" section is now current**; the "Original
+> document" further down is kept for historical reference and is superseded
+> wherever the two disagree. This is an open PR, not yet merged to `main` —
+> see `AGENT_LOG.md` for the session that produced it.
 
 ---
 
-## ⚠️ CONFLICTS — flagged, not resolved
+## ✅ RATIFIED DECISIONS (this session, in chat — supersedes the section below)
 
-Ranked roughly by how much they change, most consequential first.
+Each numbered item corresponds to the conflict of the same number originally
+raised in this file. Where a decision introduces new scope, that's noted; new
+scope isn't designed in detail here, just recorded as in-scope for follow-up
+work.
 
-### 1. Revision 0.3's status is unclear, and this doc's own text contradicts what's shipped from it
+**1. Flashlight** — limited battery, batteries findable around the house,
+beam widened (not the ~22° in the original doc, and not the current 38°/82°
+either — bigger than both, exact angles TBD at implementation time). No HUD
+battery meter — the tell is diegetic: the beam **flickers** as the battery
+runs low.
 
-The supersession line names build brief 0.1, revision 0.2, and signage
-addendum 0.2b — **revision 0.3 isn't listed**, so it's ambiguous whether 0.3
-still stands or is being quietly walked back. The doc's own content reads
-like the latter, and two of the contradictions are with features added in
-0.3 *at this user's own explicit request earlier in this same conversation*:
+**2, 3, 5 (ending, music, silence rule) — decided together.** No autonomous
+ambient music at all; music only plays when the player interacts with a new
+in-world **music box** prop. This also resolves the "no music tied to
+events" vs. "3-second anomaly-silence window" internal contradiction outright
+— there's no auto-scheduler left to worry about coupling to anomaly timing.
+Separately: the breaker flip is **no longer the ending**. The game continues
+across a multi-night structure adapted from the Isolation feature list's Day
+1–3 timeline (used as a **structural guide**, not copied verbatim — see open
+item below on how much of Isolation's narrative content comes with it). The
+fate of the 0.3 key/lock-the-front-door epilogue inside this new structure is
+unresolved — default assumption is it either becomes a mid-game beat or is
+superseded by Isolation's own different climax; needs a call before it's
+built either way.
 
-- **§6 describes a ~22° tight flashlight cone.** The shipped flashlight is
-  38° hot cone / 82° dim fill (`src/game/player.js`) — widened specifically
-  because a narrow beam was making Act 2 "mostly pure black outside dead
-  centre," which was the direct complaint that prompted the change. Reverting
-  to 22° reintroduces the exact problem that fix was for.
-- **§6's Act 2 ending is breaker-flip → immediate ending.** Shipped Act 2 has
-  a key/lock epilogue after the breaker (find the key on the entry table,
-  return to the front door, lock it, *then* the ending plays) — also added
-  in 0.3 at this user's request, and not mentioned anywhere in this doc.
-- Also unmentioned: all four real doors (not just the front door) are
-  interactable, and the shower has a ribbed curtain, animated falling water,
-  and a 10-second held freeze with its own audio cue — all shipped in 0.3.
+**4. Night/session length** — open-ended per night, bounded by "until the
+player goes to sleep," not a fixed minute count. Fully resolves the
+20-vs-8-minute internal contradiction; neither number applies anymore.
 
-Worth an explicit answer: does 0.3 still apply on top of this doc, or is
-this doc meant to roll it back?
+**6. Scope expansion — house, inventory, and pacing.** Several things
+decided together here:
+- House grows from one small single storey to **3 floors + attic + basement
+  + garage**, plus the existing bathroom/living room/bedroom, plus **2 extra
+  rooms with searchable boxes**. This is a direct, deliberate reversal of the
+  original pitch line ("one small single-storey house") — noting that
+  explicitly since it's the thing being overturned, not a side detail.
+- A small **pocket inventory** (default assumption: 2 pockets × 2 items = 4
+  slots total — unconfirmed, needs a number) with **item combination**
+  (e.g. dead flashlight + battery → working flashlight).
+- A separate, **unlimited "Clues" tab**, distinct from the pocket inventory:
+  finding certain collectible items triggers a sound/memory cue, and the item
+  is logged there. This overrides the original "no inventory or collectibles"
+  rule on purpose.
+- A **stamina bar** appears, but only, contextually, during one scripted
+  chase sequence on night 3 — not a general sprint mechanic, not visible any
+  other time. Scoped exception to "no stamina bar" and "no run."
+- Anomalies **remain peripheral-vision-only by default**, "unless noted
+  otherwise" for specific scripted moments (e.g. possibly the night-3 chase).
+- Escalating rare scare sounds/noises, weighted more heavily toward nights 2
+  and 3, driven by the Director/random-event system.
 
-### 2. Internal contradiction: session length
+**7. Bed gating** — confirmed gated. Generalized to "events" (tied to the
+random-event framework being adopted from the Isolation timeline) rather
+than the original fixed 4-chore list, recurring each night.
 
-§1: *"About 20 minutes, two acts."* §12 (same document): *"Both acts
-finishable in about 8 minutes."* These are the same document disagreeing
-with itself by 2.5x on the target playtime.
+**8. Workflow** — confirmed: PR-based. Nothing gets pushed to `main`
+directly going forward; every change becomes a PR for the director's
+approval, including this one.
 
-### 3. Internal contradiction: music tied to events
+**9. Palette** — confirmed: `VISUAL_REFERENCE.md`'s five colors win over the
+original palette, with one explicit, deliberate exception — **the flashlight
+stays warm**, overriding that document's own "no saturated hue anywhere"
+rule on that one point only. Everything else in `VISUAL_REFERENCE.md`
+applies as written.
 
-§13 (Don't list): *"No music tied to events."* §8, four lines above it in
-the same document: *"no note within 3 seconds either side of an anomaly
-arming or resolving"* — a hard suppression window keyed to anomaly state
-changes is a form of coupling music to events, even if it's "stay silent
-near X" rather than "play at X." Worth one clarifying sentence either way.
+**10. Project scope — reversed mid-session.** Originally ruled "keep
+Isolation separate, its own repo, later." Superseded in the same
+conversation: *"this is basically a new game, get that in the door and use
+the timeline."* Treating the Day 1–3 structure as in-scope for this repo now,
+not deferred. **Flagging the reversal explicitly** since it happened within
+minutes of the opposite ruling — worth a conscious "yes, still means that"
+before anyone builds against it.
 
-### 4. The anomaly roster is a near-total redesign, not an addition
+### Still open — defaulted, not confirmed
 
-§4.5 lists 9 interior anomalies (11 with the 2 exterior ones) and says
-*"Eleven total. Do not add more"* — read as an exhaustive cap. The shipped
-build currently has 12 (10 interior + 2 exterior), and the two lists don't
-match:
-
-- **Dropped, present in the shipped list, absent from §4.5:** the bathroom
-  door (ajar → wide open), the phantom fifth hallway door, and the
-  living-room window figure.
-- **Added, in §4.5, not currently built:** a figure filling the hall
-  doorway frame, and a figure lying on the bed.
-- **Changed in nature, not just detail:** the shipped lamp, coat, chair, and
-  portrait anomalies are furniture-only wrongness (a lamp leans, a chair is
-  pulled out, a coat has volume, a painted head turns) — no figure appears.
-  §4.5 converts all four into explicit full-figure appearances ("figure
-  standing where the lamp was," "figure hanging from the hook, feet just off
-  the floor," "figure seated," "framed figure has stepped forward, out of
-  the frame plane"). That shifts the anomaly mix from roughly 40% figure
-  reveals to 80%+, which is a real change in the game's rhythm, not a
-  wording update. Worth flagging too: "feet just off the floor" and a
-  literal hanging figure read closer to explicit body-horror imagery than
-  the current "coat has volume as if worn" — worth checking against §13's
-  own "no blood, gore" line.
-
-### 5. Bed-gating reverses a rule this project has stated as non-negotiable every time it's come up
-
-§6: four chores (unpack, shower, lock the front door, turn off the kitchen
-light) — *"Only after all four does the bed become interactive."* Every
-prior version of this spec, including the original build brief, revision
-0.2, and this session's own work, states the opposite explicitly: the
-shipped code comment reads *"a beeliner can still sleep immediately — they
-just give the night somewhere to go while the house works on them."* This
-isn't a minor wording drift, it's a direct reversal of something documented
-as a hard rule three separate times before this file.
-
-### 6. "Act 2 has no piano" reverses revision 0.2-D, done at this user's request
-
-§8: *"Act 2 has no piano. Crickets and footsteps only."* The shipped audio
-engine calls `setAmbient('act2')` in `_setupAct2()` specifically — a
-sparser, lower-register piano bed was added to Act 2 deliberately in
-revision 0.2-D after this user asked for "more airy" music with piano. This
-doc removes it entirely rather than re-tuning it.
-
-*(Separately, §8's piano synthesis itself — partial ratios, decay time,
-delay network, note-timing model, event-silence window — is a substantial
-rewrite of what's implemented, not just new parameters. Not calling that a
-"conflict" since nothing currently claims those specific numbers are final,
-but flagging that adopting §8 as written means rebuilding the piano voice
-from scratch, not retuning it.)*
-
-### 7. The workflow model conflicts with `CLAUDE.md` and with how this session has actually been operating
-
-§11 / §14: *"Open a PR per milestone; the director merges,"* and *"the
-Claude Code operator works on branches and opens PRs, never pushing to
-main."* `CLAUDE.md`'s documented workflow (and this session's actual
-history, including the last three commits) is direct push to `main` after an
-`AGENT_LOG.md` entry, by whichever teammate is driving — no PR gate, no
-single "director" merge role is currently in effect. This one matters beyond
-documentation: if adopted, it changes how I should behave starting now, not
-just how the docs read.
-
-### 8. This doc sides firmly against `VISUAL_REFERENCE.md`, which is still sitting unresolved in the repo
-
-§3's palette and §4.2's shader are, respectively, the exact five original
-hex values (with the flashlight's warm exception intact) and the exact
-radial-blur-plus-desaturation shader already shipped — explicitly restating
-*"Not a vignette. The blur and the desaturation are the point."* That's a
-third, independent document (after the original brief and `CLAUDE.md`) now
-siding against `VISUAL_REFERENCE.md`'s proposed "Void Charcoal" palette and
-its blur-rejection. Since this doc claims single-source-of-truth status, it
-might be the moment to explicitly close that conflict — either retire
-`VISUAL_REFERENCE.md`'s proposal, or reconcile this doc with it — rather than
-letting a fourth document quietly disagree with a third.
-
-### 9. "No second location" bears directly on the still-open question in `FEATURE_LIST.md`
-
-§13: *"No second location. Every horror project that dies in development
-dies from adding one."* `FEATURE_LIST.md` flagged whether "Isolation" (a
-much larger, multi-day concept requiring a garage, a back door, and
-work-commute locations) is the same project as Peripheral or a different
-one. This rule would rule out nearly everything Isolation's design needs.
-Might be worth treating this as the answer to that open question — or
-flagging that it isn't, if Isolation is still meant to be evaluated.
-
-### 10. Minor: repo layout doesn't match what's actually on disk
-
-§10 places `figure.js` and `chores.js` under `src/game/`. Currently
-`figure.js` lives in `src/world/` (it's world geometry, reused by props and
-the Act 2 entity), and there's no standalone `chores.js` — chore state and
-behavior live inline in `game/acts.js`, with the dresser/shower meshes in
-`world/props.js`. Cosmetic, not urgent, but worth knowing before anyone goes
-looking for a file that isn't there.
+- **Exact pocket count** for the inventory. Defaulting to 2×2=4 slots; correct
+  in review if wrong.
+- **Does the 0.3 key/lock-the-door epilogue survive** inside the new
+  timeline, get moved, or get replaced by Isolation's own climax? Noted under
+  item 2/3/5 above; no default assumed, needs an answer before it's built.
+- **Scope of "basically a new game" (item 10).** Does adopting the Day 1–3
+  structure bring Isolation's narrative content with it — a named
+  protagonist ("Jack"), the lawyer/prologue, the phone-call and
+  answering-machine plot — or just the *structural* shape (multi-night
+  pacing, escalating events, the bigger house) layered onto Peripheral's
+  existing anonymous-player fiction (the player's own typed name on the yard
+  sign)? This affects the title screen, the ending card, and whether the
+  buyer-sign mechanic still makes narrative sense at all. **Defaulted to
+  structure-only** for now — retiring the anonymous-player conceit is a
+  bigger call than this thread has explicitly made, so it wasn't assumed.
 
 ---
 

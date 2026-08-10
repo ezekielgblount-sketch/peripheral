@@ -10,6 +10,55 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-10 (DESIGN.md conflicts ratified — PR, not pushed to main)
+
+**Did:**
+- Walked the director through all 10 flagged `DESIGN.md` conflicts in chat,
+  item by item. All 10 were ruled on across two messages; workflow item #8
+  was ruled first and changes everything after it — **PRs from here on,
+  nothing direct to `main`.**
+- Updated `DESIGN.md`: replaced the "flagged, not resolved" conflict section
+  with a "Ratified decisions" section reflecting the rulings, kept the
+  original pasted document below (now clearly marked as historical/
+  superseded where the two disagree).
+- Notable scope changes from the rulings, not just conflict resolutions:
+  flashlight gets a battery + low-battery flicker; no autonomous music, only
+  a new music-box prop; the breaker flip is no longer the ending — a
+  multi-night structure adapted from the Isolation feature list's Day 1-3
+  timeline is now in scope; the house grows from one small single storey to
+  3 floors + attic + basement + garage + 2 extra rooms; a small combinable
+  pocket inventory plus a separate unlimited "Clues" tab, both previously
+  ruled out; a stamina bar scoped to one night-3 chase scene only; palette
+  switches to `VISUAL_REFERENCE.md`'s five colors with the flashlight kept
+  warm as a deliberate one-line exception.
+- **Flagged one live reversal within the rulings themselves**, not silently
+  absorbed: item #10 was first ruled "keep Isolation separate, its own repo,
+  later" and then reversed two messages later to "this is basically a new
+  game, get that in the door and use the timeline." Both the reversal and
+  the new ruling are recorded in `DESIGN.md`.
+- **Left three items explicitly open, defaulted but not confirmed** (also
+  listed in `DESIGN.md`): exact inventory pocket count (defaulted 2x2=4),
+  whether the 0.3 key/lock-the-door epilogue survives inside the new
+  timeline, and — the one that matters most — whether "basically a new game"
+  pulls in Isolation's narrative content (a named protagonist, the
+  lawyer/prologue, the phone plot) or just its structural shape on top of
+  Peripheral's existing anonymous-player fiction. Defaulted to
+  structure-only since retiring the anonymous-player conceit is a bigger
+  call than was explicitly made.
+- Did not touch game code. Design-doc and process changes only.
+
+**Pushed:** no — per the newly-ratified #8, this is a branch
+(`decisions/consolidated-rulings`) with a PR open against `main` for the
+director's approval, not a direct push.
+
+**Next:** the three open items above, especially the identity/narrative-scope
+one, before any of this gets implemented — several of the ratified items
+(inventory UI, the bigger house, the multi-night loop, the combine mechanic)
+are substantial builds that would need to be redone if that question lands
+differently than the default assumed here.
+
+---
+
 ## Session — 2026-08-09 (DESIGN.md — consolidated spec)
 
 **Did:**
