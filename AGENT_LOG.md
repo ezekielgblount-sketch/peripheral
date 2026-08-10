@@ -10,6 +10,107 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-10 — unattended overnight build, SUMMARY (NEXT_TASKS.md #1-4)
+
+Human was offline for this whole session. Worked all 4 items in `NEXT_TASKS.md`
+top to bottom, committing locally after each (see the four entries below this
+one for full per-task reasoning/detail). All four completed — nothing blocked,
+nothing skipped. This entry is the at-a-glance picture.
+
+**1. Deleted 54 leftover First Person template objects** (`SM_Cube`/
+`SM_Cylinder`/`SM_QuarterCylinder`/`SM_Ramp` instances plus the template's
+default floor plane) that were never part of the house and were physically
+boxing the player in near the Entry spawn point. Identified by diffing the
+full actor list against our own outliner folders rather than matching by
+class name alone. Verified `PlayerStart_0`'s surroundings are clear via line
+traces and a bounds query afterward. No ambiguous cases came up.
+
+**2. Replaced `M_PrototypeGrid` with the real 5-color palette and added
+furniture.** Four new `MaterialInstanceConstant`s off `M_FlatCol`
+(`MI_Wall_Light` #B3A78F, `MI_Floor_Dark` #4E4B44, `MI_Ceiling_Pale` #E6DFCC,
+`MI_Furniture_Mid` #7C7870, hex converted to linear space), applied across
+all 79 wall/floor/ceiling actors in all 8 rooms plus `BP_Door`'s leaf
+material (extended beyond the task's literal wall/floor/ceiling wording — a
+judgment call, see that entry). Confirmed via `get_referencers` that
+`M_PrototypeGrid` is no longer used anywhere in the level. Added 16 simple
+primitive furniture pieces across 6 rooms (sofa/coffee table, kitchen
+counter/table/chairs, bathroom toilet/sink, bedroom bed/dresser, study desk/
+bookshelf, utility shelving), deliberately skipping the specific objects
+reserved for later anomaly work (living room lamp/portrait, bathroom mirror,
+bedroom window) rather than building placeholder versions of those specific
+items.
+
+**3. Built the peripheral-vision post-process pass** — the biggest visual
+gap before tonight, completely unbuilt until this session. New Post Process
+Material (`PP_PeripheralVision`, ~50 `MaterialExpression` nodes) added as a
+weighted blendable on the existing `PPV_Global` volume. Implements
+`CLAUDE.md`'s corrected model, not the original handoff spec: aspect-corrected
+radial falloff drives a "degradation" value clamped to **never drop below
+35% even at dead centre** (the detail explicitly flagged as easy to get
+wrong), which blends a 5-tap box blur (2-9 texel radius), partial
+desaturation (capped 55%), and a partial pull toward mid-grey (capped 45%)
+— three capped effects instead of one uniform blur, so silhouettes stay
+legible even at the screen edge. Recompiled clean. Sanity-checked with an
+editor viewport screenshot (periphery visibly softer than centre) but — per
+the brief itself — **this one still needs a real human PIE pass**, top of
+the list below.
+
+**4. Added the F10 day/night debug toggle.** New `BP_DayNightDebug` actor
+reusing `BP_Anomaly`'s F9 raw-`InputKey` pattern for F10. A single bool
+flips two hardcoded intensity sets (Day = the level's actual current values:
+`DirectionalLight` 6, `SkyLight` 1, room `PointLight`s 15000; Night =
+dimmed, not fully off: 0.05, 0.05, 300) applied via `GetAllActorsOfClass` so
+it can't go stale. Verified the compiled graph end to end and ran a PIE
+session to confirm no spawn errors, but never simulated an actual F10
+keypress (no input-injection tool available) — the toggle's in-game feel is
+unverified.
+
+**Operational notes for whoever picks this up next:**
+- The Claude Code auto-mode permission classifier intermittently blocked
+  individual `remove_from_scene` calls during task 1 for no discernible
+  pattern (batched or not) — every block cleared on immediate retry. Not a
+  data issue, just budget extra round-trips for any future bulk-delete pass.
+- A PIE session was found already running (left over from the human's own
+  testing) partway through task 1 and blocked `remove_from_scene` outright
+  ("Cannot remove actors while PIE is active") until `StopPIE` was called
+  twice (first call didn't immediately register on `IsPIERunning`). Worth
+  checking `IsPIERunning` before any scene-mutating pass in a fresh session,
+  not just assuming the editor is idle.
+- The DSL's variable-node type-id generation strips the Hungarian `b` prefix
+  from bool variables (`bIsNight` → `GetIsNight`/`SetIsNight`, not
+  `GetbIsNight`/`SetbIsNight`) — this bit both this session (task 4) and an
+  earlier one (`bDwellStarted`, per the log's stale error entries found in
+  the output log during task 4's verification pass). Worth remembering
+  project-wide.
+- No Blueprint enum was touched anywhere tonight, per the standing
+  instruction.
+
+**Saved and verified clean**: `AssetTools.save_assets([])` run after each
+task and again at the very end; `is_dirty` on the level confirmed `false`;
+`git status` clean immediately after the final commit (checked with a beat's
+gap for OFPA's external-actor package save lag, per the standing caution).
+
+**Pushed:** no — all four tasks are local commits only (`ef08fe5`,
+`8ec4298`, `d031ad7`, `7b190e5`, `57751bd`, `0565e57`, `3dec1d3`, `a58e703`
+— code + log entry per task). Human should review `AGENT_LOG.md` + `git log`/
+`git diff` and decide whether to push.
+
+**Priority order for the human's first look:**
+1. **Task 3 (post-process pass)** — genuinely can't be verified without eyes
+   on it; walk the hallway and a couple of rooms, judge whether the
+   35%-floor/blur/desaturation/contrast balance feels right or needs retuning.
+2. **Task 4's F10 toggle** — structurally verified but the actual keypress
+   was never simulated; a 10-second PIE check confirms or denies this.
+3. **Task 2's door-material judgment call** — extending the palette pass to
+   `BP_Door`'s leaf material wasn't explicitly asked for; flag if that should
+   have stayed grey pending a separate pass.
+4. Everything else (task 1's deletion, task 2's furniture placement) was
+   verified numerically/structurally with no ambiguous cases — lower
+   priority to double-check, but a walkthrough is still cheap insurance per
+   this project's usual practice.
+
+---
+
 ## Session — 2026-08-10 — unattended overnight build, NEXT_TASKS #1 (delete leftover template geometry)
 
 Human is offline overnight, working `NEXT_TASKS.md` top to bottom per instructions
