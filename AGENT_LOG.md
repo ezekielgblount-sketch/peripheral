@@ -10,6 +10,66 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-09 (FoveaComponent + BP_Anomaly state machine)
+
+**Did:**
+- Built `FoveaComponent` (`/Game/Components/FoveaComponent`, `ActorComponent`)
+  per handoff spec §2: `GetAngleTo(WorldLocation) -> Angle` (finds the owner's
+  camera via `GetComponentByClass`, angle between camera forward and the
+  normalized eye→target direction, via dot product + `Acos(Degrees)` — no
+  separate radians conversion needed, that node returns degrees directly) and
+  `IsOccluded(WorldLocation, IgnoreActor) -> bool` (line trace, Visibility
+  channel, from camera eye to target, ignoring `IgnoreActor`).
+- Built `BP_Anomaly` (`/Game/Blueprints/BP_Anomaly`, base `Actor`) per §3's
+  five-state machine (DORMANT/ARMED/ACTIVE/RESOLVING/SPENT). State is a plain
+  `int` (`CurrentState`, 0-4) rather than a Blueprint enum — attempting to
+  create a `UserDefinedEnum` through the Blueprint-creation tool froze the
+  live MCP-connected editor behind an unresponsive error dialog mid-session
+  (see caveat below); the int fallback has identical behavior, just less
+  self-documenting in the variable list, worth revisiting if a proper enum
+  path turns up later. `SetOff()`/`SetNormal()` are each a single
+  `SetVisibility` call on the mesh — no timeline, no interpolation, confirmed
+  instant. `EventTick` implements the transition rules verbatim: ARMED→ACTIVE
+  only when fovea angle > 40° or occluded; ACTIVE→RESOLVING after a 0.12s
+  dwell inside the fovea cone (11°, widened to 15° once dwell has started)
+  unoccluded; RESOLVING calls `SetNormal()` and moves to SPENT on the very
+  next tick, nothing more. DORMANT/SPENT are no-ops — Director/re-arm timing
+  is intentionally not built yet. Debug hook: `F9` (via `AutoReceiveInput`)
+  calls `DebugForceArm()`, which flips DORMANT→ARMED directly, to let the
+  transition chain be tested without the Director existing.
+- Mesh is `SM_Cylinder` scaled to ~180cm/35cm-radius as a placeholder
+  humanoid capsule, material `MI_Anomaly_Dark` (instance of the existing
+  `M_FlatCol`, base color set to linear-space `#1A1916` — the palette's
+  darkest tone per `CLAUDE.md`).
+- Attached a `FoveaComponent` instance to `BP_FirstPersonCharacter` (the
+  player pawn).
+- Placed one `BP_Anomaly` instance in `Lvl_FirstPerson` — anomaly #10, the
+  hallway-end figure — at (600, 1325, 140), yaw −90°, facing back down the
+  hallway. Derived from the existing hallway blockout's actual measured walls
+  (X 450–750 inner, Y 300–1400, far wall at Y=1400), not assumed from spec
+  numbers alone. Labeled `BP_Anomaly_HallwayEnd_10`, outliner folder
+  `Anomalies`. Also noted in passing: `PlayerStart_0` sits at (0,0,302),
+  outside the hallway entirely, in leftover First-Person-template geometry —
+  the hallway blockout isn't connected to the current spawn point yet.
+- **Mid-session incident**: the `UserDefinedEnum`-creation attempt above hung
+  the live Unreal Editor behind what was almost certainly an asset-factory
+  error dialog — every MCP call timed out, including read-only ones, until a
+  human found and dismissed the dialog in the actual editor window. No data
+  was lost (the in-progress `FoveaComponent` was still in memory once
+  unstuck, just unsaved) but it's a sharp edge worth flagging: don't attempt
+  enum-asset creation through `BlueprintTools.create` again without checking
+  whether the plugin has grown proper support for it.
+
+**Pushed:** no — local commit only, human should review before pushing.
+
+**Next:** visually confirm the state machine loop (arm via F9, look away past
+40°/occlude, look back and hold for >0.12s, confirm the figure appears/
+disappears with no visible tween) in PIE before building anything on top of
+it. After that: wire the Director/PlayerProfile arming logic (§4), then the
+remaining 11 anomalies reusing this same base class.
+
+---
+
 ## Session — 2026-08-09 (template strip + hallway blockout)
 
 **Did:**
