@@ -10,6 +10,86 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-10 — unattended overnight build, STAGE 1 (anomaly bug fix)
+
+Human is offline for the rest of this session. Working the numbered stages
+they left in order, committing after each, logging blockers instead of
+retrying them for hours.
+
+**Did:**
+- Added the three debug-print points the human asked for before going
+  further: F9 press (unconditional, in `DebugForceArm`), a 0.5s-interval
+  state/angle/occluded status print in `EventTick`, and confirmation prints
+  inside `SetOff()`/`SetNormal()`. All print to both screen and the Output
+  Log (`bPrintToLog` default true) so they're readable after the fact via
+  `LogsToolset.GetLogEntries`, not just by watching the screen live.
+- Adding the periodic status print initially introduced a real bug of my
+  own: the DSL round-trip merged my new "every 0.5s" check into the *same*
+  if/elif chain as the `CurrentState==1` (ARMED) check, so the real
+  state-machine logic silently stopped running every time the debug print
+  fired. Caught this by inspecting the actual compiled node graph
+  (`get_node_infos`/`find_nodes`) rather than trusting `read_graph_dsl`'s
+  text output, and fixed it by wiring both ends of the debug-print branch
+  back into the real check via `connect_pins`. Worth remembering:
+  `read_graph_dsl` has multiple known rendering bugs now (this one, plus
+  cosmetic ones below) — treat its output as a rough guide, verify anything
+  that matters against the actual node graph.
+- **Re-investigated two "bugs" I flagged earlier in this same session and
+  retracted both** — I misread this DSL's grammar: a plain statement
+  following another inside an `(if ...)` body is just a second sequential
+  "then" statement, *not* an implicit else. Only an explicit `(elif ...)` or
+  `(else ...)` sublist creates a false-branch. Once I re-read them correctly,
+  the ARMED branch (`SetOff()` + state-advance together, correctly gated on
+  looking away) and the ACTIVE dwell-timer accumulation were both already
+  correct as originally built. Also confirmed the F9 InputKey node genuinely
+  is wired to `DebugForceArm` and `AutoReceiveInput=Player0` is set correctly
+  — `read_graph_dsl` just can't render `K2Node_InputKey` bodies at all
+  (shows an empty event), which is what made it look disconnected.
+- Started a real PIE session myself (`EditorAppToolset.StartPIE`/`StopPIE`)
+  and read the Output Log afterward — confirmed `PlayerFovea` resolves
+  correctly in `BeginPlay` (no "accessed None" anywhere) and `GetAngleTo`/
+  `IsOccluded` return sane live values. Also found, retroactively, two
+  `"BP_Anomaly: forced ARMED (debug)"` log lines from the human's actual
+  test session — **F9 did successfully arm it**, twice (almost certainly
+  two separate PIE launches, since nothing resets CurrentState back to
+  DORMANT mid-session on purpose yet).
+- **Actual confirmed bug, now fixed**: the placeholder mesh (`SM_Cylinder`)
+  had no collision geometry, matching the "walked straight through" report.
+  `StaticMeshTools.generate_convex_collisions` failed silently (returns
+  `false`, no error detail) on this mesh — it's Nanite-enabled and has no
+  legacy LOD data (`get_vertex_count` reports "-1 LODs"), which the
+  generator likely can't handle. Rather than fight a shared prototype mesh
+  asset (used elsewhere in the level) for hours, added a dedicated
+  `CapsuleComponent` (`BlockingCapsule`, half-height 90, radius 35, offset
+  to match the figure's footprint) as the actual collision volume, and tied
+  its `CollisionEnabled` to the same `SetOff()`/`SetNormal()` calls that
+  toggle mesh visibility — `QueryAndPhysics` when the figure is visible,
+  `NoCollision` when it's not. This also fixes a design problem the naive
+  "just add collision to the mesh" approach would have had: collision
+  independent of visibility would have meant an invisible wall standing in
+  the Normal state, which is its own bug.
+- **Best explanation for "the figure never appears" during the human's
+  actual test**: everything downstream of F9 checks out healthy in
+  isolation, so the likely explanation is that the 40° arm-safe threshold
+  is a bigger turn than it sounds — nearly a quarter-turn away from dead
+  centre, not a small glance aside. If the look-away pass during testing
+  didn't cross 40°, `SetOff()` genuinely never fires, which isn't a bug.
+  Next test pass: either turn further, or exploit the occlusion path
+  instead (duck around anything that blocks line of sight — that also
+  satisfies the ARMED→ACTIVE condition regardless of angle).
+
+**Blocked / not resolved:** `SM_Cylinder`'s missing collision itself (the
+asset-level Nanite/LOD issue) — worked around via the capsule component
+above rather than fixing the mesh, per the "don't retry a blocked thing for
+hours" instruction. Someone should eventually check why this shared
+prototype mesh has no LODs/collision if it matters beyond this one actor.
+
+**Pushed:** no — local commit only, human should review before pushing.
+
+**Next:** Stage 2 — block out the remaining 7 rooms.
+
+---
+
 ## Session — 2026-08-09 (2) (connect spawn to the hallway)
 
 **Did:**
