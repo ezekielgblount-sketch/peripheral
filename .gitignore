@@ -3,3 +3,34 @@ dist
 .DS_Store
 *.log
 .vite
+
+# ── Unreal Engine 5 (unreal/) ────────────────────────────────────
+# Generated locally on every machine. Committing these bloats the
+# repo enormously and causes merge conflicts constantly.
+unreal/Binaries/
+unreal/Build/
+unreal/DerivedDataCache/
+unreal/Intermediate/
+unreal/Saved/
+unreal/.vs/
+unreal/*.sln
+unreal/*.suo
+unreal/*.opensdf
+unreal/*.sdf
+unreal/*.VC.db
+unreal/*.VC.opendb
+unreal/Plugins/**/Binaries/
+unreal/Plugins/**/Intermediate/
+
+# MCP client config — machine-specific, regenerate per machine with:
+# ModelContextProtocol.GenerateClientConfig ClaudeCode
+unreal/.mcp.json
+
+# OS noise
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Local Claude Code overrides
+.claude/settings.local.json

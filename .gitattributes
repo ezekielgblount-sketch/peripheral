@@ -1,0 +1,28 @@
+# ── Git LFS: Unreal binary assets (unreal/) ──────────────────────
+# Without this, the repo becomes unusable within a few dozen asset
+# commits. Rules apply from this commit forward — add .uasset files
+# only AFTER this file is committed and pushed.
+
+unreal/**/*.uasset filter=lfs diff=lfs merge=lfs -text
+unreal/**/*.umap   filter=lfs diff=lfs merge=lfs -text
+
+# Source art / DCC files
+*.fbx   filter=lfs diff=lfs merge=lfs -text
+*.blend filter=lfs diff=lfs merge=lfs -text
+
+# Textures (Peripheral is flat-colour/no-texture by design — this is
+# a safety net, not an expectation we'll use it much)
+*.tga filter=lfs diff=lfs merge=lfs -text
+*.exr filter=lfs diff=lfs merge=lfs -text
+*.hdr filter=lfs diff=lfs merge=lfs -text
+*.psd filter=lfs diff=lfs merge=lfs -text
+
+# Audio (MetaSounds are text-based Blueprint assets, already covered
+# by *.uasset above — this covers any baked fallback audio)
+*.wav filter=lfs diff=lfs merge=lfs -text
+
+# ── Merge behavior ───────────────────────────────────────────────
+# Binary Unreal assets can never be merged. If two people edit the
+# same .uasset, one version wins. This is why we push-then-pull.
+unreal/**/*.uasset -merge
+unreal/**/*.umap   -merge
