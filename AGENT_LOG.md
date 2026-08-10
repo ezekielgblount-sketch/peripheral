@@ -10,6 +10,40 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-09 (hallway test lighting + geometry re-check)
+
+**Did:**
+- The hallway blockout was pitch black in PIE (sealed box, only the
+  template's outdoor sun/sky exist, can't reach through solid walls) — added
+  two placeholder `PointLight`s inside it at (600, 700, 200) and
+  (600, 1100, 200), 15000 lumens, 900uu attenuation radius each, plain white.
+  Bright/flat on purpose, just enough to see the state-machine test by — not
+  tuned to Act 1's dim mood, that's a later pass. Filed under
+  `Blockout/Hallway` alongside the walls.
+- Re-ran `get_actor_bounds` on all 6 (well — 7, see below) hallway actors to
+  rule out a geometry bug rather than assume the blackness was lighting-only.
+  Confirmed: inner walkable space is exactly **X[450,750] × Y[300,1400] ×
+  Z[0,250]**, matching both the spec and the original blockout session's
+  numbers. West/east walls at X 435–450 / 750–765, south wall (entrance,
+  contradicting an earlier assumption that end was open — it isn't, this
+  is a fully sealed box) at Y 285–300, north wall (far end) at Y 1400–1415,
+  ceiling at Z 250–265, floor at Z −15–0, all Y/X-spanning correctly. No
+  geometry bug — the blackness was lighting only, as suspected.
+- Found (not fixed, flagging for whoever touches this next): the `Blockout/
+  Hallway` folder has **two** `Floor_Hallway` actors with identical bounds,
+  fully overlapping duplicates. Harmless for now (same volume, doesn't affect
+  the clear-space measurement above) but worth deleting one next time this
+  area gets touched — likely a leftover from the original blockout session.
+
+**Pushed:** no — local commit only, human should review before pushing.
+
+**Next:** the duplicate `Floor_Hallway` cleanup mentioned above. Otherwise
+unchanged from last entry — confirm the anomaly state-machine loop in PIE
+(now that the hallway is actually visible), then Director/PlayerProfile
+wiring.
+
+---
+
 ## Session — 2026-08-09 (FoveaComponent + BP_Anomaly state machine)
 
 **Did:**
