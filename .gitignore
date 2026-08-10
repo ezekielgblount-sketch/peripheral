@@ -4,27 +4,27 @@ dist
 *.log
 .vite
 
-# ── Unreal Engine 5 (unreal/Peripheral/) ──────────────────────────
+# ── Unreal Engine 5 (unreal/Isolation/) ──────────────────────────
 # Generated locally on every machine. Committing these bloats the
 # repo enormously and causes merge conflicts constantly.
-unreal/Peripheral/Binaries/
-unreal/Peripheral/Build/
-unreal/Peripheral/DerivedDataCache/
-unreal/Peripheral/Intermediate/
-unreal/Peripheral/Saved/
-unreal/Peripheral/.vs/
-unreal/Peripheral/*.sln
-unreal/Peripheral/*.suo
-unreal/Peripheral/*.opensdf
-unreal/Peripheral/*.sdf
-unreal/Peripheral/*.VC.db
-unreal/Peripheral/*.VC.opendb
-unreal/Peripheral/Plugins/**/Binaries/
-unreal/Peripheral/Plugins/**/Intermediate/
+unreal/Isolation/Binaries/
+unreal/Isolation/Build/
+unreal/Isolation/DerivedDataCache/
+unreal/Isolation/Intermediate/
+unreal/Isolation/Saved/
+unreal/Isolation/.vs/
+unreal/Isolation/*.sln
+unreal/Isolation/*.suo
+unreal/Isolation/*.opensdf
+unreal/Isolation/*.sdf
+unreal/Isolation/*.VC.db
+unreal/Isolation/*.VC.opendb
+unreal/Isolation/Plugins/**/Binaries/
+unreal/Isolation/Plugins/**/Intermediate/
 
 # MCP client config — machine-specific, regenerate per machine with:
 # ModelContextProtocol.GenerateClientConfig ClaudeCode
-unreal/Peripheral/.mcp.json
+unreal/Isolation/.mcp.json
 
 # OS noise
 Thumbs.db

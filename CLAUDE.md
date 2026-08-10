@@ -1,4 +1,4 @@
-# Peripheral / Isolation — Unreal Engine build
+# Isolation — Unreal Engine build (formerly Peripheral)
 
 Horror game about the gap between what you're **looking at** and what you can **see**.
 Things go wrong at the edge of the frame and stay uncertain even when you centre them.
@@ -14,8 +14,9 @@ conflict, default to Isolation.** Not case-by-case — a standing rule.
 what's a straight duplicate. Read it before building anything the "don't" list below
 would otherwise block — several of those rules have already flipped.
 
-Project name is still "Peripheral" in the `.uproject`/folder structure — not renamed
-yet, deliberately deferred, not urgent.
+Project renamed: `unreal/Isolation/Isolation.uproject` (was `unreal/Peripheral/
+Peripheral.uproject`). GitHub repo itself is still named `peripheral` — that's
+Ezekiel's call as owner, deliberately left alone (live public Pages URL).
 
 ## The spec is not in this file
 
@@ -131,7 +132,7 @@ sharp, dead centre always 100% clear) is **not what gets built**. Isolation's mo
 ## Conventions
 
 ```
-unreal/Peripheral/       (.uproject lives here — this is the project root)
+unreal/Isolation/       (.uproject lives here — this is the project root)
   Content/
     Blueprints/    BP_Anomaly (base), BP_Director, BP_PeripheralCharacter
     Components/    FoveaComponent, PlayerProfileComponent
