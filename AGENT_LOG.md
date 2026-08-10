@@ -10,6 +10,172 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-10 — unattended overnight build, STAGE 6 (BP_Door)
+
+Continuing the numbered stages, same unattended rules. Human asked specifically
+for this stage tonight: build a reusable interactive door Blueprint and place
+it into the 7 doorway gaps cut in Stage 3 (skipping the front-door opening —
+exterior not built).
+
+**Did:**
+- Inspected `BP_Anomaly` first per instruction (`list_variables`/`list_graphs`/
+  `get_node_infos` on its `EventGraph`, not trusting `read_graph_dsl`'s text for
+  anything load-bearing) to confirm two conventions before reusing them:
+  `AutoReceiveInput` is a plain object property (`"Player0"`) set via
+  `ObjectTools.set_properties` on the class default object, and the F9
+  `InputKey` node is created as a raw node (`Input|KeyboardEvents|F9`) rather
+  than through the DSL's `(event ...)` form — confirms the human's warning that
+  `read_graph_dsl` can't render `K2Node_InputKey` bodies at all is about a real
+  gap in that node type's DSL support, not just a display quirk. Built this
+  Blueprint's own E-key hookup the same way: raw `create_node` for
+  `Input|KeyboardEvents|E` plus a hand-wired `Branch`/`GetPlayerNearby`/
+  `CallFunction|ToggleDoor` chain via `connect_pins`, DSL for everything else.
+- Also confirmed via `Glob` that no interact-input system exists anywhere in
+  the project yet (`/Game/Input/` has only Move/Look/Jump/Walk actions, no
+  Interact action, and `BP_FirstPersonCharacter` has no interact graph) — this
+  was expected per the brief, so built the simplest thing that works rather
+  than a new Enhanced Input action asset.
+- Built `BP_Door` (`/Game/Blueprints/BP_Door`, parent `Actor`):
+  `HingePivot` (`SceneComponent`, relative location `(0,-45,0)` from the actor
+  root) with `DoorLeaf` (`StaticMeshComponent`, child of `HingePivot`) using
+  `SM_Cube`/`M_PrototypeGrid` (confirmed the exact property path —
+  `StaticMeshComponent.StaticMesh` + `OverrideMaterials[0]` — by inspecting an
+  existing hallway wall actor first, matching the Stage 2 convention note),
+  scaled `(0.08, 0.9, 2.05)` → 8×90×205uu, relative location `(-4,0,0)` so the
+  leaf is centered on the hinge's local Y axis and exactly fills a 90uu-wide
+  opening when `HingePivot`'s relative yaw is 0. Chose to place the actor
+  **root at the doorway's centroid** (opening center X/Y, Z=0) specifically so
+  a single local-space component layout works for **both** wall orientations
+  just by changing the actor's own yaw (0° for the four walls running along Y,
+  90° for the one wall running along X) — rotating the whole actor also
+  rotates `HingePivot`'s fixed local offset, so the same relative geometry
+  produces a correctly-positioned hinge and leaf in either case. Verified this
+  algebraically before placing anything (worked through the yaw-90 rotation
+  matrix by hand to confirm the leaf lands on `X[555,645]` for the one
+  X-running wall) and then confirmed it numerically against 3 placed
+  instances (see below) rather than trusting the math alone.
+- **Hinge/lerp implementation**: `Tick`-driven, not a Timeline — `CurrentYaw`/
+  `TargetYaw` float variables, `ToggleDoor()` flips `bIsOpen` and sets
+  `TargetYaw` to `-90` or `0`; every tick, `CurrentYaw += (TargetYaw -
+  CurrentYaw) * min(DeltaSeconds * 6, 1)`, written straight onto
+  `HingePivot`'s relative rotation. This is normal diegetic door movement, not
+  an anomaly transition — the "instant, no tween" rule from `BP_Anomaly`'s
+  `SetOff`/`SetNormal` does **not** apply here, and the brief was explicit
+  about that distinction, so this one's supposed to look smooth.
+- **Proximity check**: distance check against a cached player pawn every
+  `Tick` (`<= 150uu`), not an overlap volume — added a `BoxComponent` first per
+  the brief's suggestion, then removed it. Reasoning: an overlap-driven
+  approach needs the overlap volume's collision profile hand-tuned to overlap-
+  only/no-block (a `BoxComponent` sitting in the doorway with default collision
+  would otherwise physically block the player walking through), plus overlap-
+  actor bookkeeping across Begin/End events; a per-tick distance check against
+  `GetDistanceTo` achieves the identical player-facing behavior with far less
+  surface area to get wrong unattended. The brief explicitly allowed either
+  approach ("your call").
+- **Real bug caught before it shipped**: my first `EventTick` DSL wrote
+  `wasNearby` as a plain `Get bPlayerNearby` positioned textually *before* the
+  `Set bPlayerNearby` call in the DSL source. That doesn't work in Blueprint —
+  pure `Get` nodes have no exec pins, so they're evaluated lazily at the
+  moment a downstream node actually pulls their value, not at their textual
+  position in the script. Since the only consumer of that `Get` node was the
+  `Branch` immediately after the `Set`, it was actually reading the *new*
+  value, making the "did nearby state change" comparison always false — the
+  interact prompt would never have shown up in PIE, silently. Caught this by
+  reading the actual compiled graph via `get_connected_subgraph` (not
+  `read_graph_dsl`) and tracing the exec order by hand before moving on, per
+  the standing instruction to verify DSL output against ground truth. Fixed by
+  deleting the whole `Tick` chain and rewriting it with a dedicated
+  `bWasNearbyLastFrame` variable, captured via its own `Set` node as the very
+  first statement in `Tick` (before anything mutates `bPlayerNearby`) — a
+  second variable that's genuinely write-once-per-tick-before-use sidesteps
+  the lazy-pure-node-evaluation trap instead of fighting it.
+- **Interact prompt: built a real UMG widget**, not a `PrintString` fallback.
+  `WBP_InteractPrompt` (`/Game/UI/WBP_InteractPrompt`) is a single `TextBlock`
+  as the widget's root (`UMGToolSet.AddWidget` with no parent, since the tree
+  was empty), exposed as a variable, default text "Open door", plus one
+  function `SetPromptOpenState(bIsOpen)` that flips the text to "Open
+  door"/"Close door". No styling pass — default white text, matching the
+  project's flat/unstyled grey-box aesthetic. The toolset's `list_properties`
+  → `get_properties`/`set_properties` workflow for widgets worked cleanly and
+  the whole thing round-tripped through `CompileWidgetBlueprint` with no
+  errors, so there was no point in the build where the "significantly more
+  involved than expected" fallback condition actually triggered.
+- `BP_Door` creates one `WBP_InteractPrompt` instance in `BeginPlay` (kept
+  off-screen until needed) and adds/removes it from the viewport exactly once
+  per nearby-state transition (not every tick) in `Tick`, updating its text
+  to match current `bIsOpen` on both the transition-into-range moment and
+  every `ToggleDoor()` call.
+- No Blueprint enum anywhere — `bIsOpen` is a plain bool, per the explicit
+  instruction not to touch the enum asset factory again after the freeze
+  earlier tonight.
+- **Placed all 7 instances** (opening 8, the front door, skipped per
+  instruction) into a new `Blockout/Doors` outliner folder:
+  - `BP_Door_Hallway_Bathroom` — `(450, 800, 0)`, yaw 0
+  - `BP_Door_Hallway_Bedroom` — `(750, 800, 0)`, yaw 0
+  - `BP_Door_Hallway_Study` — `(450, 1200, 0)`, yaw 0
+  - `BP_Door_Hallway_Utility` — `(750, 1200, 0)`, yaw 0
+  - `BP_Door_Entry_Hallway` — `(600, 300, 0)`, yaw 90
+  - `BP_Door_Entry_LivingRoom` — `(450, 150, 0)`, yaw 0
+  - `BP_Door_Entry_Kitchen` — `(750, 150, 0)`, yaw 0
+
+  All 6 of the Y-running-wall doors share yaw 0 (hinge on the lower-Y jamb of
+  each opening); the one X-running wall (Entry↔Hallway) uses yaw 90 instead,
+  per the worked rotation math above.
+- **Spot-checked 3 instances** (`Hallway_Bathroom`, `Entry_Hallway`,
+  `Entry_LivingRoom`) — one from each yaw case plus a second yaw-0 case.
+  `get_actor_bounds` on the placed actors initially looked wrong (e.g.
+  `X[322,578]` instead of the expected `~[446,454]` for `Hallway_Bathroom`) —
+  tracked this down to a `BillboardComponent` that the *editor* silently
+  attaches to placed instances of any Blueprint actor whose root component
+  isn't itself a primitive (ours is a plain `SceneComponent`,
+  `DefaultSceneRoot`); confirmed via `get_components` on the Blueprint's own
+  CDO that this billboard isn't part of the class definition at all — it's a
+  transient, editor-only per-instance visualization aid (standard engine
+  behavior for giving invisible-root actors a selectable icon), not something
+  I added or need to remove, and it doesn't exist in PIE/packaged builds. Threw
+  out the bounds-box approach and instead verified placement by reading each
+  instance's actual `DoorLeaf`/`HingePivot` `relativeLocation`/`relativeScale3D`
+  and composing the transform by hand against the actor's own world transform
+  — all 3 checks landed exactly on their target opening's coordinates from the
+  brief (e.g. `Entry_Hallway`'s leaf works out to world `X[555,645] ×
+  Y[296,304]`, matching that opening's `X[555,645]` span on the `Y=300` wall
+  plane exactly).
+- Compiled `BP_Door`, saved all dirty assets, re-checked `is_dirty` on
+  `BP_Door`, `WBP_InteractPrompt`, and the level — all `false`, no OFPA lag
+  outstanding. `git status` confirmed 7 new external-actor packages (one per
+  door instance), 1 new external-object package, `BP_Door.uasset`, and the new
+  `Content/UI/WBP_InteractPrompt.uasset` — nothing else touched.
+
+**Blocked / not resolved:** nothing — no blockers hit this stage.
+
+**Pushed:** no — local commit only (`b032664`), human should review before
+pushing per the standing rule.
+
+**Worth a human PIE pass before trusting this further** (everything below was
+checked structurally/numerically, never actually rendered or played):
+- The hinge swing direction (`-90°`) was picked arbitrarily per instruction —
+  worth confirming in PIE that no door swings through a wall or into a piece
+  of furniture that gets added later. Both swing directions are geometrically
+  valid from the doorway-gap math alone; only a visual check tells you which
+  one reads right per room.
+- The `150uu` proximity radius and the `AutoReceiveInput=Player0`-based E
+  hookup are untested against an actual player capsule — the brief noted
+  "nearest door responds" is good enough for a grey-box pass and multiple
+  doors' input priority wasn't handled carefully; two doors within 150uu of
+  each other (shouldn't happen at current room sizes, but worth a glance) could
+  both try to toggle on one E press.
+- The `WBP_InteractPrompt` text is genuinely unstyled (default white,
+  default font/size) — confirm it's actually legible against whatever's behind
+  it once there's real lighting, not just placeholder brightness.
+- Editor-only `BillboardComponent` note above is informational, not a
+  problem — flagging only so nobody spends time investigating it as a bug if
+  `get_actor_bounds` looks weird on a `BP_Door` instance again later.
+
+**Next:** no further stage number was given for tonight — check back with the
+human for what's queued after the door pass.
+
+---
+
 ## Session — 2026-08-10 — unattended overnight build, STAGE 2 (block out 7 rooms)
 
 Continuing the numbered stages from the STAGE 1 session below, same unattended
