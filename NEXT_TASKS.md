@@ -77,7 +77,30 @@ for furniture pieces — metal/chairs/mid-tone surfaces per spec §10).
 
 ---
 
-## 3. Build the actual peripheral-vision post-process pass
+## 3. Verify door interaction end-to-end, add a basic toggleable flashlight
+
+**Door check first, not a rebuild.** Stage 6 (already committed —
+`b032664`, `BP_Door`) should already give E-to-interact door opening with a
+hinge swing and an on-screen prompt. Before building anything new here,
+actually verify it works: walk up to a placed `BP_Door` instance in PIE
+(or via whatever headless verification MCP allows), confirm E toggles it
+open/closed and the prompt text updates. If it's already working, note that
+in `AGENT_LOG.md` and move on — don't rebuild something that isn't broken.
+If it's NOT working, that's a real bug, fix it before continuing.
+
+**Flashlight — new, keep it simple.** A basic toggleable flashlight, not
+the full Act 2 spec from `PERIPHERAL_UNREAL_HANDOFF.md` §7 (that has a
+precise dual-cone hot/fill setup and a specific warm hex color — worth doing
+properly later, not tonight). Tonight's version: a single `SpotLight`
+component attached to the camera, reasonable default cone/intensity/range
+for a first-person flashlight, toggled on/off with **F** (E is interact, F9
+is anomaly debug-arm, F is free). Doesn't need to be off by default or tied
+to any game state yet — just something the player can click on and see
+work.
+
+---
+
+## 4. Build the actual peripheral-vision post-process pass — build it OFF by default
 
 This hasn't been built at all yet — everything so far is movement, rooms,
 and one anomaly's logic. This is the single most recognizable piece of the
@@ -85,6 +108,14 @@ whole game (the "eerie edges" effect from the web prototype) and it's
 currently completely absent. `PPV_Global` already exists and is already
 `Unbound` with UE's default junk (bloom/lens flare/etc.) zeroed — build on
 top of that volume, don't create a second one.
+
+**Build it toggle-able, OFF by default — this is a change from earlier.**
+The first playable beta needs to be bright and clearly reviewable (map
+review, not atmosphere), and this effect deliberately degrades detail
+toward screen edges by design — the two goals directly conflict. Bind it
+to a debug key (**F11** — E/F9/F/F10 are all taken) that enables/disables
+the post-process material's effect at runtime. Default state on session
+start: **off**.
 
 Read `CLAUDE.md`'s "Peripheral vision technique" section first — full spec
 of what's changed from the original handoff doc. Key points to implement:
@@ -111,12 +142,14 @@ needing a visual check in `AGENT_LOG.md` and move on to task 3.
 
 ---
 
-## 4. Day/night lighting toggle (debug tool, not final Act 1/2 systems)
+## 5. Day/night lighting toggle (debug tool, not final Act 1/2 systems)
 
-A simple debug keybind — **F10** (F9 is already the anomaly force-arm) —
-that swaps between two lighting presets for testing/preview purposes only.
-Not the full Act 2 system (no flashlight, no breaker box, no power-restore
-sequence — those are much bigger separate features, out of scope here).
+A simple debug keybind — **F10** — that swaps between two lighting
+presets for testing/preview purposes only. Not the full Act 2 system (no
+breaker box, no power-restore sequence — bigger separate features, out of
+scope here). **Day is the default on session start and should stay bright
+— the first playable beta is explicitly meant to be reviewed in daylight,
+not the dark mode.** Night is opt-in only, never the default.
 
 - **Day preset** (current default): existing lighting as-is.
 - **Night preset**: drop `DirectionalLight` intensity near zero, drop
