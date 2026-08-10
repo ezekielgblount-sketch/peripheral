@@ -159,3 +159,46 @@ not the dark mode.** Night is opt-in only, never the default.
 
 Keep it dumb and simple — a bool + two hardcoded intensity sets. This is for
 previewing what dark will look like, not the real implementation.
+
+---
+
+## 6. Simple exterior environment — human tester walked outside the house and fell out of the world
+
+Real bug found in testing tonight, not hypothetical: nothing exists outside
+the house's walls, so a player who exits through the front-door opening (cut
+in Stage 3, Entry's south wall, centered X=600 Y=0) just falls forever. This
+needs at minimum a ground plane and a boundary so the world is walkable and
+enclosed — a full yard build isn't required tonight, just "you can step
+outside, walk around, come back in" without falling through the world.
+
+`PERIPHERAL_UNREAL_HANDOFF.md` §6 already specs a yard, in metres: fenced
+perimeter roughly x −5 to 17, z −9 to 17 (**Unreal X −500 to 1700, Y −900 to
+1700** per `CLAUDE.md`'s axis conversion — z maps to Y, not Z), fence height
+1.1m (**110uu**), gap at the front for a gravel path, treeline, porch. That
+level of detail (gravel path texture, individual conifer meshes, porch
+structure) is NOT required tonight — grey-box only, same discipline as the
+house interior:
+
+- One large flat ground plane (a scaled `SM_Cube` or `SM_Plane`, `M_FlatCol`
+  in a Dark or Mid palette tone — ground shouldn't be a wall color) spanning
+  at least that fenced-perimeter footprint, Z=0 aligned with the house
+  floor so there's no seam/step at the front door threshold.
+- A simple boundary at roughly that perimeter so the player can't walk (or
+  fall) off the edge of the world — doesn't need to be a literal fence prop,
+  an invisible or simple blocking volume at the perimeter is fine for
+  tonight, though a plain `SM_Cube` "fence" strip at 110uu height in the
+  palette's Dark tone (matching the spec's fence) is barely more work and
+  reads better if there's time.
+- Leave a gap in the boundary roughly where the gravel path/porch would be
+  (spec says "at the front," i.e. south of the front door opening, centered
+  around X=600) — doesn't need an actual path or porch built, just don't
+  wall off the one side that's supposed to eventually have one.
+- Basic outdoor lighting already mostly exists (the level's `DirectionalLight`/
+  `SkyLight`/`SkyAtmosphere` cover this) — just confirm the new ground plane
+  and boundary actually receive light and aren't sitting in unexpected
+  shadow/black.
+
+File everything under a new outliner folder `Blockout/Yard`. This is
+explicitly a "don't fall out of the world" fix plus bare walkability, not
+the real yard (treeline, gravel path, porch, breaker box) — that's future
+work per the handoff spec, don't over-build it tonight.
