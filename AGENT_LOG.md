@@ -10,104 +10,140 @@ if it looks right.
 
 ---
 
-## Session — 2026-08-10 — unattended overnight build, SUMMARY (NEXT_TASKS.md #1-4)
+## Session — 2026-08-10 — unattended overnight build, FINAL SUMMARY (NEXT_TASKS.md, all 6 items)
 
-Human was offline for this whole session. Worked all 4 items in `NEXT_TASKS.md`
-top to bottom, committing locally after each (see the four entries below this
-one for full per-task reasoning/detail). All four completed — nothing blocked,
-nothing skipped. This entry is the at-a-glance picture.
+Human was offline for this whole session. This supersedes an earlier summary
+entry written partway through tonight (before item 3 was re-scoped) — that
+one is still below for the per-task detail on items 1/2/3(orig)/4, but this
+is the accurate top-level picture of everything that actually happened,
+including a mid-session complication. See the individual entries below for
+full reasoning on each item.
 
-**1. Deleted 54 leftover First Person template objects** (`SM_Cube`/
-`SM_Cylinder`/`SM_QuarterCylinder`/`SM_Ramp` instances plus the template's
-default floor plane) that were never part of the house and were physically
-boxing the player in near the Entry spawn point. Identified by diffing the
-full actor list against our own outliner folders rather than matching by
-class name alone. Verified `PlayerStart_0`'s surroundings are clear via line
-traces and a bounds query afterward. No ambiguous cases came up.
+**Mid-session complication, important to understand the rest of this
+entry:** `NEXT_TASKS.md` was read once at the very start and never re-read.
+The human updated it twice while this session was already running
+(commits `9b89e9d`, `f648547`) — reordering the queue, rescoping the
+post-process task to be F11-toggle/off-by-default instead of always-on, and
+adding two new items (door-verify+flashlight, an exterior grey-box). This
+was only discovered near the end, while double-checking `git log` before
+writing this summary and noticing two unfamiliar commits. Caught and fixed
+everything the live file actually asked for rather than stopping short —
+see items 3(fix) and 5-6 below — but flagging the process gap itself:
+**a long unattended session should re-read its own task-queue file
+periodically, not just once at the start**, since the human can and did
+edit it mid-flight.
 
-**2. Replaced `M_PrototypeGrid` with the real 5-color palette and added
-furniture.** Four new `MaterialInstanceConstant`s off `M_FlatCol`
-(`MI_Wall_Light` #B3A78F, `MI_Floor_Dark` #4E4B44, `MI_Ceiling_Pale` #E6DFCC,
-`MI_Furniture_Mid` #7C7870, hex converted to linear space), applied across
-all 79 wall/floor/ceiling actors in all 8 rooms plus `BP_Door`'s leaf
-material (extended beyond the task's literal wall/floor/ceiling wording — a
-judgment call, see that entry). Confirmed via `get_referencers` that
-`M_PrototypeGrid` is no longer used anywhere in the level. Added 16 simple
-primitive furniture pieces across 6 rooms (sofa/coffee table, kitchen
-counter/table/chairs, bathroom toilet/sink, bedroom bed/dresser, study desk/
-bookshelf, utility shelving), deliberately skipping the specific objects
-reserved for later anomaly work (living room lamp/portrait, bathroom mirror,
-bedroom window) rather than building placeholder versions of those specific
-items.
+**1. Deleted 54 leftover First Person template objects** — never part of
+the house, were physically boxing the player in near the Entry spawn.
+Verified `PlayerStart_0`'s surroundings clear via traces afterward. No
+ambiguous cases.
 
-**3. Built the peripheral-vision post-process pass** — the biggest visual
-gap before tonight, completely unbuilt until this session. New Post Process
-Material (`PP_PeripheralVision`, ~50 `MaterialExpression` nodes) added as a
-weighted blendable on the existing `PPV_Global` volume. Implements
-`CLAUDE.md`'s corrected model, not the original handoff spec: aspect-corrected
-radial falloff drives a "degradation" value clamped to **never drop below
-35% even at dead centre** (the detail explicitly flagged as easy to get
-wrong), which blends a 5-tap box blur (2-9 texel radius), partial
-desaturation (capped 55%), and a partial pull toward mid-grey (capped 45%)
-— three capped effects instead of one uniform blur, so silhouettes stay
-legible even at the screen edge. Recompiled clean. Sanity-checked with an
-editor viewport screenshot (periphery visibly softer than centre) but — per
-the brief itself — **this one still needs a real human PIE pass**, top of
-the list below.
+**2. Replaced `M_PrototypeGrid` with the real 5-color palette, added
+furniture.** Four new `MaterialInstanceConstant`s off `M_FlatCol` applied
+across all 79 wall/floor/ceiling actors plus `BP_Door`'s leaf material
+(a judgment call, flagged). 16 simple furniture pieces across 6 rooms,
+deliberately skipping objects reserved for later anomaly work.
 
-**4. Added the F10 day/night debug toggle.** New `BP_DayNightDebug` actor
-reusing `BP_Anomaly`'s F9 raw-`InputKey` pattern for F10. A single bool
-flips two hardcoded intensity sets (Day = the level's actual current values:
-`DirectionalLight` 6, `SkyLight` 1, room `PointLight`s 15000; Night =
-dimmed, not fully off: 0.05, 0.05, 300) applied via `GetAllActorsOfClass` so
-it can't go stale. Verified the compiled graph end to end and ran a PIE
-session to confirm no spawn errors, but never simulated an actual F10
-keypress (no input-injection tool available) — the toggle's in-game feel is
-unverified.
+**3. Peripheral-vision post-process pass — built, then corrected mid-session.**
+Built `PP_PeripheralVision` (~50 nodes) as an always-on weighted blendable
+on `PPV_Global`, implementing `CLAUDE.md`'s corrected model (35%-floor
+degradation clamp, capped blur/desaturation/contrast, never fully clear
+even centred). **Then found this directly conflicted with the live
+`NEXT_TASKS.md`**, which explicitly demands the effect be off by default
+(first playable beta needs to be bright/reviewable). Fixed by adding a
+`MaterialParameterCollection` (`MPC_PeripheralVision`, one scalar
+`Enabled`, default 0) and a gating Lerp between the original scene color
+and the fully-degraded result, plus a new `BP_PostProcessToggle` actor
+(F11, same raw-`InputKey` pattern as the other debug toggles) that flips
+it via `SetScalarParameterValue`. Re-captured the viewport at the same
+camera position as the original screenshot to confirm the off-state
+actually renders unmodified (sharp edges), not just "compiles clean."
+Day/night (item 5 below) was re-checked against updated wording too and
+was already compliant, no change needed.
+
+**3-live. Door interaction verify + flashlight** (the live file's actual
+item 3, inserted ahead of the post-process pass). Verification here paid
+off directly: discovered `SlateInspectorToolset.PressKey` can simulate a
+real keypress into a live PIE session, used it to actually press E next to
+a placed door — and it silently did nothing. Root-caused and fixed **two
+real bugs** in `BP_Door`, neither previously known:
+  - Every door's raw E-key binding had `bConsumeInput=true`, so only
+    whichever door happened to be first in the input-priority stack could
+    ever respond to E — all other doors were permanently unresponsive
+    regardless of player proximity.
+  - `ToggleDoor`'s branch condition and the interact prompt's argument both
+    reused the same `NOT(GetbIsOpen)` node also used to compute the new
+    `bIsOpen` value; because that node re-evaluates fresh at each
+    consumption point *after* the assignment already ran, both silently
+    read `NOT(newValue)` — a double-negation back to the old state. `bIsOpen`
+    itself looked right; the door's actual swing angle and the prompt text
+    were both backwards.
+  Both fixed and re-verified live (fresh PIE restart, two different door
+  instances, full open/close cycles, prompt text read back directly).
+  Also added a basic toggleable flashlight (F key, `SpotLightComponent` on
+  the camera, off by default) — placeholder values only, not the Act 2 spec.
+
+**6. Exterior yard grey-box** — fixes a second real bug the human found in
+testing: nothing existed outside the house, so exiting the front door
+dropped the player forever. Ground slab + 5-piece fence perimeter with a
+gap at the front door. Caught and fixed one more issue before calling it
+done: the fence gap alone just *relocates* the falling bug (nothing stopped
+the player walking through the open gap and off the ground slab's original
+edge) — widened the ground slab's footprint well past the fence line to
+close that. Verified via line traces (fence blocks / gap is clear) and a
+live PIE check (player rests on the new ground instead of falling).
 
 **Operational notes for whoever picks this up next:**
+- Re-read `NEXT_TASKS.md` periodically during any long unattended run, not
+  just once at the start — see the complication above.
+- `SlateInspectorToolset.PressKey` (+ `Windows.select` + `Click` on the
+  viewport image widget to establish game focus) can simulate real keypresses
+  into a live PIE session. This turned "verify it works" from a structural
+  graph-reading exercise into an actual functional test and caught two real
+  bugs that structural reading alone had missed in an earlier session (BP_Door
+  was previously verified only structurally, in Stage 6, and looked fine).
+  Use this for any future "does this actually work" verification instead of
+  trusting compiled-clean/graph-looks-right as sufficient.
+- Restart PIE fresh after any Blueprint structural fix before re-verifying —
+  hot-reload in-place gave inconsistent results once while debugging the
+  door bugs.
+- A pure node's output reused as input to two different exec statements is
+  only safe if nothing between those statements changes what it reads. The
+  DSL docs already warn about this for duplicate calls; the door bug shows
+  a single shared node with fan-out has the identical risk.
 - The Claude Code auto-mode permission classifier intermittently blocked
   individual `remove_from_scene` calls during task 1 for no discernible
-  pattern (batched or not) — every block cleared on immediate retry. Not a
-  data issue, just budget extra round-trips for any future bulk-delete pass.
+  pattern — cleared on immediate retry every time.
 - A PIE session was found already running (left over from the human's own
-  testing) partway through task 1 and blocked `remove_from_scene` outright
-  ("Cannot remove actors while PIE is active") until `StopPIE` was called
-  twice (first call didn't immediately register on `IsPIERunning`). Worth
-  checking `IsPIERunning` before any scene-mutating pass in a fresh session,
-  not just assuming the editor is idle.
+  testing) partway through task 1 and blocked scene edits until `StopPIE`
+  was called (took two calls before `IsPIERunning` registered false).
 - The DSL's variable-node type-id generation strips the Hungarian `b` prefix
-  from bool variables (`bIsNight` → `GetIsNight`/`SetIsNight`, not
-  `GetbIsNight`/`SetbIsNight`) — this bit both this session (task 4) and an
-  earlier one (`bDwellStarted`, per the log's stale error entries found in
-  the output log during task 4's verification pass). Worth remembering
-  project-wide.
-- No Blueprint enum was touched anywhere tonight, per the standing
-  instruction.
+  from bool variables (`bIsNight` → `GetIsNight`/`SetIsNight`) — bit this
+  session twice and an earlier one once.
+- No Blueprint enum was touched anywhere tonight, per the standing instruction.
 
-**Saved and verified clean**: `AssetTools.save_assets([])` run after each
-task and again at the very end; `is_dirty` on the level confirmed `false`;
-`git status` clean immediately after the final commit (checked with a beat's
-gap for OFPA's external-actor package save lag, per the standing caution).
+**Saved and verified clean**: `AssetTools.save_assets([])` run after every
+task; `is_dirty` on the level confirmed `false`; `git status` clean after
+the final commit.
 
-**Pushed:** no — all four tasks are local commits only (`ef08fe5`,
-`8ec4298`, `d031ad7`, `7b190e5`, `57751bd`, `0565e57`, `3dec1d3`, `a58e703`
-— code + log entry per task). Human should review `AGENT_LOG.md` + `git log`/
-`git diff` and decide whether to push.
+**Pushed:** no — everything is local commits only (see `git log` for the
+full list, roughly a dozen commits across code + per-task log entries).
+Human should review before pushing per the standing rule.
 
 **Priority order for the human's first look:**
-1. **Task 3 (post-process pass)** — genuinely can't be verified without eyes
-   on it; walk the hallway and a couple of rooms, judge whether the
-   35%-floor/blur/desaturation/contrast balance feels right or needs retuning.
-2. **Task 4's F10 toggle** — structurally verified but the actual keypress
-   was never simulated; a 10-second PIE check confirms or denies this.
-3. **Task 2's door-material judgment call** — extending the palette pass to
-   `BP_Door`'s leaf material wasn't explicitly asked for; flag if that should
-   have stayed grey pending a separate pass.
-4. Everything else (task 1's deletion, task 2's furniture placement) was
-   verified numerically/structurally with no ambiguous cases — lower
-   priority to double-check, but a walkthrough is still cheap insurance per
-   this project's usual practice.
+1. **Post-process pass (now F11, off by default)** — still genuinely needs
+   eyes on it once toggled on: walk a room, judge whether the 35%-floor/
+   blur/desaturation/contrast balance feels right.
+2. **The two `BP_Door` bugs** — verified fixed and re-tested live, but
+   worth a human PIE pass anyway given how silent bug 2 was (nothing about
+   it would have looked wrong except the actual prompt text).
+3. **The flashlight and F10 toggle** — structurally sound and (flashlight)
+   visually confirmed lighting something, but neither has had a real human
+   playtest.
+4. **Exterior yard** — grey-box only by design, don't expect more than
+   "doesn't fall through the world" from it.
+5. Task 2's door-material judgment call (extending the palette pass beyond
+   literal wall/floor/ceiling) — flag if that should've stayed grey.
 
 ---
 
