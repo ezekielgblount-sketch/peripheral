@@ -179,6 +179,32 @@ hallway into one walkable loop.
 
 ---
 
+## Session — 2026-08-10 — unattended overnight build, STAGE 5 (move PlayerStart to Entry)
+
+**Did:**
+- Checked `PlayerStart_0`'s current transform before touching it: `(600, 350,
+  110)`, yaw 90° — this was last moved (per an earlier session's log entry) to
+  sit just inside the hallway's south entrance for testing, before Entry
+  existed.
+- Moved it to Entry's centre: `(600, 150, 110)`, yaw 90°. Kept the same
+  Z=110 (~110uu above floor) and yaw=90° (facing toward increasing Y, i.e.
+  into the interior) conventions the hallway placement already established,
+  per instruction. Entry is still an empty sealed-and-now-doored box with
+  nothing in particular to face, so "facing further into the house" was the
+  only meaningful choice available, and yaw 90° does exactly that (faces
+  toward the Entry↔Hallway doorway on Entry's north wall).
+- Confirmed via `get_actor_transform` after the move.
+
+**Blocked / not resolved:** nothing this stage.
+
+**Pushed:** no — local commit only, human should review before pushing.
+
+**Next:** Stage 6 (door Blueprint) — explicitly not started this session, per
+instruction. See the summary entry above/below for the full Stage 2-5
+picture.
+
+---
+
 ## Session — 2026-08-10 — unattended overnight build, STAGE 1 (anomaly bug fix)
 
 Human is offline for the rest of this session. Working the numbered stages
