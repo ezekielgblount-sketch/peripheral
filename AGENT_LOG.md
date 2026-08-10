@@ -10,6 +10,57 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-09 (DESIGN.md — consolidated spec)
+
+**Did:**
+- Saved a user-supplied consolidated feature list as `DESIGN.md` at repo
+  root, per instruction: "the single source of truth... Claude Code reads it
+  as context on every run." Content preserved verbatim below a flagged-
+  conflicts preamble, same pattern as `VISUAL_REFERENCE.md`.
+- Compared it against the shipped build (not just the other docs) since this
+  one explicitly claims superseding authority — a doc that's wrong about
+  what's already running is worse than one that's silent about it.
+- Found 10 issues, flagged at the top of the file, not resolved. Highlights:
+  1. Revision 0.3's status is ambiguous — not listed among what's
+     superseded, but the doc's own Act 2 section describes a 22° flashlight
+     and a breaker-flip-ends-the-game ending, both of which 0.3 changed *at
+     this user's explicit request earlier in this conversation* (the wide
+     flashlight fix, and the key/lock epilogue). Also silent on all-doors-
+     interactable and the shower's water/curtain FX.
+  2. Two contradictions **within the pasted document itself**: §1 says ~20
+     minutes, §12 says ~8 minutes; §13 says "no music tied to events," §8
+     prescribes a 3-second anomaly-timing silence window four lines away.
+  3. The anomaly roster (§4.5, capped at "eleven total") drops 3 currently-
+     shipped anomalies and adds 2 new ones, while converting four
+     furniture-only anomalies into full-figure appearances — a rhythm
+     change (~40% -> 80%+ figure reveals), not a wording pass.
+  4. Bed-gating behind four chores reverses the "never gate the bed" rule
+     stated as non-negotiable in every prior version of this spec, including
+     the shipped code's own comment.
+  5. "Act 2 has no piano" reverses revision 0.2-D, added specifically
+     because this user asked for airier Act 2 music with piano.
+  6. The PR-per-milestone / single-"director"-merges workflow (§11, §14)
+     conflicts with `CLAUDE.md`'s direct-push-after-AGENT_LOG-entry model —
+     and with how this session and the prior two have actually operated.
+  7. Sides firmly with the original palette and the shipped radial-blur
+     shader — a third document now disagreeing with `VISUAL_REFERENCE.md`,
+     which is still sitting unresolved.
+  8. "No second location" bears directly on the still-open Isolation
+     question from `FEATURE_LIST.md`.
+- Did not touch game code, README, the handoff doc, or any other file to
+  implement or reconcile any of this — comparison and flagging only, same as
+  the last two sessions.
+
+**Pushed:** yes (human — Ezekiel — asked for it explicitly, same as the two
+sessions above).
+
+**Next:** items 1, 4, and 5 above touch features this user asked for by name
+earlier in the same conversation this doc arrived in — those three
+specifically are worth a direct human answer before anyone builds against
+this file, not just a "someone will get to it eventually."
+
+---
+
 ## Session — 2026-08-09 (feature-list comparison)
 
 **Did:**
