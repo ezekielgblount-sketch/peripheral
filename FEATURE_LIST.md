@@ -18,11 +18,39 @@ nothing in it conflicts with how this comparison was done.
 
 ---
 
-## ⚠️ NEEDS A DECISION
+## ✅ RESOLVED (2026-08-09) — Isolation supersedes Peripheral, default to Isolation on any conflict
 
-These aren't resolved below — each one changes either the shape of the
-project or a rule the existing spec treats as load-bearing. Flagging, not
-picking.
+Team decision, not a per-item call: Isolation is the project going forward.
+Peripheral was a 2-hour brainstorm; Isolation is the matured version. Standing
+rule for anything below or anything found later: **when the two designs
+disagree, build Isolation's version.** "If problems arise, we'll address them"
+— not trying to pre-solve every edge case today.
+
+Applied to the six items below:
+
+1. **Same project.** Isolation is what gets built. Peripheral's anomaly/fovea
+   code is the starting engine, not a finished game being extended. The
+   anonymous-player/buyer-sign design (handoff §9) is retired — Isolation has
+   a named protagonist (Jack).
+2. **Vision clarity.** Isolation's model: detail-reduction (not blur), nothing
+   ever reaches full clarity even under sustained centred focus, cap ~60–70%.
+   See `CLAUDE.md`'s "Peripheral vision technique" section.
+3. **Inventory/collectibles.** Building it — memory collectibles + comfort-item
+   attrition system, per Isolation §16–19.
+4. **Entity chase-adjacent sequence.** Building the Day 3 running-footsteps/
+   back-door sequence per Isolation §50–51. Entity still never touches/kills
+   the player.
+5. **House topology.** Deferred, not rejected — doesn't block current grey-box
+   work. Static level assumptions are fine for now; topology-shifting is a
+   layer added later, once the core fovea/anomaly mechanic is proven.
+6. **Back door + garage.** Building it, per Isolation §27–28, §51.
+
+The items below this line predate the resolution above and are kept for
+context on *why* each call was close enough to need one — not still open.
+
+---
+
+## Original flagging (kept for context, see resolution above)
 
 ### 1. Is "Isolation" the same project as Peripheral, or a different one?
 

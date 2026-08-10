@@ -1,15 +1,30 @@
-# Peripheral — Unreal Engine build
+# Peripheral / Isolation — Unreal Engine build
 
 Horror game about the gap between what you're **looking at** and what you can **see**.
-Things go wrong at the edge of the frame and are ordinary again by the time you centre them.
+Things go wrong at the edge of the frame and stay uncertain even when you centre them.
+
+## Project direction (2026-08-09 — read this first)
+
+**Isolation supersedes Peripheral as the design.** Peripheral was a 2-hour brainstorm
+prototype; Isolation is the matured version from the rest of the team, bigger in
+scope, and it's the direction now. Team's explicit rule: **when the two designs
+conflict, default to Isolation.** Not case-by-case — a standing rule.
+
+`FEATURE_LIST.md` at repo root has the full comparison: what's resolved, what's new,
+what's a straight duplicate. Read it before building anything the "don't" list below
+would otherwise block — several of those rules have already flipped.
+
+Project name is still "Peripheral" in the `.uproject`/folder structure — not renamed
+yet, deliberately deferred, not urgent.
 
 ## The spec is not in this file
 
-`PERIPHERAL_UNREAL_HANDOFF.md` at repo root is the **source of truth** for every
-number, every anomaly, every audio cue, every threshold. Read it before implementing
-anything. This file only covers how we work in Unreal.
-
-If this file and the handoff spec disagree, **the handoff spec wins.**
+`PERIPHERAL_UNREAL_HANDOFF.md` at repo root is still the **source of truth for
+mechanics and numbers not touched by the Isolation pivot** — most of the anomaly
+system, the fovea/occlusion math, movement, audio design principles all carry over
+unchanged (see `FEATURE_LIST.md`'s "Duplicates" section). Read it before implementing
+anything. But where `FEATURE_LIST.md` records a resolved conflict, **that resolution
+wins over the handoff spec**, not the other way around.
 
 ## Hard environment rules
 
@@ -80,10 +95,12 @@ A glint tells the player where to look, and controlling that is the entire game.
 
 ## Architecture: two systems that must stay separate
 
-1. **The peripheral post-process** (blur + desaturate + dim toward screen edges).
-   Purely cosmetic. Never gameplay-authoritative.
+1. **The peripheral post-process.** Purely cosmetic. Never gameplay-authoritative.
+   **Technique is changing per the Isolation pivot** — see below, don't build the
+   handoff spec's version.
 2. **The anomaly state machine.** Pure gameplay logic. Never reads the post-process,
-   never hidden by it.
+   never hidden by it. This part is a confirmed duplicate between both designs —
+   build it as the handoff spec describes, no change needed here.
 
 They rhyme thematically. They must not touch in code.
 
@@ -92,7 +109,24 @@ They rhyme thematically. They must not touch in code.
 **An anomaly may never visibly transition on-screen.** It changes state only on a
 frame where the player's view cone is far enough away, or it's fully occluded.
 `SetOff()` and `SetNormal()` are **instant** — no tween, no fade, no sound, no
-animation. One frame. It must look like it was never anything else.
+animation. One frame. It must look like it was never anything else. This rule is
+unchanged by the Isolation pivot.
+
+### Peripheral vision technique — resolved in favor of Isolation (was open, see FEATURE_LIST.md #2)
+
+The handoff spec's technique (radial blur + desaturate, ~20% of screen radius fully
+sharp, dead centre always 100% clear) is **not what gets built**. Isolation's model:
+
+- **Detail-reduction, not blur** — reduce internal edges, texture, and contrast
+  differentiation while preserving silhouettes. Don't substitute a blur pass.
+- **Nothing ever reaches full clarity, even centred, even under deliberate sustained
+  focus.** Cap around 60–70% clarity at best. An anomaly's *state* (is it in its
+  "wrong" configuration or not) stays a clean binary ground truth in the state
+  machine — what's capped is the player's ability to visually *confirm* which one
+  they're looking at. The uncertainty lives in the rendering layer, not the game
+  state.
+- This directly affects the not-yet-built post-process pass (handoff §11). Doesn't
+  affect the anomaly state machine or fovea/occlusion math — those are unchanged.
 
 ## Conventions
 
@@ -112,17 +146,25 @@ unreal/Peripheral/       (.uproject lives here — this is the project root)
 - Palette is five colours (spec §10). The Act 2 flashlight warm `#FFE6B8` is the
   only saturated colour permitted anywhere in the game.
 
-## The "don't" list (spec §13 — not suggestions)
+## The "don't" list (spec §13 — still true except where Isolation overrides it)
 
-- No jumpscares, screamer stings, or loud transients. Ever.
-- No blood, gore, or written lore.
-- The entity never chases, touches, or kills the player.
-- No stamina, inventory, collectibles, or notes. No jump, no crouch, no sprint.
-- No post-processing beyond the single peripheral pass.
-- The buyer's name is local-only. Never networked, never logged, never analytics.
+- No jumpscares, screamer stings, or loud transients. Ever. **(unchanged)**
+- No blood, gore, or written lore. **(unchanged)**
+- ~~The entity never chases, touches, or kills the player.~~ **Isolation has a Day 3
+  running-footsteps/back-door sequence that reads as chase-adjacent — build to
+  Isolation's version. It still never touches/kills the player (that part holds);
+  the "never approaches fast" part doesn't.**
+- ~~No stamina, inventory, collectibles, or notes.~~ **Isolation's collectible-memory
+  and comfort-item-attrition systems are a core pillar — build them. No stamina, no
+  jump, no crouch, no sprint still hold.**
+- No post-processing beyond the single peripheral pass — **still true, but see the
+  Isolation vision-technique section above for what that pass actually is now.**
+- The buyer's name is local-only... **N/A, Isolation has a named protagonist
+  (Jack), not an anonymous player — the buyer-sign mechanic is retired. See
+  `FEATURE_LIST.md` #1.**
 
 If something "doesn't feel scary," the fix is **visibility and pacing**, never a
-startle.
+startle. This one's unchanged.
 
 ## Workflow
 

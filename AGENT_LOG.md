@@ -10,6 +10,37 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-09 (Isolation pivot)
+
+**Did:**
+- Team decided Isolation supersedes Peripheral as the project direction —
+  Peripheral was the 2-hour brainstorm, Isolation is the matured version from
+  the rest of the team. Standing rule going forward: default to Isolation on
+  any conflict between the two designs, not a case-by-case call.
+- Resolved all six `FEATURE_LIST.md` "needs a decision" items against that
+  rule (see the file — vision-clarity technique, collectibles, chase-adjacent
+  Day 3 sequence, and back door/garage are all "build it"; house topology is
+  deferred as a later layer, not rejected; buyer-sign mechanic is retired).
+- Updated `CLAUDE.md`: flagged the vision-technique change (detail-reduction,
+  never fully clear even centred, ~60-70% clarity cap — supersedes the
+  handoff spec's radial-blur/fully-sharp-centre model), updated the "don't"
+  list to show which rules flipped vs. which still hold, corrected the
+  doc-precedence note (`FEATURE_LIST.md` resolutions now outrank the handoff
+  spec where they conflict).
+- No code changed. Anomaly state machine, fovea/occlusion math, and movement
+  are confirmed duplicates between the two designs — unaffected by this pivot,
+  no rework needed there.
+
+**Pushed:** no — commit locally, human should review before pushing (this one
+touches the "don't" list the whole project has been building against, worth
+an actual look before it goes to the remote).
+
+**Next:** the FoveaComponent + anomaly state machine build (already queued)
+proceeds unchanged. The vision-clarity correction applies to a *different*,
+not-yet-started task — the actual peripheral post-process pass (handoff §11)
+— build that one to the corrected spec when it comes up, not the handoff
+doc's version.
+
 ## Session — 2026-08-09 (2)
 
 **Did:**
