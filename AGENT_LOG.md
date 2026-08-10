@@ -10,6 +10,49 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-09 (template strip + hallway blockout)
+
+**Did:**
+- Stripped the First Person template character (`BP_FirstPersonCharacter`):
+  confirmed there is no gun/projectile logic anywhere in the project (this
+  UE 5.8 template ships gunless — no weapon mesh, no fire/projectile nodes,
+  no Weapon/Gun/Projectile-named assets), so nothing to remove there. Removed
+  jump entirely: deleted the `IA_Jump` event nodes and the `Character|Jump`/
+  `StopJumping` calls from `EventGraph` (both the enhanced-input and
+  touch-input paths), and removed the `IA_Jump` key mappings (SpaceBar,
+  gamepad face-button-bottom) from `IMC_Default`. Left the unused `IA_Jump`
+  asset file in place rather than deleting it.
+- Set `CharMoveComp.MaxWalkSpeed = 260` (was the template default 600). Added
+  a new `IA_Walk` Input Action (Boolean, Left Shift mapped in `IMC_Default`)
+  wired in `EventGraph`: Started → `SetMaxWalkSpeed(130)`, Completed/Canceled
+  → `SetMaxWalkSpeed(260)`, both through `GetCharacterMovement()`.
+- Set `BaseEyeHeight = 165` (was the untouched engine default of 64). Caveat:
+  this template's actual FPS camera is attached through the `FirstPersonMesh`
+  skeletal component (Manny mannequin), not driven by `BaseEyeHeight` — socket
+  attachment data isn't exposed through the available inspection tools, so I
+  could not headlessly verify the *rendered* camera height is actually 165uu.
+  Worth a visual check in PIE before trusting this number for anomaly framing.
+- Blocked out the first hallway grey-box per `CLAUDE.md`'s worked axis-
+  conversion example: interior clear space X[450,750] × Y[300,1400] ×
+  Z[0,250], walls at 15uu thickness sitting outside that span (verified via
+  `get_actor_bounds`). Six `SM_Cube` actors (floor/ceiling/4 walls) using
+  `M_PrototypeGrid`, grouped under outliner folder `Blockout/Hallway`. Fully
+  enclosed box — no door openings, since none were specified and this is a
+  grey-box pass only.
+- Along the way, hit a live merge conflict in this file from a concurrent
+  session (`git pull` had landed `FEATURE_LIST.md`/`VISUAL_REFERENCE.md` work
+  from origin and left this file mid-conflict) — it resolved itself before I
+  touched it (someone else finished the merge in parallel), so no action was
+  needed on my end beyond confirming `git status` was clean before continuing.
+
+**Pushed:** no — local commit only, human should review before pushing.
+
+**Next:** visually confirm eye height in PIE (see caveat above) before relying
+on it for anomaly angle math. First anomaly (hallway-end figure, #10) is next:
+grey box + black capsule, full five-state machine, per the handoff spec.
+
+---
+
 ## Session — 2026-08-09 (Isolation pivot)
 
 **Did:**
