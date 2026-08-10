@@ -41,6 +41,25 @@ Angles and seconds carry over unchanged (11°, 40°, 0.12 s).
 
 Get this wrong once and every measurement after it is poisoned.
 
+### Axes also don't match — this is a separate bug from the units one
+
+The spec says so itself (§5): **"x and z horizontal, y up."** That's a
+Three.js/web convention. **Unreal is x and y horizontal, z up.** The spec's
+horizontal `z` axis is Unreal's `Y`, not Unreal's `Z` — copying axis letters
+literally builds everything sideways (a "hallway" becomes a vertical shaft).
+
+| Spec axis | Unreal axis |
+|---|---|
+| x (horizontal) | X |
+| z (horizontal) | **Y** |
+| y (up) | **Z** |
+
+Worked example — the hallway (spec: x 4.5–7.5, z 3–14, in metres):
+**Unreal X 450–750, Y 300–1400**, floor Z=0, ceiling Z=250.
+
+Apply this to every room bound, anchor point, door, and window in §5 and §6 —
+not just the hallway.
+
 ## Unreal's defaults violate our art direction
 
 UE5 ships these **on by default**, and spec §13 forbids every one:
