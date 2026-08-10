@@ -10,6 +10,30 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-09 (2) (connect spawn to the hallway)
+
+**Did:**
+- Human reported being unable to find the hallway in PIE at all. Root cause:
+  `PlayerStart_0` was still sitting at (0, 0, 302) in leftover First-Person-
+  template geometry, nowhere near the hallway (X 450–750, Y 300–1400) — this
+  had already been flagged as a known gap in the previous entry but not yet
+  fixed. Moved `PlayerStart_0` to (600, 350, 110), yaw 90°, just inside the
+  hallway's south entrance, facing up the corridor toward the anomaly at the
+  far end. Saved; only the `PlayerStart_0` external-actor package changed.
+- This was a test-convenience fix, not a real level-flow decision — the
+  hallway box is still fully sealed (no connection to the old template room)
+  and there's no reason yet to think the final game's spawn belongs here.
+  Whoever builds out the rest of the house should feel free to relocate
+  `PlayerStart_0` again once there's an actual front door/entry to spawn at.
+
+**Pushed:** no — local commit only, human should review before pushing.
+
+**Next:** same as last entry (duplicate `Floor_Hallway` cleanup, confirm the
+state-machine loop in PIE, then Director/PlayerProfile wiring) — this session
+was purely unblocking the test, no new content.
+
+---
+
 ## Session — 2026-08-09 (hallway test lighting + geometry re-check)
 
 **Did:**
