@@ -413,6 +413,90 @@ after tonight.
 
 ---
 
+## Session — 2026-08-10 — unattended overnight build, NEXT_TASKS #3-live (door verify/fix, flashlight)
+
+**Important process note first:** partway through tonight's run I discovered
+`NEXT_TASKS.md` had been updated by the human (commits `9b89e9d` and
+`f648547`) *while this session was already working from a copy read at the
+very start* — it was never re-read mid-session. The live file reorders the
+queue, adds two new items (door-verify+flashlight now item 3, an exterior
+grey-box now item 6), and explicitly changes the post-process pass to be
+F11-toggle/off-by-default instead of always-on. See the separate "make
+post-process opt-in" commit for that fix. This entry covers the new item 3.
+
+**Did:**
+- **Door verification, done for real this time** — discovered
+  `SlateInspectorToolset.PressKey` can simulate an actual keypress into a
+  live PIE session (confirmed the mechanism reaches gameplay input at all
+  by testing it against `BP_Anomaly`'s F9 first, which changed `CurrentState`
+  as expected). Positioned the player pawn next to a placed `BP_Door`
+  instance via `set_actor_transform`, confirmed `bPlayerNearby` was true,
+  then pressed E and checked `bIsOpen` before/after — **found it never
+  changed**. This is exactly the "if it's NOT working, that's a real bug,
+  fix it" case the brief called out.
+- **Bug 1 — root cause found and fixed**: every `BP_Door` instance's raw E
+  `K2Node_InputKey` had `bConsumeInput=true` (the node's default). All 7
+  doors bind the same key; the first one in the input-priority stack
+  silently absorbed every E press project-wide, so only that one door could
+  ever respond, regardless of which door the player actually stood next to.
+  Set `bConsumeInput=false`.
+- **Bug 2 — found while re-testing the fix**: after bug 1's fix, `bIsOpen`
+  toggled correctly but the door never visibly swung (`TargetYaw` stayed
+  at 0) and the interact prompt showed the wrong text. Traced it in the
+  actual compiled `ToggleDoor` graph (`get_connected_subgraph`, not
+  `read_graph_dsl`, per the standing rule): the swing-direction Branch and
+  the prompt's `bIsOpen` argument were both wired to the *same* `NOT
+  (GetbIsOpen)` node also used to compute the new value being assigned.
+  Since that node gets pulled fresh at each consumption point and both
+  pulls happen *after* the assignment already ran, both effectively
+  computed `NOT(newValue)` — a silent double-negation back to the old
+  state. `bIsOpen` itself looked right; everything downstream of it that
+  reused the same NOT node was reading backwards. Fixed by adding one
+  fresh `GetIsOpen` node (post-assignment, no negation) and rewiring the
+  Branch condition and `SetPromptOpenState`'s argument to it instead.
+- Re-verified against **two different door instances** in a **freshly
+  restarted** PIE session (not hot-reloaded — an earlier hot-reload
+  in-place during the same PIE session gave inconsistent results while
+  debugging this, worth remembering: always restart PIE after a Blueprint
+  structural fix rather than trusting hot-reload for verification).
+  Confirmed `bIsOpen`, `TargetYaw` (correctly -90 open / 0 closed), and the
+  live prompt widget's actual displayed text (read via
+  `WidgetTree_0.PromptText.text`, not assumed) all matched expectations
+  through open→close→open cycles on both doors.
+- **Flashlight** — new `SpotLightComponent` (`FlashlightComponent`) added
+  under `BP_FirstPersonCharacter`'s existing `FirstPersonCamera`, off by
+  default, toggled by a raw F `InputKey` (confirmed F wasn't already bound
+  anywhere in this Blueprint before adding it) calling a `ToggleFlashlight`
+  function that reads/flips visibility directly (`Rendering|IsVisible` /
+  `Rendering|SetVisibility`) rather than adding a redundant tracking bool.
+  Placeholder values only (8000 candela, 15°/25° cone, 1500uu range, white,
+  movable, casts shadows) — explicitly not the Act 2 dual-cone/warm-color
+  spec per the brief. Verified live: F flips `bVisible`, and a viewport
+  capture with the light on shows a real lit patch on a nearby wall, not
+  just a property flag with nothing rendering.
+- Saved; `git status` showed exactly the two expected Blueprint files
+  changed (`BP_Door.uasset`, `BP_FirstPersonCharacter.uasset`) — nothing
+  else touched.
+
+**Blocked / not resolved:** nothing — both discovered bugs were fixed and
+verified live, not left as known issues.
+
+**Pushed:** no — local commit only (`4a702a1`), human should review before
+pushing per the standing rule.
+
+**Worth flagging to the human:** the two door bugs were real and would have
+shipped silently — worth a mental note that "compiles clean" and even "the
+obvious variable toggles correctly" are not sufficient verification for
+interaction logic; the prompt-text bug specifically would only ever surface
+as "the text feels wrong" during an actual playtest, never as an error.
+Also worth remembering project-wide now: reusing a single pure node's output
+as input to two different exec statements is only safe if nothing between
+those statements changes the values that node reads — the DSL docs already
+warn about this for *duplicate* calls, but a single shared node with fan-out
+has the identical risk when execution order matters.
+
+---
+
 ## Session — 2026-08-10 — unattended overnight build, STAGE 6 (BP_Door)
 
 Continuing the numbered stages, same unattended rules. Human asked specifically
