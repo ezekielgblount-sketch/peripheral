@@ -205,6 +205,77 @@ picture.
 
 ---
 
+## Session — 2026-08-10 — unattended overnight build, SUMMARY (Stages 2-5)
+
+Human was offline for this whole session. Worked Stages 2 through 5 in order
+per their instructions, committing locally after each (see the four entries
+below this one for per-stage detail). Stopped before Stage 6 (door
+Blueprint) as instructed. This entry is the at-a-glance picture; the
+per-stage entries below have the full reasoning/coordinates.
+
+**What exists now:** 8 rooms total (the pre-existing Hallway plus 7 new:
+Entry, Living Room, Kitchen, Bathroom, Bedroom, Study, Utility), all grey-box
+`SM_Cube`/`M_PrototypeGrid` construction, all connected into one walkable
+loop with 90uu-wide, 210uu-tall doorway openings, all lit, spawn point
+relocated into the new Entry room.
+
+**Room-connectivity graph:**
+```
+Exterior (not built) -- front door (X=600, Y=-15/0 wall) -- Entry
+Entry -- Living Room   (opening centered Y=150, on the X=450 shared wall)
+Entry -- Kitchen       (opening centered Y=150, on the X=750 shared wall)
+Entry -- Hallway       (opening centered X=600, on the Y=300 shared wall)
+Hallway -- Bathroom    (opening centered Y=800,  on the X=450 shared wall)
+Hallway -- Bedroom     (opening centered Y=800,  on the X=750 shared wall)
+Hallway -- Study       (opening centered Y=1200, on the X=450 shared wall)
+Hallway -- Utility     (opening centered Y=1200, on the X=750 shared wall)
+```
+Every room reachable from Entry in at most 2 hops. No isolated rooms.
+
+**Lighting:** one `PointLight` per room (all 8, including the pre-existing 2
+in the Hallway), 15000 lumens / 900uu attenuation / white, centered in each
+room's footprint at Z=200. No room's longest dimension exceeds 6m, so a
+single light per room is enough at this attenuation radius — only the
+11m-long Hallway needed 2.
+
+**Spawn point:** `PlayerStart_0` now at Entry's centre, `(600, 150, 110)`,
+yaw 90° (facing into the interior, toward the Entry↔Hallway doorway).
+Previously sat just inside the Hallway's south entrance for pre-Entry
+testing.
+
+**Key construction convention** (for anyone extending this later, e.g. the
+Stage 6 door Blueprint or further rooms): every wall/floor/ceiling actor is
+an `SM_Cube` `StaticMeshActor` with `OverrideMaterials[0]` set to
+`M_PrototypeGrid` on its `StaticMeshComponent0`. The mesh's local pivot is at
+its **min corner**, not centroid — an actor's world `location` is the
+piece's min corner, and `scale.x/y/z × 100` gives its size on that axis. See
+the Stage 2 entry below for the full room-shell formula and the Stage 3
+entry for how doorway cuts subdivide a sealed wall into jamb/header pieces.
+
+**Left unresolved / worth a visual PIE pass once a human is back:**
+- Nothing was blocked or skipped in Stages 2-5 — every planned piece of work
+  completed cleanly with no retries needed.
+- This was all done headlessly via bounds-math and `get_actor_bounds`
+  verification, never actually *seen* rendered. Worth a PIE walk-through to
+  confirm: no gaps at the new doorway cuts (the jamb/header math checked out
+  numerically every time it was spot-checked, but a visual pass is cheap
+  insurance), lighting reads as intended in each room (especially the two
+  rooms — Living Room and Kitchen — that are noticeably longer than the
+  others at 6m), and that walking through every doorway feels correctly
+  sized at 90uu wide / 210uu tall now that there's an actual player capsule
+  moving through them (this project has no jump/crouch, so a doorway that's
+  subtly too narrow or low would be a real problem, not just cosmetic).
+- The pre-existing duplicate `Floor_Hallway` actor (flagged in an earlier
+  session, deliberately left alone per that session's note) is still
+  present and still untouched — not part of this session's scope.
+- Stage 6 (interactive door Blueprint with a hinge-pivot leaf) is next, per
+  the human's instructions, not started here.
+
+**Pushed:** no — all five stages are local commits only. Human should review
+`AGENT_LOG.md` + `git log`/`git diff` and decide whether to push.
+
+---
+
 ## Session — 2026-08-10 — unattended overnight build, STAGE 1 (anomaly bug fix)
 
 Human is offline for the rest of this session. Working the numbered stages
