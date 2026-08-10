@@ -231,6 +231,87 @@ raw `InputKey` pattern per the brief's pointer.
 
 ---
 
+## Session — 2026-08-10 — unattended overnight build, NEXT_TASKS #4 (F10 day/night debug toggle)
+
+**Did:**
+- Read off the level's actual current light intensities before hardcoding
+  anything, rather than guessing: `DirectionalLight_0.LightComponent0.
+  Intensity = 6`, `SkyLight_0.SkyLightComponent0.Intensity = 1`, each room
+  `PointLight.LightComponent0.Intensity = 15000` (matches the documented
+  Stage 4 convention). These became the "Day" preset values.
+- Built `BP_DayNightDebug` (`/Game/Blueprints/`), reusing `BP_Anomaly`'s F9
+  pattern exactly per instruction: confirmed via inspection first
+  (`AutoReceiveInput="Player0"` set directly on the CDO via
+  `ObjectTools.set_properties`, F9's raw `K2Node_InputKey` created via
+  `create_node` with `type_id="Input|KeyboardEvents|F9"` rather than the
+  DSL's `(event ...)` form) before building this Blueprint's own F10
+  hookup the identical way.
+- Function `ApplyDayNight` (no params) built via `write_graph_dsl`, wired
+  from the raw F10 `InputKey`'s `Pressed` pin via `connect_pins`. Logic:
+  flip `bIsNight`, then for each of `DirectionalLight`/`SkyLight`/
+  `PointLight`: `GetAllActorsOfClass` → `ForEachLoop` → `GetComponentByClass`
+  → the matching `SetIntensity` node (`Rendering|Components|Light|
+  SetIntensity` for the two `ULightComponent`-derived ones, the separate
+  `Rendering|Components|SkyLight|SetIntensity` for the sky light), each fed
+  by a `Select(bIsNight, nightValue, dayValue)`. No stored actor references
+  — re-queries `GetAllActorsOfClass` on every press, so it can't go stale if
+  lights are added/removed later.
+- Hit one real DSL naming gotcha along the way: `(Variables|Default|
+  GetbIsNight)` failed with "does not exist" even though `list_variables`
+  confirmed the variable is literally named `bIsNight` — the DSL's
+  variable-node type-id generation strips the Hungarian-notation `b` prefix
+  from bool variables (`GetIsNight`/`SetIsNight`, not `GetbIsNight`/
+  `SetbIsNight`). Found the correct type-id by running `find_node_types`
+  with a partial search (`"IsNight"`) rather than guessing further.
+- **Night preset values are dimmed, not fully disabled** — a judgment call
+  the brief explicitly allowed either way ("dim or disable"): `DirectionalLight
+  0.05`, `SkyLight 0.05`, room `PointLights 300` (down from 15000). Chose
+  dimming over full disable so a debug pass still shows silhouettes instead
+  of dropping the player into a solid black void, since there's no flashlight
+  or other Act-2 light source yet to make a fully-dark preview navigable.
+- Placed one instance in the level (`Debug` outliner folder, position
+  doesn't matter — `AutoReceiveInput` needs no proximity, unlike the door's
+  interact check).
+- Verified the compiled graph end to end via `get_connected_subgraph`
+  (not `read_graph_dsl`, per the project's standing rule) rather than
+  trusting the DSL round-trip: confirmed the NOT/Set chain, all three
+  `GetAllActorsOfClass → ForEachLoop → GetComponentByClass → Select →
+  SetIntensity` chains, and specifically that each `Select` node's
+  `Option 0`/`Option 1` pins land on the correct day/night value (not
+  swapped) against `K2Node_Select`'s index convention (index=false→Option0,
+  index=true→Option1) — all three checked out matching the intended
+  `(select isNight nightVal dayVal)` semantics.
+- Ran an actual PIE session (`StartPIE` → `GetLogEntries` filtered for
+  errors/exceptions → `StopPIE`) before saving, to catch any runtime
+  spawn/BeginPlay error the static graph check wouldn't — `MapCheck`
+  reported 0 errors/0 warnings and no new log entries referenced
+  `BP_DayNightDebug`. Did **not** attempt to simulate an actual F10
+  keypress (no input-injection tool available), so the toggle's in-game
+  *feel* is still unverified — noted below.
+- Saved; `git status` showed exactly 3 new files (the Blueprint, one
+  external-actor package for the placed instance, one external-object
+  package for the new `Debug` outliner-folder registration) — nothing else
+  touched.
+
+**Blocked / not resolved:** nothing.
+
+**Pushed:** no — local commit only (`3dec1d3`), human should review before
+pushing per the standing rule.
+
+**Worth a quick human check, lower priority than task 3's post-process
+pass:** actually pressing F10 in PIE was never tested (no input-simulation
+tool available in this session) — the graph is verified structurally sound
+and PIE spawns without error, but nobody has confirmed the keypress itself
+reaches the actor and the lights visibly change. Also worth a glance: the
+300-lumen "dim, not off" choice for room lights at night is a guess at what
+reads well for a debug preview, not measured against anything.
+
+**Next:** all four `NEXT_TASKS.md` items are now done. See the consolidated
+summary entry above this one (or check with the human) for what's queued
+after tonight.
+
+---
+
 ## Session — 2026-08-10 — unattended overnight build, STAGE 6 (BP_Door)
 
 Continuing the numbered stages, same unattended rules. Human asked specifically
