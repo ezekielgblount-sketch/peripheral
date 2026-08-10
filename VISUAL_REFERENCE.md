@@ -14,14 +14,16 @@ built and documented; a third is a smaller behavioral inconsistency. Nobody
 should silently pick a winner — flagging here per instruction, decision is
 the team's.
 
-**Note on source of truth:** there is no file literally named `CLAUDE.md` in
-this repo. The "existing art direction" being compared against is the
-**Art Direction** section of the original project brief (the message that
-opened this project's first session) — that's the closest thing this project
-has to a standing art-direction doc today. If the team wants this new spec to
-supersede it, that brief should probably get its Art Direction section
-rewritten (or a `CLAUDE.md` created) to point at this file instead of
-carrying two contradictory palettes.
+**Note on source of truth:** at the time this section was first drafted, no
+file named `CLAUDE.md` existed in this repo, so the comparison below was made
+against the **Art Direction** section of the original project brief. A
+`unreal/`-scoped `CLAUDE.md` has since landed (see repo root) — and it
+independently confirms the *same* palette this document conflicts with:
+its "Conventions" section states *"The Act 2 flashlight warm `#FFE6B8` is the
+only saturated colour permitted anywhere in the game,"* matching
+`PERIPHERAL_UNREAL_HANDOFF.md` and the shipped web build, not this document.
+So this is no longer a hypothetical conflict against an old brief — it's a
+live conflict against the doc the Unreal team is currently building from.
 
 ### 1. Palette — five different hex values, and the flashlight-exception rule is gone
 
