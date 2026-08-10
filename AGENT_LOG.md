@@ -10,6 +10,122 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-10 — playtest fix ITEM 2 (blocked west-side doorway)
+
+Human is actively playtesting tonight and reported two issues after the last
+round of fixes. Working item 2 first per instruction (playability blocker),
+item 1 (yard content) separately after. Diagnosed before touching anything,
+per instruction, since the human specifically wanted to know which of three
+suspected causes it was.
+
+**Did:**
+- Confirmed `IsPIERunning` was true at session start (leftover from the
+  human's own testing) and called `StopPIE` before touching anything, per
+  instruction.
+- Checked all three candidate "west side" doorways (Entry↔LivingRoom,
+  Hallway↔Bathroom, Hallway↔Study — all on the X=450 wall plane) exactly as
+  directed: pulled every jamb/header actor per opening via
+  `SceneTools.get_actors_in_folder` + `ActorTools.get_actor_bounds`, and
+  cross-checked with `SceneTools.find_actors` bounds queries (both a tight
+  window at the wall plane and a widened one reaching ~100uu into each
+  adjoining room) to catch anything regardless of source folder/pass.
+  **All three came back completely clean** — jambs/headers correctly cut
+  (Z[210,250] headers, full-height jambs outside the 90uu gap, Z[0,210]
+  open beneath), no leftover template geometry, no furniture anywhere near
+  either opening's footprint (checked `Sofa_LivingRoom`/`CoffeeTable_
+  LivingRoom`, `ToiletBowl`/`ToiletTank`/`SinkCabinet`/`SinkBasin_Bathroom`,
+  `Desk_Study`/`Bookshelf_Study` explicitly — none within 100+uu of their
+  room's doorway). Live-tested all three in a real PIE session too (not just
+  static bounds): teleported the player pawn next to each door, confirmed
+  `bPlayerNearby`, pressed E via `SlateInspectorToolset.PressKey` (same
+  mechanism validated in an earlier session), confirmed `bIsOpen`/
+  `currentYaw` reached the open state, then ran `SceneTools.trace_world`
+  straight through each opening — all three traced clear (no hit) once
+  open, and correctly blocked (hit at the leaf) while closed. None of (a),
+  (b), or (c) as originally suspected reproduced on any of the three named
+  doorways.
+- Per the instruction's permission to find a different door than expected,
+  widened the search to the remaining 4 doors. Structural checks on the
+  three east-side doorways (Hallway↔Bedroom, Hallway↔Utility, Entry↔Kitchen)
+  came back clean too. **The Entry↔Hallway doorway (the fourth door, on the
+  Y=300 wall between Entry and the Hallway, not one of the three originally
+  named) was broken.** Static bounds checks initially looked fine here too
+  (the wall's jamb/header replacement pieces are correctly cut, matching
+  the pattern everywhere else), which is why this one didn't show up in the
+  first pass — the bug isn't in those pieces at all.
+- Root cause, found via live PIE trace testing (not visible from bounds
+  queries on the "expected" actor set alone): with the player positioned
+  well clear of their own collision capsule, `SceneTools.trace_world`
+  straight through the opening hit *something* at Y=285 — short of both the
+  correctly-cut header/jamb pieces and the door leaf itself (leaf sits at
+  Y[296,304] when closed). `SceneTools.find_actors` with a tight bounds box
+  at that exact point identified it: a **leftover, uncut, full-length
+  `Wall_Hallway_S` actor**, world bounds `X[435,765] Y[285,300] Z[0,250]`
+  — the *original* pre-Stage-3 wall segment, still fully present and never
+  removed, sitting directly behind/alongside the correctly-cut replacement
+  jamb/header/leaf pieces. This is cause **(c)**, but not the form the
+  brief anticipated ("a leftover jamb/header piece that didn't get removed
+  correctly") — it's the entire *original* wall panel that should have been
+  deleted when Stage 3 replaced it with 3 cut pieces, still sitting there
+  solid. The door's leaf visibly swings open (matching the human's "opens,
+  but blocked" description exactly) because the new leaf/jamb/header pieces
+  are all correct and functional — but the old, full-height, never-removed
+  wall panel underneath is what's actually stopping the player.
+- Confirmed this is an isolated, one-off miss, not a systemic bug: searched
+  `SceneTools.find_actors` by name for every other cut-wall family in the
+  level (`Wall_Entry_W/E/N/S`, `Wall_LivingRoom_E`, `Wall_Kitchen_W`,
+  `Wall_Hallway_W/E`, `Wall_Bathroom_E`, `Wall_Bedroom_W`, `Wall_Study_E`,
+  `Wall_Utility_W`) — every other family returns exactly the expected piece
+  count (3 each, or 5 for the two hallway walls with double openings).
+  `Wall_Hallway_S` was the only family with an extra, unexpected 4th actor.
+  Best guess: the Stage 3 session's `remove_from_scene` call on the
+  original wall silently failed or was skipped for this one wall (out of 8
+  openings cut that session) — matches a note in that session's own log
+  about intermittent tool-call issues, though this specific miss was never
+  flagged there.
+- **Fix**: deleted the leftover `Wall_Hallway_S` actor
+  (`StaticMeshActor_UAID_D8BBC1A6E8836BF602_1266879109`) via
+  `SceneTools.remove_from_scene` in the main editor level (confirmed label
+  and bounds matched before deleting). Re-verified with a fresh
+  `find_actors` bounds query over the opening's full volume (X[555,645]
+  Y[285,315] Z[0,210]) — leftover gone, only the expected floor/jamb/
+  header/door actors remain, matching the pattern of every other working
+  doorway exactly.
+- Final live re-verification in a fresh PIE session: closed-door trace
+  through the opening now correctly hits the actual leaf (distance 96,
+  matching the leaf's real position) instead of the old wall (previously
+  hit at distance 85, short of the leaf). Opened the door via the same E-
+  press mechanism, and traced across the full opening width at three X
+  positions (570, 600, 630) — all clear, no hit, matching the working
+  doorways' behavior.
+
+**Root cause summary for the human:** cause (c) — a wall not actually cut
+through — but specifically the **Entry↔Hallway** doorway (not one of the
+three "west side" X=450 doors named in the brief), and specifically an
+entire leftover original wall panel left in place by Stage 3, not a
+mis-cut jamb/header. The three originally-suspected doorways
+(Entry↔LivingRoom, Hallway↔Bathroom, Hallway↔Study) are all confirmed
+working correctly, both structurally and in a live PIE walk-through test.
+
+**Blocked / not resolved:** nothing — root cause found and fixed, verified
+live.
+
+**Saved and verified**: `AssetTools.save_assets([])` run after the fix;
+`git status` shows exactly one file deleted (the removed actor's external-
+actor package), nothing else touched.
+
+**Pushed:** no — local commit only, per the standing rule. Human should
+review before pushing.
+
+**Worth flagging to the human:** since this doorway (Entry↔Hallway) is the
+single chokepoint connecting Entry/LivingRoom/Kitchen to the rest of the
+house (Hallway, Bathroom, Bedroom, Study, Utility), this bug would have
+made the entire back half of the house unreachable, not just "one room" —
+worth a quick human PIE walk-through of this specific doorway alongside the
+three originally-suspected ones, since it's the one that actually mattered.
+
+---
+
 ## Session — 2026-08-10 — unattended overnight build, FINAL SUMMARY (NEXT_TASKS.md, all 6 items)
 
 Human was offline for this whole session. This supersedes an earlier summary
