@@ -87,6 +87,84 @@ the project prior to this.
 
 ---
 
+## Session — 2026-08-10 — playtest fix: build garage grey-box (front-left)
+
+Second half of tonight's two-bug session. Per the brief, checked first
+whether a garage already existed anywhere to "move" — it didn't (no
+actor in the level under any outliner folder, no Blueprint/mesh asset
+named anything like it, no doc beyond `FEATURE_LIST.md`/`AGENT_LOG.md`
+recording it as a still-unbuilt "build it" item; `HOUSE_ENVIRONMENT_SPEC.md`
+§19 explicitly lists it as "ADD — doesn't exist yet"). Confirmed with the
+human before proceeding; asked to build it fresh at the correct
+front-left location rather than hunt for a nonexistent bug.
+
+**Did:**
+- Placement: front-left yard, exterior footprint `X[-395,-15] Y[-435,-70]`
+  (interior clear space `X[-380,-30] Y[-420,-70]`, 350×350uu), floor Z=0,
+  250uu ceiling, 15uu walls — same construction convention as every house
+  room (Stage 2's formula: `SM_Cube` actors, min-corner pivot,
+  `OverrideMaterials[0]` on `StaticMeshComponent0`). "Left" taken as -X
+  (the side LivingRoom/Bathroom/Study already occupy, matching the
+  visitor-facing-the-house convention implied by
+  `HOUSE_ENVIRONMENT_SPEC.md`'s driveway note) and "front" as low Y,
+  matching the existing porch/gravel-path build's front-yard orientation.
+  Chose a standalone position in the open front yard rather than flush
+  against the house's LivingRoom wall — the wall-flush option overlapped
+  an existing conifer tree (`Tree_11`, confirmed via `find_actors` bounds
+  query before placing), and "near the driveway" doesn't require literal
+  attachment. Verified the chosen footprint against a bounds query first:
+  clear of the fence perimeter, all yard trees, and the house itself.
+- 8 pieces (`Wall_Garage_W/E`, 3-piece `Wall_Garage_S_JambW/Header/JambE`
+  for a garage-door-sized opening, `Wall_Garage_N`, `Ceiling_Garage`,
+  `Floor_Garage`), all under a new `Blockout/Garage` outliner folder,
+  built via a batched `ProgrammaticToolset` script rather than 8
+  individual placement round-trips. Reused the existing palette material
+  instances rather than creating new ones: `MI_Wall_Light` (walls),
+  `MI_Ceiling_Pale` (ceiling), `MI_Floor_Dark` (floor) — same three used
+  throughout the house.
+- **Garage-door opening**: 220uu wide, centered on the south (front,
+  driveway-facing) wall, header at `Z[210,250]` leaving `Z[0,210]` fully
+  open below — same jamb/header split convention Stage 3 used for the
+  interior doorways, reused here for consistency even though this is an
+  exterior bay opening rather than a leaf-door. No door mesh/leaf, same
+  as the front door's exterior opening — out of scope for a grey-box pass.
+- Verified before considering it done, not just placed and trusted:
+  `get_actor_bounds` on the header piece matched the intended opening
+  span exactly; `trace_world` through the opening center came back clear
+  (`null`); traces through the west wall and a solid jamb section both
+  hit at distance 15, matching the 15uu wall thickness exactly. Also took
+  an actual viewport screenshot (camera positioned outside facing the
+  opening) to confirm visually, not just by bounds math — first attempt
+  was aimed wrong (camera Z=250 clipped into the new ceiling, produced an
+  unusable close-up); repositioned outside the structure and got a clean
+  shot showing the opening, jambs, header, and dark floor all reading
+  correctly.
+- Saved; `git status` showed exactly 8 new external-actor packages (one
+  per piece) plus 1 new external-object package (the new `Blockout/Garage`
+  folder registration) — nothing else touched.
+
+**Blocked / not resolved:** nothing.
+
+**Pushed:** no — local commit only, human should review before pushing
+per the standing rule.
+
+**Worth flagging to the human:**
+- This is a grey-box shell only, matching tonight's other yard-content
+  pass — no interior detail (spec §19's tools/wrench/shelving/workbench),
+  no lighting inside (the opening is large enough that daylight should
+  reach most of the interior, but this hasn't been checked at night), no
+  connection to the house interior (no interior door cut — the brief's
+  two bugs were about the garage's exterior position, not house
+  connectivity, so this was left alone).
+- The "left" convention (matching LivingRoom/Bathroom/Study's side) is an
+  assumption carried over from the earlier room layout, not something
+  the human explicitly confirmed for the garage specifically — worth
+  a quick look to confirm it reads as "the driveway side" once there's
+  an actual driveway built.
+- No Blueprint enum was touched.
+
+---
+
 ## Session — 2026-08-10 — playtest fix ITEM 1 (exterior yard content)
 
 Second of tonight's two playtest fixes, done after item 2 (blocked doorway,
