@@ -107,6 +107,11 @@ startle.
 
 ## Workflow
 
+- **`AGENT_LOG.md` at repo root is the review point.** After a work session,
+  write a short entry there: what changed, whether it was pushed, what's next.
+  Commit locally always. **Ask before pushing** unless the human driving the
+  session has already said to push — either teammate should be able to read the
+  log, check `git diff`, and decide before it goes to the remote.
 - One driver at a time. Unreal has no live multi-user editing. Discord call, one
   person streams and drives, everyone else feeds ideas.
 - Push when you finish a chunk, say so in chat, next person pulls before starting.
