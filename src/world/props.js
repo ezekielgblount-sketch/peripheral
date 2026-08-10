@@ -90,6 +90,22 @@ export function buildProps(scene, house) {
 
   // ================= ENTRY (x4.5..7.5, z0..3) =================
   { const t = box(0.9, 0.8, 0.35, M.wood); t.position.set(7.1, 0.4, 2.6); t.rotation.y = 0; group.add(t); }
+  // house key, sitting on the entry table. Found in Act 2 after the breaker,
+  // used to lock the front door on the way back out.
+  const key = (() => {
+    const g = new THREE.Group();
+    const shaft = box(0.02, 0.02, 0.16, M.metal); shaft.rotation.x = Math.PI / 2; g.add(shaft);
+    const bow = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.008, 8, 16), M.metal);
+    bow.position.z = -0.09; g.add(bow);
+    const tooth = box(0.05, 0.015, 0.015, M.metal); tooth.position.set(0.02, 0, 0.085); g.add(tooth);
+    g.position.set(7.1, 0.83, 2.45); g.rotation.y = 0.4;
+    group.add(g);
+    return {
+      group: g, position: new THREE.Vector3(7.1, 0.83, 2.45),
+      take() { g.visible = false; },
+      reset() { g.visible = true; },
+    };
+  })();
   // coat on hook (ANOMALY): flat -> filled, as if worn
   {
     const g = new THREE.Group();
@@ -159,9 +175,9 @@ export function buildProps(scene, house) {
     return d;
   }
   const doorBath = hallDoor(4.5, 7.0, 0, THREE.MathUtils.degToRad(15));  // west, bathroom (ANOMALY)
-  hallDoor(4.5, 11.0, 0, 0);                                            // west, study
-  hallDoor(7.5, 7.0, Math.PI, 0);                                       // east, bedroom
-  hallDoor(7.5, 11.0, Math.PI, 0);                                      // east, utility
+  const doorStudy = hallDoor(4.5, 11.0, 0, 0);                          // west, study
+  const doorBedroom = hallDoor(7.5, 7.0, Math.PI, 0);                   // east, bedroom
+  const doorUtility = hallDoor(7.5, 11.0, Math.PI, 0);                  // east, utility
   {
     const anchor = new THREE.Object3D(); anchor.position.set(0.45, 1.0, 0); doorBath.group.add(anchor);
     anomalyProp({
@@ -278,16 +294,64 @@ export function buildProps(scene, house) {
     };
   })();
 
-  // shower over the tub: a rail, a head, a translucent curtain
+  // shower over the tub: a rail, a head, a ribbed curtain, and falling water
+  // that only animates while the player is actually showering.
   const shower = (() => {
     const rail = box(0.06, 0.06, 0.8, M.metal); rail.position.set(2.2, 2.0, 9.3); group.add(rail);
     const pipe = box(0.04, 0.5, 0.04, M.metal); pipe.position.set(1.55, 1.85, 9.3); group.add(pipe);
     const head = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.06, 0.06, 10), M.metal);
     head.position.set(1.62, 1.6, 9.3); head.rotation.z = Math.PI / 2; group.add(head);
-    const curtainMat = new THREE.MeshStandardMaterial({ color: PAL.light, roughness: 1, transparent: true, opacity: 0.5 });
-    const curtain = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.4), curtainMat);
-    curtain.position.set(2.9, 1.3, 9.3); curtain.rotation.y = Math.PI / 2; group.add(curtain);
-    return { position: new THREE.Vector3(2.0, 1.4, 9.3) };
+
+    // curtain: a few overlapping strips instead of one flat plane, so it reads
+    // as fabric with folds rather than a sheet of glass.
+    const curtainMat = new THREE.MeshStandardMaterial({ color: PAL.light, roughness: 1, transparent: true, opacity: 0.42, side: THREE.DoubleSide });
+    for (let i = 0; i < 5; i++) {
+      const strip = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 1.4), curtainMat);
+      strip.position.set(2.74 + i * 0.03, 1.3, 9.3 - 0.75 + i * 0.34);
+      strip.rotation.y = Math.PI / 2 + (i - 2) * 0.03;
+      group.add(strip);
+    }
+
+    // falling water: a translucent column under the head, plus a handful of
+    // streak droplets that loop down the column while running.
+    const column = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.05, 0.09, 0.85, 10, 1, true),
+      new THREE.MeshStandardMaterial({ color: 0xcdd6da, roughness: 0.3, transparent: true, opacity: 0.3, side: THREE.DoubleSide }),
+    );
+    column.position.set(1.62, 1.16, 9.3);
+    column.visible = false;
+    group.add(column);
+
+    const droplets = [];
+    for (let i = 0; i < 6; i++) {
+      const dm = new THREE.MeshStandardMaterial({ color: 0xcdd6da, roughness: 0.3, transparent: true, opacity: 0.5 });
+      const d = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.1, 5), dm);
+      d.position.set(1.62 + (Math.random() * 0.1 - 0.05), 1.6, 9.3 + (Math.random() * 0.1 - 0.05));
+      d.visible = false;
+      group.add(d);
+      droplets.push({ mesh: d, x: d.position.x, z: d.position.z, phase: Math.random() });
+    }
+
+    let running = false, t = 0;
+    return {
+      position: new THREE.Vector3(2.0, 1.4, 9.3),
+      setRunning(on) {
+        running = on; t = 0;
+        column.visible = on;
+        for (const dr of droplets) dr.mesh.visible = on;
+      },
+      update(dt) {
+        if (!running) return;
+        t += dt;
+        column.material.opacity = 0.26 + Math.sin(t * 14) * 0.06;
+        const cyc = 0.6;
+        for (const dr of droplets) {
+          const p = ((t + dr.phase * cyc) % cyc) / cyc; // 0..1 falling cycle
+          dr.mesh.position.y = 1.62 - p * 0.85;
+          dr.mesh.material.opacity = 0.5 * (1 - p);
+        }
+      },
+    };
   })();
 
   function updateDoors(dt) {
@@ -295,5 +359,8 @@ export function buildProps(scene, house) {
     dresser.update(dt);
   }
 
-  return { group, list, updateDoors, hallDoors, dresser, shower };
+  return {
+    group, list, updateDoors, hallDoors, dresser, shower, key,
+    doors: { study: doorStudy, bedroom: doorBedroom, utility: doorUtility },
+  };
 }

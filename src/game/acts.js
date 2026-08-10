@@ -20,6 +20,10 @@ export class Acts {
     this._insideTimer = 0;
     this._objShown = false;
 
+    this.showering = false;
+    this.showerTimer = 0;
+    this.hasKey = false;
+
     this._buildEntity();
     this._registerInteractables();
   }
@@ -52,7 +56,7 @@ export class Acts {
     this.choreShower = this.g.registerInteractable({
       position: this.g.props.shower.position.clone(),
       radius: 1.7, label: 'Take a shower', enabled: false,
-      onInteract: () => this._doChore('shower'),
+      onInteract: () => this._startShower(),
     });
 
     // bed ends Act 1
@@ -63,13 +67,28 @@ export class Acts {
       enabled: false,
       onInteract: () => this._endAct1(),
     });
-    // breaker ends the build (Act 2)
+    // breaker restores power and opens the key/lock-up epilogue
     this.breakerIt = this.g.registerInteractable({
       position: this.g.yard.breaker.position.clone(),
       radius: 2.0,
       label: 'Flip the breaker',
       enabled: false,
       onInteract: () => this._flipBreaker(),
+    });
+
+    // epilogue: find the key (left on the entry table), then lock the front
+    // door on the way out. lockDoorIt sits at the same spot as the normal
+    // front-door interactable and replaces it once the key is in hand, so
+    // there's never an ambiguous overlap between "open/close" and "lock".
+    this.keyIt = this.g.registerInteractable({
+      position: this.g.props.key.position.clone(),
+      radius: 1.6, label: 'Take the key', enabled: false,
+      onInteract: () => this._takeKey(),
+    });
+    this.lockDoorIt = this.g.registerInteractable({
+      position: this.g.house.anchors.frontDoor.clone().setY(1.0),
+      radius: 2.0, label: 'Lock the door', enabled: false,
+      onInteract: () => this._lockDoor(),
     });
   }
 
@@ -122,6 +141,14 @@ export class Acts {
     if (this.breakerIt) this.breakerIt.enabled = false;
     if (this.choreDresser) this.choreDresser.enabled = false;
     if (this.choreShower) this.choreShower.enabled = false;
+    if (this.keyIt) this.keyIt.enabled = false;
+    if (this.lockDoorIt) this.lockDoorIt.enabled = false;
+    this.hasKey = false;
+    this.g.props.key.reset();
+    if (this.g.frontDoorInteractable) this.g.frontDoorInteractable.enabled = true;
+    if (this.showering) { this.g.props.shower.setRunning(false); this.g.audio.showerStop(); }
+    this.showering = false;
+    this.showerTimer = 0;
     this.g.player.setFlashlight(false);
     this.g.hud.setFadeInstant(0);
   }
@@ -130,9 +157,38 @@ export class Acts {
     // surface for footsteps
     this.g.player.walkSurface = this.g.player.currentRoom ? 'wood' : 'gravel';
 
+    if (this.showering) this._updateShower(dt);
+
     if (this.phase === 'act1') this._updateAct1(dt);
     else if (this.phase === 'act2') this._updateAct2(dt);
     else if (this.phase === 'wake') this._updateWake(dt);
+  }
+
+  // Interacting with the shower freezes the player for ~10s while water runs
+  // and a slow, dissonant piano phrase plays. Driven by a countdown ticked in
+  // update(dt) rather than setTimeout, so pausing the game genuinely pauses it.
+  _startShower() {
+    if (this.showering || this.chores.shower) return;
+    this.showering = true;
+    this.showerTimer = 10;
+    this.choreShower.enabled = false;
+    this.canMove = false;
+    this.lockLook = true;
+    this.g.props.shower.setRunning(true);
+    this.g.audio.showerStart();
+  }
+
+  _updateShower(dt) {
+    this.showerTimer -= dt;
+    this.g.props.shower.update(dt);
+    if (this.showerTimer <= 0) {
+      this.showering = false;
+      this.canMove = true;
+      this.lockLook = false;
+      this.g.props.shower.setRunning(false);
+      this.g.audio.showerStop();
+      this._doChore('shower');
+    }
   }
 
   _updateAct1(dt) {
@@ -288,7 +344,8 @@ export class Acts {
 
   _flipBreaker() {
     if (this.phase !== 'act2') return;
-    this.phase = 'ending';
+    this.phase = 'findKey';
+    this.breakerIt.enabled = false;
     this.g.audio.clack();
     powerOn(this.g.lighting);
     this.g.scene.background = new THREE.Color(0x1a1916);
@@ -296,6 +353,27 @@ export class Acts {
     this.entity.group.visible = false;
     this.g.audio.setCrickets(true);     // return loudly
     this.g.audio.cricketLevel = 1;       // snap up
+    this.keyIt.enabled = true;
+    this.g.hud.objective('Find your keys and lock up before you go.', 8000);
+  }
+
+  _takeKey() {
+    if (this.hasKey) return;
+    this.hasKey = true;
+    this.g.props.key.take();
+    this.g.audio.thud();
+    this.keyIt.enabled = false;
+    this.g.frontDoorInteractable.enabled = false;
+    this.lockDoorIt.enabled = true;
+    this.g.hud.objective('Lock the door on your way out.', 7000);
+  }
+
+  _lockDoor() {
+    if (this.phase !== 'findKey' || !this.hasKey) return;
+    this.g.house.frontDoor.close();
+    this.g.audio.clack();
+    this.lockDoorIt.enabled = false;
+    this.phase = 'ending';
     this.g.hud.objective('', 1);
     this._endSoon();
   }

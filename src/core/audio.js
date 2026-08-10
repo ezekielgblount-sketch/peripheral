@@ -19,6 +19,8 @@ export class AudioEngine {
     // airy synth-piano ambient
     this.ambientMode = 'off';   // 'off' | 'act1' | 'act2'
     this._noteTimer = 3;
+
+    this.shower = null; // running water bed, used only during the shower chore
   }
 
   resume() {
@@ -42,6 +44,7 @@ export class AudioEngine {
     this._buildReverb();
     this._buildHouseTone();
     this._buildCrickets();
+    this._buildShower();
   }
 
   // A convolution reverb from a generated impulse — gives the piano its air.
@@ -122,6 +125,42 @@ export class AudioEngine {
     this.crickets = { gain: out };
   }
 
+  // Running water: filtered, looping noise. Off by default; the shower chore
+  // fades it in for its ~10s duration and back out when it's done.
+  _buildShower() {
+    const out = this.ctx.createGain(); out.gain.value = 0;
+    const src = this.ctx.createBufferSource(); src.buffer = this.noiseBuf; src.loop = true;
+    const bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 3400; bp.Q.value = 0.6;
+    const hp = this.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 700;
+    src.connect(bp); bp.connect(hp); hp.connect(out); out.connect(this.master);
+    src.start();
+    this.shower = { gain: out };
+  }
+
+  showerStart() {
+    if (!this.ctx) return;
+    this.shower.gain.gain.setTargetAtTime(0.16, this.ctx.currentTime, 0.3);
+    this._showerCue();
+  }
+
+  showerStop() {
+    if (!this.ctx) return;
+    this.shower.gain.gain.setTargetAtTime(0.0, this.ctx.currentTime, 0.4);
+  }
+
+  // A slow, dissonant descending phrase timed to roughly fill the shower's
+  // 10s pause — the "creepy music" cue, distinct from the airy day/night
+  // ambient because it leans on close, uneasy intervals instead of open ones.
+  _showerCue() {
+    if (!this.ctx) return;
+    const notes = [261.63, 246.94, 220, 207.65, 185.0];
+    let t = this.ctx.currentTime + 0.15;
+    for (const f of notes) {
+      this.pianoNote(f, t, 0.11);
+      t += 1.7 + Math.random() * 0.7;
+    }
+  }
+
   setHouseTone(on) {
     if (!this.ctx) return;
     this.house.gain.gain.setTargetAtTime(on ? 0.08 : 0.0, this.ctx.currentTime, 0.6);
@@ -199,6 +238,7 @@ export class AudioEngine {
     this.setCrickets(false);
     this.setHouseTone(false);
     this.setAmbient('off');
+    this.showerStop();
   }
 
   update(dt, player, acts) {

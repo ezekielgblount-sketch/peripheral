@@ -27,20 +27,25 @@ export class Player {
   }
 
   _buildFlashlight() {
-    // A tight warm cone plus a faint wide falloff so the player is not fully blind.
+    // A wide warm cone — wide enough to read most of a room, not a narrow
+    // spotlight — plus an even wider, dimmer fill so things at the true edge
+    // of the frame are genuinely visible rather than pure black. This is what
+    // makes the peripheral trick work: something has to be visible out of the
+    // corner of your eye for it to matter that it's gone when you turn to it.
     this.flashGroup = new THREE.Group();
-    const spot = new THREE.SpotLight(PAL.warm, 0, 22, THREE.MathUtils.degToRad(22), 0.55, 1.4);
+    const spot = new THREE.SpotLight(PAL.warm, 0, 26, THREE.MathUtils.degToRad(38), 0.5, 1.25);
     spot.castShadow = true;
     spot.shadow.mapSize.set(1024, 1024);
     spot.shadow.camera.near = 0.2;
-    spot.shadow.camera.far = 22;
+    spot.shadow.camera.far = 26;
     spot.position.set(0, 0, 0);
     spot.target.position.set(0, 0, -1);
     this.flashGroup.add(spot);
     this.flashGroup.add(spot.target);
 
-    // Wide, very weak fill so surfaces just outside the beam are barely readable.
-    const fill = new THREE.SpotLight(PAL.warm, 0, 10, THREE.MathUtils.degToRad(55), 1.0, 1.0);
+    // Wide, dim fill so surfaces well outside the beam are dimly readable —
+    // enough to notice a shape, not enough to identify it at a glance.
+    const fill = new THREE.SpotLight(PAL.warm, 0, 15, THREE.MathUtils.degToRad(82), 0.9, 1.0);
     fill.castShadow = false;
     fill.target.position.set(0, 0, -1);
     this.flashGroup.add(fill);
@@ -57,8 +62,8 @@ export class Player {
 
   setFlashlight(on) {
     this.flashOn = on;
-    this.flashSpot.intensity = on ? 6.0 : 0;
-    this.flashFill.intensity = on ? 0.6 : 0;
+    this.flashSpot.intensity = on ? 7.5 : 0;
+    this.flashFill.intensity = on ? 1.3 : 0;
   }
 
   spawn(x, z, yaw = 0) {

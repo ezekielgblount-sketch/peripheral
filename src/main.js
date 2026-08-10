@@ -60,15 +60,16 @@ class Game {
       window.__game = this;
     }
 
-    this.registerInteractable({
-      position: this.house.anchors.frontDoor.clone().setY(1.0),
-      radius: 2.0,
-      label: 'Open door',
-      onInteract: () => {
-        this.house.frontDoor.toggle();
-        this.audio.thud();
-      },
-    });
+    // Every real door in the house opens and closes. The bathroom door is
+    // excluded — its angle is already driven by the anomaly state machine,
+    // and letting the player fight that would just look broken — as is the
+    // phantom fifth door, which the anomaly system controls entirely.
+    this.frontDoorInteractable = this.registerDoorInteractable(
+      this.house.frontDoor, this.house.anchors.frontDoor.clone().setY(1.0), 2.0,
+    );
+    this.registerDoorInteractable(this.props.doors.study, new THREE.Vector3(4.5, 1.0, 11.0), 1.7);
+    this.registerDoorInteractable(this.props.doors.bedroom, new THREE.Vector3(7.5, 1.0, 7.0), 1.7);
+    this.registerDoorInteractable(this.props.doors.utility, new THREE.Vector3(7.5, 1.0, 11.0), 1.7);
 
     this.state = 'menu';
     this.colliders = [...this.house.colliders, ...this.yard.colliders, ...this.signage.colliders];
@@ -105,6 +106,16 @@ class Game {
   registerInteractable(obj) {
     this.interactables.push(obj);
     return obj;
+  }
+
+  // A door interactable whose prompt tracks the leaf's open/closed state.
+  registerDoorInteractable(door, position, radius = 1.8) {
+    const it = this.registerInteractable({
+      position, radius, label: 'Open door',
+      onInteract: () => { door.toggle(); this.audio.thud(); },
+    });
+    it.syncLabel = () => { it.label = door.isOpen ? 'Close door' : 'Open door'; };
+    return it;
   }
 
   // --- state transitions ---
@@ -171,7 +182,8 @@ class Game {
     for (const d of this.house.doors) d.update(dt);
     this.props.updateDoors?.(dt);
 
-    this._updateInteractables();
+    if (this.acts.showering) this.hud.setPrompt('');
+    else this._updateInteractables();
     this.acts.update(dt);
     this.audio.update(dt, this.player, this.acts);
   }
@@ -180,6 +192,7 @@ class Game {
     const eye = this.player.eyePosition();
     let best = null, bestDot = 0.8; // must be roughly looked-at (~37deg cone)
     for (const it of this.interactables) {
+      it.syncLabel?.();
       if (it.enabled === false) continue;
       const d = it.position.distanceTo(eye);
       if (d > it.radius) continue;

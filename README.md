@@ -47,7 +47,11 @@ blank and the sign reads `NEW OWNER`.
    learned less about you.
 2. **The power.** You wake on the study floor. The lights are dead, you have a
    flashlight, and the breaker is outside — around the dark side of the house.
-   Something is out there in the periphery. Flip the breaker to finish the build.
+   Something is out there in the periphery. Flip the breaker, then go back in:
+   the key is on the entry table. Take it, then lock the front door on your way
+   out to finish the build.
+
+Every real door in the house opens and closes (`E`), not just the front door.
 
 Roughly eight minutes end to end.
 
@@ -112,6 +116,19 @@ reads as one thing.
 The night has small chores — unpack at the dresser, wash up at the shower —
 that guide you toward bed without ever gating it: a player who walks straight to
 the bed still sleeps immediately (Act 2 just has a thinner profile to work with).
+The shower runs for about ten seconds — water falling behind a ribbed curtain,
+a slow dissonant piano phrase — with the player held still for it, driven by a
+countdown ticked in the update loop (so pausing genuinely pauses it, no
+`setTimeout` drifting against real time).
+
+### The flashlight (Act 2)
+
+The beam is deliberately wide — a ~38° hot cone plus an ~82° dim fill — wide
+enough to read most of a room at once. That width is what makes the peripheral
+trick work in the dark: something has to be visible out of the corner of your
+eye for it to matter that it's gone once you turn to look. A narrow spotlight
+would just be blackness everywhere you aren't already staring, which quietly
+defeats the whole premise.
 
 ### 3. The Director learns you
 
