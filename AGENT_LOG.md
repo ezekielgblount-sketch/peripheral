@@ -68,6 +68,82 @@ simple furniture pass per room.
 
 ---
 
+## Session — 2026-08-10 — unattended overnight build, NEXT_TASKS #2 (palette materials + furniture)
+
+**Did:**
+- Found `M_FlatCol`'s exposed parameter name is `Base Color` (Vector) plus
+  `Metallic`/`Roughness` (Scalar), via `MaterialInstanceTools.list_parameters` —
+  confirmed the parent material's own defaults are already `Roughness=1,
+  Metallic=0` (fixed in an earlier session), so the new instances didn't need to
+  override those, only Base Color.
+- Created 4 `MaterialInstanceConstant`s under `/Game/LevelPrototyping/Materials/`
+  off `M_FlatCol`: `MI_Wall_Light` (#B3A78F), `MI_Floor_Dark` (#4E4B44),
+  `MI_Ceiling_Pale` (#E6DFCC), `MI_Furniture_Mid` (#7C7870). Converted each hex
+  to linear space before setting the vector parameter (sRGB→linear, same
+  convention the existing `MI_Anomaly_Dark` instance used per an earlier log
+  entry) rather than pushing gamma-space 0–255 values straight in, which would
+  have rendered lighter/washed-out than the intended palette.
+- Applied these across every wall/floor/ceiling in `Blockout` (all 8 rooms:
+  hallway + 7 new rooms): 63 walls (including every doorway jamb/header piece
+  from the Stage 3 door cuts — not just the original room-shell walls), 8
+  ceilings, 8 floors, 79 actors total, all via
+  `ObjectTools.set_properties({"overrideMaterials":[...]})` on each actor's
+  `StaticMeshComponent0`.
+- Also fixed `BP_Door`'s `DoorLeaf` material — at the Blueprint class-default
+  level (`BlueprintTools.get_default_object` → `set_properties` on the CDO's
+  `DoorLeaf_GEN_VARIABLE` component → `compile_blueprint`), plus each of the 7
+  already-placed instances directly, so both existing doors and any future
+  ones placed from the class pick up the fix. This wasn't explicitly listed in
+  the task's "wall/floor/ceiling" scope, but the door leaf was the same grey
+  `M_PrototypeGrid` blockout material, and leaving it would have undercut the
+  whole point of the pass (no texture/glint anywhere) — judgment call, flagging
+  in case the human wanted door material handled separately.
+- Confirmed completeness via `AssetTools.get_referencers(M_PrototypeGrid)`
+  after saving: now referenced only by its own unused `MI_PrototypeGrid_*`
+  variant assets (template leftovers, never applied to anything in the level),
+  nothing else.
+- **Furniture** — 16 primitive pieces (`SM_Cube` + `SM_Cylinder`, all
+  `MI_Furniture_Mid`) across 6 rooms, positioned by hand-computed coordinates
+  against a wall away from that room's doorway opening in each case: sofa +
+  coffee table (living room), counter + table + 2 chairs (kitchen), toilet
+  (cylinder bowl + box tank) + sink (box cabinet + box basin) (bathroom), bed
+  (box frame + raised box mattress) + dresser (bedroom), desk + tall bookshelf
+  (study), one shelving unit (utility). Entry skipped per instruction
+  (pass-through space, no furniture asked for).
+- Deliberately did **not** build the specific objects flagged as reserved for
+  later anomaly work (living room floor lamp/wall portrait, bathroom mirror,
+  bedroom window) — simplest way to satisfy "place a plain placeholder, don't
+  build anomaly behavior into it yet" was to just not build those particular
+  pieces at all. The kitchen chairs/table are ordinary static boxes with zero
+  attached logic already, so the "plain placeholder" constraint on the kitchen
+  chair anomaly is satisfied trivially.
+- Verified placement via `ActorTools.get_actor_bounds` on all 16 pieces after
+  creation: every piece's bounds land fully inside its room's interior clear
+  space, clear of walls and of that room's doorway Y/X-range. One placement
+  quirk worth noting for later furniture work: unlike `SM_Cube` (pivot at
+  local-space min corner, confirmed in earlier sessions), `SM_Cylinder`'s pivot
+  is centered on X/Y (only Z is min-corner-anchored) — caught this from the
+  toilet bowl's returned bounds not matching the corner-math I'd used for the
+  boxes, worked out the actual center-anchored formula from the discrepancy,
+  and confirmed the corrected placement was still fully inside the room.
+- Saved all dirty assets; `git status` showed 100 changed files (4 new
+  MaterialInstanceConstant assets, 16 new external-actor packages for the
+  furniture, `BP_Door.uasset`, and ~79 modified external-actor packages for
+  the recolored walls/floors/ceilings/doors) — matches expectations exactly,
+  nothing unrelated touched.
+
+**Blocked / not resolved:** nothing.
+
+**Pushed:** no — local commit only (`d031ad7`), human should review before
+pushing per the standing rule.
+
+**Next:** task 3 from `NEXT_TASKS.md` — build the peripheral-vision
+post-process pass on top of the existing `PPV_Global` volume. Explicitly
+needs a human PIE/visual check per the brief; will note that clearly rather
+than claim it "looks right" from headless inspection alone.
+
+---
+
 ## Session — 2026-08-10 — unattended overnight build, STAGE 6 (BP_Door)
 
 Continuing the numbered stages, same unattended rules. Human asked specifically
