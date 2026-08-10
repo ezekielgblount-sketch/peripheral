@@ -10,6 +10,78 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-10 — unattended overnight build, STAGE 2 (block out 7 rooms)
+
+Continuing the numbered stages from the STAGE 1 session below, same unattended
+rules (commit after each stage, log blockers instead of grinding on them).
+
+**Did:**
+- Reverse-engineered the hallway's construction convention before building
+  anything, per instruction. Confirmed via `get_actor_transform`/
+  `get_actor_bounds` on all 7 existing hallway actors: mesh is
+  `/Game/LevelPrototyping/Meshes/SM_Cube` (a 100×100×100uu unit cube), material
+  is `/Game/LevelPrototyping/Materials/M_PrototypeGrid` applied as a
+  **component-level `OverrideMaterials[0]`** on each actor's
+  `StaticMeshComponent0` (not a mesh-asset default). Confirmed the mesh's
+  pivot sits at its **local-space min corner**, not centroid — an actor's
+  world-space `location` is therefore the wall/floor/ceiling's min corner, and
+  `scale.x/y/z × 100` gives its size in that axis. Derived the exact formula
+  from the hallway's 7 actors (all checked out consistent) for a room with
+  interior clear-space `X[xMin,xMax] × Y[yMin,yMax]`, floor at Z=0, ceiling
+  250uu up, 15uu wall thickness:
+  - `Wall_W`: loc `(xMin-15, yMin, 0)`, scale `(0.15, (yMax-yMin)/100, 2.5)`
+  - `Wall_E`: loc `(xMax, yMin, 0)`, scale `(0.15, (yMax-yMin)/100, 2.5)`
+  - `Wall_S`: loc `(xMin-15, yMin-15, 0)`, scale `((xMax-xMin+30)/100, 0.15, 2.5)`
+  - `Wall_N`: loc `(xMin-15, yMax, 0)`, scale `((xMax-xMin+30)/100, 0.15, 2.5)`
+  - `Ceiling`: loc `(xMin-15, yMin-15, 250)`, scale `((xMax-xMin+30)/100, (yMax-yMin+30)/100, 0.15)`
+  - `Floor`: loc `(xMin-15, yMin-15, -15)`, scale `((xMax-xMin+30)/100, (yMax-yMin+30)/100, 0.15)`
+
+  In words: N/S end-cap walls and the ceiling/floor slabs span the room's
+  **full outer footprint** (interior + both 15uu wall thicknesses on that
+  axis), so they overlap the E/W walls in the corners; E/W walls span only the
+  **plain interior range** on Y, flush between the N/S caps. This matches the
+  hallway exactly (verified the formula against all 7 existing hallway actors
+  before using it on new rooms — every predicted bound matched the real one).
+  Validated by placing one test wall with the formula and reading
+  `get_actor_bounds` back before doing the other 41 (came out exactly as
+  predicted, X[435,450]×Y[0,300]×Z[0,250] for the Entry west wall), then
+  deleted the test actor and rebuilt it for real inside the batch below.
+- Built all 7 rooms fully sealed (6 actors each = 42 total: `SM_Cube` +
+  `M_PrototypeGrid` override, matching pattern above), each in its own
+  `Blockout/<RoomName>` outliner folder, named `Wall_<Room>_W/E/S/N`,
+  `Ceiling_<Room>`, `Floor_<Room>`:
+  - Entry: X[450,750] Y[0,300]
+  - LivingRoom: X[0,450] Y[0,600]
+  - Kitchen: X[750,1200] Y[0,600]
+  - Bathroom: X[0,450] Y[600,1000]
+  - Bedroom: X[750,1200] Y[600,1000]
+  - Study: X[0,450] Y[1000,1400]
+  - Utility: X[750,1200] Y[1000,1400]
+
+  Per instruction, no openings cut yet and no dedup with the hallway or
+  adjacent rooms — each room is an independent sealed box, including a
+  duplicate wall anywhere it touches the hallway or another new room (e.g.
+  Entry has its own wall along the hallway's south face). That's intentional,
+  not a mistake — Stage 3 cuts openings and is easier to reason about against
+  simple independent boxes than an already-deduped wall graph.
+  Post-build spot-checked `get_actor_bounds` on 3 actors across 3 different
+  rooms (Utility floor, Bathroom south wall, Entry ceiling) against the hand
+  computed expected values — all matched exactly, no drift.
+- Saved all dirty assets (`AssetTools.save_assets([])`) — produced 49 new
+  external-actor/external-object package files under `Content/
+  __ExternalActors__/` and `Content/__ExternalObjects__/` (OFPA, one file per
+  new actor plus a few shared external objects), no modifications to any
+  previously-tracked file. Confirmed via `git status` before committing.
+
+**Blocked / not resolved:** nothing this stage — no blockers hit.
+
+**Pushed:** no — local commit only, human should review before pushing.
+
+**Next:** Stage 3 — cut doorway openings connecting all 7 new rooms + the
+hallway into one walkable loop.
+
+---
+
 ## Session — 2026-08-10 — unattended overnight build, STAGE 1 (anomaly bug fix)
 
 Human is offline for the rest of this session. Working the numbered stages
