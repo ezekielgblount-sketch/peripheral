@@ -148,6 +148,37 @@ hallway into one walkable loop.
 
 ---
 
+## Session — 2026-08-10 — unattended overnight build, STAGE 4 (room lighting)
+
+**Did:**
+- Confirmed the hallway's existing `PointLight` pattern before reusing it:
+  15000 lumens, 900uu attenuation radius, plain white (1,1,1,1), `Lumens`
+  intensity units.
+- Checked each new room's actual footprint against the ~900uu-radius /
+  "comfortably covers up to ~12-15m across" guidance before deciding light
+  count, rather than following the stage instructions' example grouping
+  literally (it called Entry/Bathroom "smaller" and Living room/Kitchen/
+  Bedroom/Study/Utility "bigger", but the real computed footprints don't
+  actually split that way): Entry is 300×300uu (3×3m), Living room and
+  Kitchen are each 450×600uu (4.5×6m), and Bathroom/Bedroom/Study/Utility are
+  all identically 450×400uu (4.5×4m) — every one of the 7 rooms has a longest
+  dimension under 6m, well inside a single 900uu-radius (9m) light's
+  comfortable coverage. Only the hallway (11m long) needed 2 lights for that
+  reason. So: **one centered `PointLight` per room, all 7 rooms**, same
+  15000lm/900uu/white spec as the hallway, placed at each room's XY centroid,
+  Z=200 (matching the hallway lights' height). Filed each into its room's
+  `Blockout/<Room>` folder.
+- Spot-checked one light's properties post-set (Kitchen) to confirm the
+  values landed correctly before saving.
+
+**Blocked / not resolved:** nothing this stage.
+
+**Pushed:** no — local commit only, human should review before pushing.
+
+**Next:** Stage 5 — move `PlayerStart_0` to Entry's centre.
+
+---
+
 ## Session — 2026-08-10 — unattended overnight build, STAGE 1 (anomaly bug fix)
 
 Human is offline for the rest of this session. Working the numbered stages
