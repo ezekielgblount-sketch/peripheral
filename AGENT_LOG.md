@@ -497,6 +497,55 @@ has the identical risk when execution order matters.
 
 ---
 
+## Session — 2026-08-10 — unattended overnight build, NEXT_TASKS #6 (exterior yard grey-box)
+
+**Did:**
+- Built the yard boundary per the live `NEXT_TASKS.md`'s converted spec
+  numbers: ground slab and a 5-piece fence perimeter (`SM_Cube` +
+  `MI_Floor_Dark`, reusing the existing Dark palette tone rather than a new
+  material) under a new `Blockout/Yard` folder, with a 200uu gap in the
+  south fence segment centered on the front door's actual opening
+  (X[555,645]).
+- **Caught my own bug before calling it done**: the fence gap by itself just
+  *relocates* the falling-out-of-the-world bug rather than fixing it — nothing
+  stops the player from walking straight through the open gap and off the
+  edge of the ground slab, which originally stopped flush at the fence line.
+  Widened the ground slab's footprint by 200-300uu past the fence perimeter
+  on all sides (final extents X[-700,1900] Y[-1100,1900]) so real ground
+  exists well beyond the gap, not just inside the fenced area.
+- Set the ground slab's top at Z=-1 (1uu below the house's interior floor
+  top at Z=0) rather than exactly coplanar — avoids Z-fighting against the
+  interior floor pieces where their footprints would otherwise coincide
+  under the house, at the cost of an imperceptible 1uu step at the door
+  threshold (well within any character movement component's step-up
+  tolerance).
+- Verified two ways, not just visually: `SceneTools.trace_world` line traces
+  confirm the fence physically blocks outside the gap (hit exactly at the
+  fence's near face) and the gap itself is clear through and beyond it; a
+  live PIE check (teleported the player just outside the front door,
+  waited for physics to settle, read back its resting Z) confirms it comes
+  to rest on the new ground at the expected height instead of falling
+  forever, matching the same capsule-radius resting offset seen on the
+  interior floor.
+- Saved; `git status` showed exactly the 6 expected new external-actor
+  packages plus one external-object package for the new outliner folder.
+
+**Blocked / not resolved:** nothing. This grey-box is deliberately minimal
+per the brief (no treeline/gravel path/porch) — that's explicitly future
+work, not a gap in tonight's scope.
+
+**Pushed:** no — local commit only (`56c5612`), human should review before
+pushing per the standing rule.
+
+**Next:** this was the last item on the live `NEXT_TASKS.md` (items 1-6, all
+now done — see the top-of-file consolidated summary... actually, given how
+much changed mid-session, worth writing a fresh consolidated summary rather
+than trusting the earlier one, which predates the discovery that the task
+file itself changed underneath this session). Check with the human for
+what's queued next.
+
+---
+
 ## Session — 2026-08-10 — unattended overnight build, STAGE 6 (BP_Door)
 
 Continuing the numbered stages, same unattended rules. Human asked specifically
