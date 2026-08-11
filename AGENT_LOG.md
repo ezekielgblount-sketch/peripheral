@@ -150,6 +150,56 @@ tools rather than trusting the document.
 
 ---
 
+## Session — 2026-08-10 (HOUSE_BLUEPRINT.md replacement, task 5 — doors)
+
+**Did:**
+- Placed 14 `BP_Door` instances, one per `door`-type row in Table 3 (skipped the
+  8 `window` rows). Reused the class exactly as instructed — no changes to
+  `BP_Door` itself.
+- Worked out the placement convention by inspecting the class's own component
+  transforms (`ObjectTools.list_properties`/`get_properties`) rather than
+  guessing: `DoorLeaf` is parented to `HingePivot` (offset `(0,-45,0)` from the
+  actor root), so the actor's **origin is the opening's centre at floor level**
+  — world location = (wall's thickness-centreline coordinate, midpoint of the
+  opening's along-wall range, wall's `Base Z`). Confirmed this placement math
+  with `trace_world` against several placed doors before trusting it further
+  (e.g. `O02`'s leaf face hit at exactly world X=-4, matching the class's own
+  4cm leaf-half-thickness) rather than relying on `get_actor_bounds`, which
+  reads as polluted by the actor's editor-only billboard icon (reports a
+  ±128uu box on every axis regardless of the real mesh — harmless in-game,
+  since billboards don't render or collide outside the editor, but useless for
+  verifying placement).
+- Yaw: 0° for doors on X-fixed (Y-running) walls, 90° for Y-fixed (X-running)
+  walls — verified against the class's actual local-to-world transform math,
+  not assumed. `O02`/`O04` landed at `(0,1215,0)`/`(1200,1215,0)`, exactly
+  matching the blueprint's own stated front/back door centres from the task 4
+  sightline check — good cross-confirmation.
+- Confirmed the hinge-swing-direction fix from earlier tonight is still intact
+  by inspecting the class (unchanged `HingePivot`/`DoorLeaf`/`currentYaw`/
+  `targetYaw`/`bPlayerNearby` structure — nothing about the door class itself
+  was touched, only new instances placed) — a live PIE proximity-swing test
+  would be the fuller confirmation but wasn't run this session.
+- **`O01` (garage door) limitation, worth flagging:** the blueprint's own
+  self-check calls this a "deliberate exception" — 490×215 vs. the standard
+  90×205 everywhere else. Tried to stretch just this one instance's
+  `DoorLeaf.relativeScale3D` / `HingePivot.relativeLocation` via
+  `ObjectTools.set_properties` to fit the opening. The call reports success,
+  but the values silently revert to the class default on next read — almost
+  certainly `BP_Door`'s Construction Script re-asserting a hardcoded `(0,-45,0)`
+  / `0.9` on every reconstruction, which fires on practically any edit. Placed
+  a standard-size `BP_Door` there instead (centred in the opening), which
+  covers 90 of the 490cm gap and leaves the rest open. **Not fixed** — a real
+  fix needs either a `BP_Door` construction-script change to parameterize
+  width (a real class edit, out of scope for a "reuse, don't rebuild" task) or
+  a separate garage-door asset. Flagging for a human call rather than guessing
+  further.
+
+**Pushed:** no.
+
+**Next:** task 6 — re-place anomaly #10 in the new hallway.
+
+---
+
 ## Session — 2026-08-10 — playtest fix: blocked Hallway-Utility doorway (back room, same failure mode as Entry-Hallway)
 
 Fresh session, no memory of prior ones — bootstrapped from `CLAUDE.md` +
