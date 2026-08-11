@@ -281,6 +281,59 @@ candidate spot along the stairs.
 
 ---
 
+## Session — 2026-08-11 (second floor: cramped attic -> walkable floor)
+
+**Did:** No blueprint exists yet for this — improvised per the explicit
+go-ahead, following existing conventions (interior wall thickness 15,
+standard door 90×205, reused `BP_Door`).
+- Raised `W21`-`W24` (attic perimeter) from height 70 to height 250 (top
+  `280→530`), matching the main floor's own wall height.
+- Shifted the 12 main-house roof slabs (`F22`-`F33`) up by 180uu (350→530
+  base) to sit on top of the new ceiling instead of clipping through it.
+  Left the garage roof (`F34`-`F41`) untouched — the garage is single-story,
+  its roof was never part of the attic-to-second-floor conversion, and the
+  "Attic" room registry entry only ever covered the main house's `X0-1200,
+  Y600-1800` footprint, not the garage's.
+- **Found a real tool gotcha while doing the roof shift, worth remembering**:
+  `ActorTools.set_actor_transform` called with only `location` set (no
+  `scale`) did **not** preserve the existing scale as the tool's own docs
+  say it should — it silently reset scale to `(1,1,1)` on all 12 roof
+  actors, shrinking them to the raw 100×100×100 unscaled mesh size. Caught
+  it via a bounds re-check (expected `Y570-1830`, got `Y570-670`) rather
+  than assuming the move succeeded. Fixed by re-issuing the transform with
+  both `location` and `scale` set explicitly. **Lesson for any future
+  transform edit on an existing scaled actor: always pass all three
+  (location, rotation, scale), never rely on partial-update semantics for
+  scale.**
+- Subdivided the floor into 3 rooms (previously zero interior walls, just
+  open space) instead of a walkable spine:
+  - **North Room** (`Y600-1290`, full width `X0-1200`) — the biggest room.
+  - **Landing Room** (`X0-600, Y1290-1800`) — where the attic stairs (`S01`)
+    actually arrive (matches the existing stair-top landing slab `F20`).
+  - **East Room** (`X600-1200, Y1290-1800`).
+  - New wall `W_Attic_NS` (`Y=1290`, full width) with a new door
+    (`O_Attic1`, `X255-345`) connects North Room to Landing Room.
+  - Rebuilt `W25` extended from its old short segment (`Y1680-1800`) to the
+    full `Y1290-1800`, keeping `O21`'s door at its historical relative
+    position (now `Y1710-1800`) — connects Landing Room to East Room. Reused
+    the existing door rather than adding a redundant one, since `O21`
+    already sat exactly on the line this divider needed.
+  - Path: stairs → Landing Room → (`O_Attic1`) → North Room, and Landing
+    Room → (`O21`) → East Room. Every room reachable, no dead ends.
+- **Verified live in PIE**, not just bounds/trace: teleported the character
+  into each of the three rooms in sequence, opened both doors for real with
+  an **E** keypress (`SlateInspectorToolset`), confirmed `bIsOpen`/
+  `currentYaw` actually changed, and confirmed the character settles at the
+  correct floor height (`Z≈378`, matching `280` attic floor `+` the
+  measured stand offset) in all three rooms — not stuck, not floating, not
+  falling through.
+
+**Pushed:** no.
+
+**Next:** basement subdivision (see below).
+
+---
+
 ## Session — 2026-08-10 (HOUSE_BLUEPRINT.md replacement, task 2 — triage)
 
 **Did:**
