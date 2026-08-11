@@ -165,6 +165,64 @@ bug-2/3 entry above; nothing to commit for this entry beyond this writeup).
 
 ---
 
+## Session — 2026-08-10 (playtest bug 1 — actual root cause found and fixed)
+
+**Did:**
+- The duplicate-wall fix didn't fix it — human confirmed with a screenshot,
+  and the door prompt reading "Close door" ruled out the door/wall-cut
+  hypothesis entirely (O20 was already open). Went back to investigate the
+  stairs (`S02`) directly, per the new instruction.
+- Found a live PIE session already running (the human's own test) and used
+  it directly rather than starting a fresh one first — read the player's
+  actual position, then began placing them at points down the stairs to
+  watch where they settled.
+- **Found it:** teleported the player to several different points along the
+  stairwell shaft (different `Y`, different starting `Z`) and every single
+  one settled at the *exact same absolute Z* regardless of which stair tread
+  it should have landed on. That's the tell — they weren't landing on the
+  stairs at all. Traced straight down inside the stairwell shaft and hit
+  solid at `Z=-54`, not the expected tread height. `Z=-54` is task 7's yard
+  grade — and task 7's `Yard_GroundPlane` had been built as *one blanket
+  rectangle* (`X-600..1500, Y-300..2100`) at `Z-70..-54`, with no exclusion
+  for the house's own footprint. That Z-range sits inside the basement's
+  open interior air space, and the rectangle fully covers the basement and
+  the stairwell shaft — so it was a giant invisible floor plugging the
+  stairwell partway down, and also bisecting the entire basement room itself
+  (its Z-range falls between the basement floor at `-240` and the basement
+  ceiling at `-30`, so it cut across the whole room, not just the stairs).
+  Confirmed directly: a trace inside the basement room hit solid at `-54`
+  instead of continuing to the real floor at `-240`.
+- This has nothing to do with the wall/door/stair-collision hypotheses from
+  the last two rounds — those were all real dead ends, correctly ruled out.
+  It's a single geometry-placement mistake from task 7, three sessions ago,
+  that nothing since had actually exercised by walking all the way down.
+- **Fix:** rebuilt `Yard_GroundPlane` as four pieces framing the main house's
+  footprint (`X0..1200, Y600..1800` — the only part of the yard rectangle
+  with a basement underneath; the garage at `Y0..600` has no basement per
+  the room registry, so it's safe to cover) instead of one slab underneath
+  everything. The four pieces tile the original yard boundary exactly minus
+  that excluded rectangle — verified no new gaps at the seams (they land on
+  the house's own wall centrelines, which are solid anyway). Confirmed the
+  task-3 wall audit's `RoadForest_GroundPlane`/`GravelRoad`/driveway pieces
+  from bug 3 don't have this problem — they're entirely outside the house's
+  `X` range, never overlapped it.
+- **Verified thoroughly, live, in PIE** (stopped the human's session to make
+  the edit, then re-verified in a fresh one): teleported the player to three
+  points on the actual descent path and let it settle under real gravity —
+  mid-stairs (`Y=1500`), settled deep and correctly, not flat; the landing
+  (`Y=1699`) settled at `Z≈-136`, matching the landing surface (`-234`) once
+  the capsule offset is accounted for; the basement's main room (`X=700,
+  Y=1000`) settled at `Z≈-142`, matching the real basement floor (`-240`) —
+  not `44.17` (the old bogus slab height) at all three points, in contrast to
+  every check before the fix.
+
+**Pushed:** no.
+
+**Next:** re-confirm with the human that basement access now works from a
+real playthrough (not just my teleport-based checks), then task 8.
+
+---
+
 ## Session — 2026-08-10 (HOUSE_BLUEPRINT.md replacement, task 2 — triage)
 
 **Did:**
