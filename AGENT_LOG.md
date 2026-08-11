@@ -10,6 +10,55 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-10 (HOUSE_BLUEPRINT.md replacement, task 2 — triage)
+
+**Did:**
+- Read `NEXT_TASKS.md` and `HOUSE_BLUEPRINT.md` in full per instruction. Confirmed
+  the blueprint's coordinates are already Unreal-native (its own stated
+  convention) and will be built as numbered, with no `CLAUDE.md` axis conversion
+  applied — that conversion is only for the old Three.js-convention handoff spec.
+- Connected to the Unreal MCP server (`unreal-mcp`, HTTP on 127.0.0.1:8000) after
+  some boot-order trouble — editor had to be fully up before the MCP client would
+  attach; needed a `/mcp` reconnect even after a fresh Claude Code relaunch.
+- Inventoried the current level (`/Game/FirstPerson/Lvl_FirstPerson`) via the MCP
+  scene/actor toolset before deleting anything, per task 2's explicit instruction.
+
+**Reusable (kept, not touched — classes/systems, not placements):**
+`BP_Door` (`/Game/Blueprints/BP_Door`), `BP_Anomaly`
+(`/Game/Blueprints/BP_Anomaly`), `FoveaComponent`
+(`/Game/Components/FoveaComponent`), `BP_FirstPersonCharacter`
+(`/Game/FirstPerson/Blueprints/BP_FirstPersonCharacter`), all materials
+(`M_FlatCol`, `M_PrototypeGrid`, `M_Mannequin`, etc.), `BP_DoorFrame`. Also kept:
+global environment/lighting actors (`SM_SkySphere`, `SkyAtmosphere`, `SkyLight`,
+`DirectionalLight`, `ExponentialHeightFog`, `VolumetricCloud`) and the two
+`Debug` folder utility actors (`BP_PostProcessToggle`, `BP_DayNightDebug`) — none
+of these are house-layout-specific.
+
+**Discarded (old-layout placements, no longer correct — 158 actors total, all
+under the outliner's `Blockout` and `Anomalies` folders):**
+- `Blockout/Bathroom` (13), `Blockout/Bedroom` (12), `Blockout/Entry` (15),
+  `Blockout/Garage` (8), `Blockout/Hallway` (18), `Blockout/Kitchen` (13),
+  `Blockout/LivingRoom` (11), `Blockout/Study` (11), `Blockout/Utility` (9) —
+  old room walls/floors/ceilings/point-lights, old 8-room layout (no Spare
+  room/Stair hall/Basement/Attic — those are new in the blueprint).
+- `Blockout/Doors` (7) — old `BP_Door` instances at old-layout openings. Treating
+  these the same as the anomaly instance: the class stays, these specific
+  placements don't (task 5 places fresh instances at the blueprint's Table 3
+  positions).
+- `Blockout/Yard` (40) — old yard/fence/treeline/path/porch/garage-blockout,
+  built around the old front door position. Task 7 rebuilds this around the new
+  `W02` front door at ~(0,1215).
+- `Anomalies` (1) — the single `BP_Anomaly` instance's old position. Class stays;
+  task 6 re-places it in the new hallway.
+
+**Pushed:** no — local commit only, per standing instruction not to push without
+being asked.
+
+**Next:** delete the 158 discarded actors, then task 3 (build Tables 1-4 grey-box
+structure at the blueprint's exact coordinates).
+
+---
+
 ## Session — 2026-08-10 — playtest fix: blocked Hallway-Utility doorway (back room, same failure mode as Entry-Hallway)
 
 Fresh session, no memory of prior ones — bootstrapped from `CLAUDE.md` +
