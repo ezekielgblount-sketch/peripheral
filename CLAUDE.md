@@ -184,6 +184,22 @@ unreal/Isolation/       (.uproject lives here — this is the project root)
 If something "doesn't feel scary," the fix is **visibility and pacing**, never a
 startle. This one's unchanged.
 
+## MCP tool gotchas (learned the hard way, applies to every future session)
+
+- **`set_actor_transform` silently drops scale if you only pass location** —
+  contradicts what it claims to do. Always set location/rotation/scale
+  together, even if you only meant to change one. Found after it quietly
+  reset scale on 12 roof actors during the second-floor rebuild.
+- **Padding/epsilon "insurance" fixes can regress real clearances.** Overlap
+  padding added to fix wall z-fighting once ate 0.3cm into every doorway's
+  clear opening. Any defensive padding value is a real geometry change, not
+  a freebie — check it against the actual constants (door width 90, etc.)
+  after adding it, not just against the bug it was meant to fix.
+- **This tooling cannot simulate real WASD movement, only teleport/placement
+  checks.** Movement-sweep-specific bugs (something that only manifests
+  under continuous player-controlled motion, not a static capsule check) can
+  survive automated verification and still need a human to actually walk it.
+
 ## Workflow
 
 - **`AGENT_LOG.md` at repo root is the review point.** After a work session,
