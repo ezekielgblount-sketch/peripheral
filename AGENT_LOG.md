@@ -10,6 +10,111 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-10 (playtest bug 2/3 — wall seam audit + duplicate-wall bug)
+
+**Did:**
+- Systematic audit of all 27 walls' built segments (91 actors at the time),
+  bounds-checked programmatically rather than patching visually-obvious spots,
+  per the bug report's explicit instruction. Checked every along-axis boundary
+  between adjacent segments on every multi-opening wall (W01,W02,W03,W05,W06,
+  W07,W08,W09,W10,W15,W20,W25) and every exterior/interior wall corner (15
+  corners, both diagonals, via `trace_world`) for real gaps.
+- **Result: zero real gaps found anywhere in the opening-splits or corners.**
+  Every along-axis boundary between adjacent segments matched exactly (a
+  couple showed ~1e-14 units of *overlap*, not gap — footprint noise from the
+  scale-from-size float division, many orders of magnitude below anything
+  visible). This means task 3's opening-splitting math itself was correct.
+- **But found a different, real, systemic bug while auditing:** every wall
+  with **zero openings** (15 of the 27 — W04,W11,W12,W13,W14,W16-19,W21-24,
+  W26,W27) had been spawned **twice** — an exact-duplicate overlapping box at
+  identical bounds. Root cause in task 3's build script: for a wall with no
+  openings, the post-loop `if cur < wall_hi: make_seg(...)` already creates
+  the one needed solid segment (since `cur` never advances past `wall_lo`
+  when the openings list is empty) — but a *second*, separate
+  `if not wall_openings: make_seg(...)` check fired right after and created
+  a redundant identical box. Two exactly-coincident static meshes is a
+  textbook cause of Z-fighting, which reads on screen as a flickering seam —
+  very plausibly what got reported as "visible slits/gaps," even though the
+  actual geometry had no hole.
+- **Fix:** deleted all 91 wall actors and rebuilt from a corrected script —
+  removed the redundant duplicate-creation branch, and (defense in depth,
+  since none of the current values actually needed it) added a small 0.3uu
+  overlap pad to every internal along-axis and Z-axis seam between segments
+  of the same wall, so no future float-precision drift can ever produce a
+  visible gap. Left the cross-thickness (wall depth) faces and true wall
+  end-to-end corners alone — not implicated, no reason to touch them.
+  Rebuilt count: 76 segments (91 minus the 15 duplicates), zero errors, zero
+  duplicate bounds on re-audit.
+- **Verified in a fresh PIE session** (stopped and restarted, not reusing the
+  investigation session): re-checked the sightline and several opening/solid
+  boundary traces, all still correct; confirmed no new duplicates via a
+  bounds-based re-scan of every actor in `House/Walls`.
+
+**Pushed:** no.
+
+**Next:** bug 3 (driveway / disconnected road ground).
+
+---
+
+## Session — 2026-08-10 (playtest bug 1 — basement access, investigation)
+
+**Did:**
+- Investigated the reported basement-access blockage at `W20`/`O20` (the
+  basement stair door wall), checking for the same asymmetric-wall-cut
+  failure mode as the earlier Entry-Hallway and Hallway-Utility bugs, per the
+  report's explicit hypothesis. **Could not reproduce that specific failure
+  mode** — every check came back clean:
+  - `W20`'s built segments (`W20_seg0`, `W20_O20_lintel`) exactly matched the
+    expected geometry — no leftover uncut panel, on either the stair-hall/
+    landing side or the basement side (checked both, per the report's ask).
+  - With the door actor temporarily moved aside, the opening itself was
+    genuinely clear across a dense sample grid (25 points spanning its full
+    width/height) — the wall has a real hole, not a fake one.
+  - Live-tested the actual door mechanism in PIE (not a static/editor-time
+    property poke — confirmed separately that those get silently reverted by
+    `BP_Door`'s construction script, same as the garage-door resize issue
+    from task 5): teleported the player next to the door, pressed **E** for
+    real via `SlateInspectorToolset`, confirmed `bIsOpen` flips true,
+    `currentYaw` reaches -90, and the opening traces clear on both sides.
+  - Checked the basement stairs (`S02`, 13 steps) for gaps between
+    consecutive treads — none; checked the main-floor/basement-ceiling
+    stairwell shaft cut (`F02`/`F03`/`F04` vs `F12`-`F15`) against the stairs'
+    actual footprint — exactly aligned, matches Table 1 to float-noise
+    precision.
+  - Scanned every actor in a generous bounding box around the whole
+    stairwell+door+landing region for anything unexpected (leftover old-layout
+    actor, mislabeled duplicate) — nothing found besides what's supposed to
+    be there.
+- **What I could not test:** real sustained WASD movement through the space.
+  `SlateInspectorToolset.PressKey` reliably drives discrete-press actions
+  (confirmed working for the flashlight's `F` and the door's `E`), but did
+  not produce any measurable player movement for `W` — Enhanced Input's
+  analog Move action doesn't appear to register a bare press+release the same
+  way a digital toggle action does. Repeated presses and reasonable waits
+  didn't move the character at all, so a genuine "walk down the stairs and
+  through the door" repro wasn't possible with the tools available this
+  session.
+- **What I did find nearby, and fixed:** `W13` (the wall immediately at the
+  same X-coordinate as `W20`, on the main floor, forming part of the StairHall
+  boundary the player crosses to reach the stairs at all) had the duplicate-
+  wall bug described in the bug-2/3 entry above — two exactly-coincident
+  collision boxes. Coincident static collision is a known category of Chaos
+  physics edge case for movement-sweep resolution (not just a rendering
+  artifact) — a plausible mechanism for something that reads as "blocked" to
+  a player without an obvious visual cause. Fixed as part of the same
+  systematic wall rebuild in the entry above, not a separate change.
+- **Honest bottom line:** I'm not certain the duplicate-wall fix is *the*
+  cause of what was reported — I could not reproduce a blockage at all with
+  the tools available, before or explicitly localized to after the fix. If
+  it's still blocked after this, I need a more specific repro (exact player
+  position/heading where it happens) since teleport-based testing around
+  every candidate location came back clean.
+
+**Pushed:** no (no separate commit — the geometry fix is the same one in the
+bug-2/3 entry above; nothing to commit for this entry beyond this writeup).
+
+---
+
 ## Session — 2026-08-10 (HOUSE_BLUEPRINT.md replacement, task 2 — triage)
 
 **Did:**
