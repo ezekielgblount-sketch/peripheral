@@ -10,6 +10,11 @@ Avoid creating Blueprint enums via the asset factory — known to freeze the
 editor. Plain int/byte variables instead, same pattern already used in
 `BP_Anomaly`.
 
+**Tasks 1–6 below are done** (see `AGENT_LOG.md` — template cleanup, palette
+materials pass, door verify + flashlight, peripheral post-process, day/night
+toggle, exterior yard/garage all shipped). Kept here for reference. **Tasks 7
+and 8 are next.**
+
 ---
 
 ## 1. Delete leftover First Person template practice geometry
@@ -202,3 +207,86 @@ File everything under a new outliner folder `Blockout/Yard`. This is
 explicitly a "don't fall out of the world" fix plus bare walkability, not
 the real yard (treeline, gravel path, porch, breaker box) — that's future
 work per the handoff spec, don't over-build it tonight.
+
+---
+
+## 7. Palette rework — redo every material to the final confirmed 5-color set
+
+The materials built in task 2 used the **old** palette (`#1A1916` family, from
+the original Peripheral spec). That palette has since been superseded — see
+`CLAUDE.md`'s "Peripheral vision technique"/palette section and
+`HOUSE_ENVIRONMENT_SPEC.md` (which states it's the **second** time this exact
+set has been confirmed, zero exceptions). This is known, flagged rework, not
+optional cleanup — do it before anything else visual.
+
+**Final palette:**
+
+| Name | Hex |
+|---|---|
+| Void Charcoal | `#0B0A08` |
+| Soot Brown | `#211E1A` |
+| Dust Taupe | `#49433D` |
+| Dead Beige | `#776F65` |
+| Faded Bone | `#C8C1B6` |
+
+No file in the repo currently gives a room-by-room mapping to this new set —
+`VISUAL_REFERENCE.md` gives a general usage guide instead (§1–2: Void
+Charcoal = deepest shadow/unlit rooms/silhouettes; Soot Brown = dark
+wood/shadowed walls/furniture; Dust Taupe = mid-tone walls/floors/doors/object
+bodies; Dead Beige = lit surfaces/fabric/worn paint; Faded Bone = strongest
+highlights/text/flashlight-lit edges/pale objects). Proposed mapping, sourced
+from that guide — check nothing in the project already contradicts it before
+applying, but this is the intended read:
+
+| Surface | Color | Hex |
+|---|---|---|
+| Walls | Dust Taupe | `#49433D` |
+| Floors | Soot Brown | `#211E1A` |
+| Ceilings | Dead Beige | `#776F65` |
+| Furniture | Soot Brown | `#211E1A` |
+| Doors | Dust Taupe | `#49433D` |
+
+Update the existing `M_FlatCol` instances (or add new ones if the old ones are
+referenced elsewhere and shouldn't be repointed) — keep roughness 1 / metallic
+0 / specular 0 unchanged, only the color values move. Apply project-wide, same
+uniformity rule as task 2: no per-room variation in the base tones, rooms read
+as distinct through furniture and layout, not wall color.
+
+Verify visually once done (fresh PIE, walk each room) — this is a full repaint
+of everything built so far, worth actually looking at before moving on, not
+just trusting the material asset browser thumbnails.
+
+---
+
+## 8. Flashlight — battery drain, no HUD meter
+
+Task 3 built a basic toggleable `SpotLight` (F to toggle). This task adds
+depletion. Keep it simple — no pickups, no recharge mechanic in this pass;
+those are natural follow-up work, note as such in `AGENT_LOG.md` rather than
+building them now.
+
+- **Light color**: Faded Bone `#C8C1B6` — the palette's own guide names
+  "flashlight-lit edges" as a Faded Bone use case. **Not warm/amber.** There
+  was an earlier ratified exception for a warm flashlight color; both
+  `CLAUDE.md` and `HOUSE_ENVIRONMENT_SPEC.md` have since explicitly retired
+  it ("no exception listed for the flashlight or anything else," stated
+  twice) — that supersedes the earlier ruling. Simple single cone, reasonable
+  default angle/intensity/range, same as task 3 already set up.
+- **Battery**: depletes only while the flashlight is switched on (idle/off
+  doesn't drain). Full charge lasts **240 seconds (4 minutes) of cumulative
+  on-time** — adjust this constant if it plays too long/short in testing, but
+  that's the starting number, don't leave it unset.
+- **No HUD battery meter.** Matches the project's diegetic-only UI stance
+  (no numeric meters anywhere else in the game). Instead: in the last ~20% of
+  charge, the light should **flicker** — brief, irregular random dips in
+  intensity (not a steady blink) — as the only tell something's wrong. At 0%,
+  the light cuts out completely; toggling F while empty does nothing (or
+  produces a single weak flicker-and-fail, if that's a quick add — nice to
+  have, not required).
+- A plain float variable (0–240 counting down, or 0–1 normalized — either is
+  fine) on the pawn/flashlight component is enough; no need for a Blueprint
+  enum (see the standing warning at the top of this file).
+
+Verify via fresh PIE: toggle on, let it run past the 80%-charge mark and
+confirm flicker starts, let it fully deplete, confirm it cuts out and F does
+nothing useful while empty.

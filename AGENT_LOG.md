@@ -10,6 +10,44 @@ if it looks right.
 
 ---
 
+## Session — 2026-08-10 (catch-up + queue tasks 7/8, other-Claude side)
+
+**Did:**
+- Caught up after ~47 commits landed on `main` since this session's last look
+  (Isolation pivot, real Unreal project + Blueprints built, doors verified,
+  yard/garage grey-boxed, two doorway bugs found and fixed). Reset local
+  `main` to match — nothing lost, the one local-only commit was already safe
+  on the (now-closed) PR branch.
+- Closed PR #1 (`decisions/consolidated-rulings`) as superseded — its content
+  is now redundantly recorded in `DESIGN.md`/`CLAUDE.md`/`FEATURE_LIST.md` on
+  `main` via a separate, more current resolution than what that PR was
+  tracking. Nothing from it needed merging.
+- Confirmed one live contradiction directly with the human before touching
+  anything: `CLAUDE.md` and `HOUSE_ENVIRONMENT_SPEC.md` both say the
+  flashlight's warm-color exception is retired (zero exceptions, confirmed
+  twice); an earlier ratified decision in this repo's history said keep it
+  warm. Human resolved it in favor of the retirement — flashlight goes
+  neutral, matching what's already written twice on `main`.
+- Added tasks 7 and 8 to `NEXT_TASKS.md` for whoever runs the next Unreal MCP
+  session: (7) redo every material from the old `#1A1916`-family palette to
+  the final confirmed 5-color set (`VISUAL_REFERENCE.md` / `HOUSE_ENVIRONMENT_
+  SPEC.md`), with a proposed room-by-room mapping since no file had one yet;
+  (8) flashlight battery — 240s of cumulative on-time per charge, flicker in
+  the last ~20%, cuts out at 0%, Faded Bone `#C8C1B6` light color (not warm),
+  no HUD meter, no pickups/recharge in this pass.
+- No Unreal MCP connection in this session (none loaded, no Editor process
+  running here) — did not and could not touch the actual Unreal project.
+  Docs/queue only.
+
+**Pushed:** yes (human — Ezekiel — asked for this to go straight to a prompt
+for the other Claude Code session to pick up, so it needs to be on `main` for
+that session to see it after a pull).
+
+**Next:** tasks 7 and 8 in `NEXT_TASKS.md`, for the session running from
+`unreal/` with the Editor open.
+
+---
+
 ## Session — 2026-08-10 — playtest fix: blocked Hallway-Utility doorway (back room, same failure mode as Entry-Hallway)
 
 Fresh session, no memory of prior ones — bootstrapped from `CLAUDE.md` +
