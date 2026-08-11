@@ -233,6 +233,44 @@ tools rather than trusting the document.
 
 ---
 
+## Session — 2026-08-10 (HOUSE_BLUEPRINT.md replacement, task 7 — yard)
+
+**Did:**
+- Rebuilt the three explicitly-scoped pieces (ground plane, boundary, front-path
+  gap) around the new front door — the old yard was already gone (deleted with
+  everything else under `Blockout/` in task 2). Did **not** attempt fence/
+  treeline/prop detail or the driveway — those are dressing, out of scope per
+  the task's own text ("full detail... if useful, but the position has to
+  match") and per task 8 holding materials/furniture for later.
+- **Grade level:** used `Z=-54` as the exterior ground datum, not `Z=0`.
+  Derived this from the blueprint's own front steps (`F07`-`F09`, already built
+  in task 3): three 18cm risers descending from the porch (`Z=0`, flush with
+  the main floor) land at `Z=-54` — that's where the blueprint's own geometry
+  already meets natural grade, so the yard ground plane's walkable top sits
+  there instead of at an arbitrarily-chosen height.
+- **Ground plane:** one slab, `X -600..1500, Y -300..2100`, top at `Z=-54` —
+  generous margin around the house+porch+garage footprint (house's own extent
+  is roughly `X -264..1200, Y -30..1830` including the front steps and roof
+  overhang).
+- **Boundary:** a low fence perimeter (110 tall, 15 thick, matching interior
+  wall-thickness convention) around that same rectangle, split into 5
+  segments — the front (west, low-X) side has a gap instead of one solid run.
+- **Front-path gap:** the gap sits at `Y 1100-1330`, centred on `1215` — the
+  same Y the front door (`O02`), entry/hall door (`O03`), back door (`O04`),
+  and the task-4 sightline all already share. A path slab (`Y 1140-1290`,
+  matching the interior hallway's clear width) runs from the gate to the
+  porch/steps at `X=-264`. Verified with `trace_world`: clear straight through
+  the gate at the door's centreline, blocked by the fence 700uu further down
+  — confirms the gap lines up with the new door position, not the old one.
+
+**Pushed:** no.
+
+**Next:** task 9 — flashlight battery drain (independent of the house rebuild,
+safe to do anytime). Task 8 (materials/furniture) stays held until a human
+confirms the structure pass is good.
+
+---
+
 ## Session — 2026-08-10 — playtest fix: blocked Hallway-Utility doorway (back room, same failure mode as Entry-Hallway)
 
 Fresh session, no memory of prior ones — bootstrapped from `CLAUDE.md` +
