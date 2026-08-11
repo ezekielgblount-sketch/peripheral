@@ -202,3 +202,49 @@ File everything under a new outliner folder `Blockout/Yard`. This is
 explicitly a "don't fall out of the world" fix plus bare walkability, not
 the real yard (treeline, gravel path, porch, breaker box) — that's future
 work per the handoff spec, don't over-build it tonight.
+
+---
+
+## 7. Materials pass — redo per `MASTER_VISUAL_ENVIRONMENT_BRIEF.md`, NOT flat single colors
+
+**This task changed since it was first written — the flat-5-color-slab
+approach is superseded.** Read `MASTER_VISUAL_ENVIRONMENT_BRIEF.md` first,
+specifically §21 (palette) and §22 (materials), before touching anything.
+
+Direction now: semi-photorealistic, controlled realism — real material
+identity (this reads as wood, this reads as tile, this reads as painted
+plaster) using the 5-value palette family as the color anchor, not a flat
+color slab per surface type. Per-material guidance is in §22 of the master
+brief (walls = painted plaster with slight wear, wood paneling = dark/
+low-sheen with real grain, tile = plain/believable/not shiny, etc.) — don't
+reduce it back to one flat hex per surface category.
+
+**The constant that doesn't change: zero specular/gloss, zero bloom, zero
+lens flare.** This is still load-bearing for the peripheral-vision mechanic
+regardless of how photoreal the base materials get — keep roughness high
+and specular contribution minimal on every material, even textured ones.
+
+Redo every surface currently on `M_PrototypeGrid` or the old flat
+`M_FlatCol` palette. Commit per room or logical chunk, not one giant commit.
+
+---
+
+## 8. Flashlight battery drain
+
+**Split task — the mechanic and the color are independent, only the color
+part was blocked.** Mechanic is fully approved, build it regardless of
+where the visual-direction discussion lands:
+
+- 240 seconds of on-time per charge
+- Flicker during the last ~20% of remaining charge
+- Cuts out completely at 0%
+- No recharge mechanic yet (that's later, comfort-item-system territory)
+
+**Color**: do NOT lock to a single fixed hex (the earlier "#C8C1B6, not
+warm" instruction is superseded along with the rest of the old palette
+rule). Use `MASTER_VISUAL_ENVIRONMENT_BRIEF.md` §19's flashlight behavior
+section instead — realistic, limited, nervous, practical, warm-neutral in
+the sense of a real flashlight bulb, not a saturated color, not locked to
+one of the 5 palette swatches specifically. If genuinely ambiguous, pick
+something reasonable and note the choice in `AGENT_LOG.md` rather than
+blocking on it — this can be refined later, unlike the mechanic.

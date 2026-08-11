@@ -144,21 +144,16 @@ unreal/Isolation/       (.uproject lives here — this is the project root)
 - Anomaly actors implement the base class and override `SetOff()` / `SetNormal()`.
 - `FoveaComponent` is a **service the anomalies pull from** — `GetAngleTo()`,
   `IsOccluded()`. It never pushes state into them.
-- ~~Palette is five colours (spec §10). The Act 2 flashlight warm `#FFE6B8` is the
-  only saturated colour permitted anywhere in the game.~~ **Superseded — final
-  palette confirmed twice (`VISUAL_REFERENCE.md`, `HOUSE_ENVIRONMENT_SPEC.md`),
-  zero exceptions, including the flashlight:**
-
-  | Name | Hex |
-  |---|---|
-  | Void Charcoal | `#0B0A08` |
-  | Soot Brown | `#211E1A` |
-  | Dust Taupe | `#49433D` |
-  | Dead Beige | `#776F65` |
-  | Faded Bone | `#C8C1B6` |
-
-  Materials already built against the old palette (`#1A1916` family) need
-  redoing — this is a real, known rework item, not optional cleanup.
+- **Visual/material direction: see `MASTER_VISUAL_ENVIRONMENT_BRIEF.md`, the
+  final source of truth.** History, for context: this went through three
+  revisions in one night — flat 5-color (original) → a different flat
+  5-color (`VISUAL_REFERENCE.md`) → semi-photorealistic/controlled-realism
+  (the master brief, current). Don't re-derive material rules from the older
+  docs; they're superseded, not just refined. The one constant across every
+  revision: **zero glossy/specular highlights, zero bloom, zero lens flare** —
+  that rule is load-bearing for the peripheral-vision mechanic itself (a
+  glint tells the player where to look), not a style preference, and it does
+  not change even though the render style around it has.
 
 ## The "don't" list (spec §13 — still true except where Isolation overrides it)
 
