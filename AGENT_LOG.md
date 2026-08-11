@@ -271,6 +271,61 @@ confirms the structure pass is good.
 
 ---
 
+## Session — 2026-08-10 (task 9 — flashlight battery drain)
+
+**Did:**
+- Added the battery-drain mechanic to `BP_FirstPersonCharacter` (already had a
+  toggleable `FlashlightComponent`/`SpotLightComponent` and a `ToggleFlashlight`
+  function from an earlier session — reused both, didn't rebuild).
+- New member variables: `FlashlightBatteryPct` (float, default 100) and
+  `bFlashlightOn` (bool, default false).
+- `ToggleFlashlight`: turns off unconditionally; turns on only if battery > 0
+  (dead battery can't be toggled back on — matches "no recharge yet").
+- New `EventTick`: while `bFlashlightOn`, drains at `100/240` %/sec (exactly
+  240s from full to empty). At 0%, forces `bFlashlightOn` false and the light
+  invisible. Below 20%, flickers: each tick, `P(visible) = BatteryPct/20`, so
+  the flicker gets more frequent/severe as it approaches 0 rather than being a
+  flat on/off flicker rate — reads as a dying battery, not a broken light.
+- **Color:** left untouched. `MASTER_VISUAL_ENVIRONMENT_BRIEF.md` §19
+  explicitly supersedes `NEXT_TASKS.md` task 8's old rigid `#C8C1B6` lock and
+  says color should vary by room from a palette family — but also says "the
+  battery-drain mechanic itself is unaffected." That room-by-room variation is
+  materials/lighting work, which task 8 holds for later; this session's scope
+  was the drain mechanic only, so color wasn't touched either way.
+- **Correction to what I assumed going in:** initially thought the F-key
+  toggle might be disconnected — `read_graph_dsl` on `EventGraph` rendered the
+  key event with an empty body. Turned out to be a display quirk in the DSL
+  round-trip printer for `K2Node_InputKey` nodes, not a real problem — direct
+  node/pin inspection (`find_nodes`/`get_node_infos`, not the DSL text) showed
+  the F key's `Pressed` exec was already correctly wired to `ToggleFlashlight`.
+  Learned to verify Blueprint graph edits this way going forward: `read_graph_dsl`
+  is fine for a first read, but treat its output as approximate and check the
+  actual compiled node graph before concluding something is broken or before
+  trusting that a `write_graph_dsl` call did what was asked (a `false` argument
+  matching a pin's own default was silently omitted from one round-trip too —
+  also harmless, confirmed via the same direct pin check, but same lesson).
+- **Live-tested in PIE**, not just statically verified: started a real Play-In-
+  Editor session, used `SlateInspectorToolset` (`Click` + `PressKey`) to send an
+  actual `F` keypress to the viewport — `ObjectTools.set_properties` can't write
+  to a live PIE actor instance (reads work, writes are rejected; CDO writes are
+  fine), so this was the only way to drive it for real rather than faking state.
+  Confirmed: F toggles the light and starts the drain; battery dropped from
+  100% to 78.61% over an observed ~43 real seconds, matching the intended
+  100/240 %/sec rate almost exactly (predicted 18.04%, observed 18.06%);
+  pressing F again froze the drain immediately (battery held flat over a
+  further 5s check) and set the light invisible. The flicker (<20%) and
+  hard-cutoff (0%) branches are confirmed structurally (direct pin inspection
+  of the compiled graph, matching the intended branch logic exactly) but
+  **not** exercised live — reaching 20% battery needs ~192s of real playtime,
+  not done this session.
+
+**Pushed:** no.
+
+**Next:** task 8 (materials/furniture) stays held for a human go-ahead — that
+was the last item in `NEXT_TASKS.md`. All of tasks 2-7 and 9 are done.
+
+---
+
 ## Session — 2026-08-10 — playtest fix: blocked Hallway-Utility doorway (back room, same failure mode as Entry-Hallway)
 
 Fresh session, no memory of prior ones — bootstrapped from `CLAUDE.md` +
