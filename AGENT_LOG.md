@@ -334,6 +334,54 @@ standard door 90×205, reused `BP_Door`).
 
 ---
 
+## Session — 2026-08-11 (basement: subdivide into 3 rooms)
+
+**Did:** Same basis as the second floor — no blueprint exists for this yet,
+improvised per the explicit go-ahead with the same conventions (wall
+thickness 15, doors 90×205, `BP_Door`).
+- Checked first whether the "existing basement content (water heater, boxes
+  hiding spot)" the instruction referenced was actually in the level —
+  it isn't. Searched for `Water`/`Heater`/`Box` and scanned every actor in
+  the basement's bounding volume; found only my own known geometry and
+  engine defaults. This mirrors the bug-3 situation (the "existing" road/
+  forest that also turned out not to exist) — the props are aspirational
+  content from the environment spec, not yet built. Nothing to relocate;
+  noted this rather than silently assuming the props existed.
+- Split the single open basement room (`X0-1200, Y600-1800`) into three with
+  two new full-depth dividers:
+  - `W_Basement_A` at `X=300` — **Side Room A** (`X0-300`) west of it.
+  - `W_Basement_B` at `X=900` — **Side Room B** (`X900-1200`) east of it.
+  - **Main Room** is the middle strip (`X300-900`) — keeps the existing
+    stairwell/landing nook (`W20`/`O20`, `X485-597.5`) inside it unchanged,
+    so the stairs still land in the biggest, most central room, which reads
+    right architecturally.
+  - One new door in each divider (`O_BasementA`, `O_BasementB`), both
+    centred at `Y=1200`. Caught my own arithmetic mistake before it shipped:
+    first pass used the wrong `dist` value and put both doors hard against
+    the south wall (`Y1710-1800`) instead of centred — caught by computing
+    the expected opening range from the `dist`/`width` I'd actually passed,
+    not just trusting the intent, deleted and rebuilt with the corrected
+    value.
+  - **Designated Side Room A (west) as the utility room** — furthest from
+    the stairwell entrance, which fits a "tucked-away utility space with a
+    hiding spot" read better than putting it in the first room you enter.
+    No content to place there yet (see above); this is just the room choice
+    for when task 8 (materials/furniture) gets to it.
+- Verified structurally first (wall/door solidity, both closed-door blocks,
+  ceiling height consistent at all three rooms' true `Z=-30` basement
+  ceiling, floor consistent at `Z=-240`), then **live in PIE**: walked the
+  character into the Main Room and both side rooms in sequence, opened both
+  new doors for real with an **E** keypress, confirmed `bIsOpen` flipped and
+  the character settled at the correct floor height in each room.
+
+**Pushed:** no.
+
+**Next:** task 8 (materials/furniture) — still held for a human go-ahead,
+per the standing instruction. All three playtest bugs, the second floor, and
+the basement subdivision are done.
+
+---
+
 ## Session — 2026-08-10 (HOUSE_BLUEPRINT.md replacement, task 2 — triage)
 
 **Did:**
