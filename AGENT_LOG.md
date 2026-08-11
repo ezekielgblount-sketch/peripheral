@@ -115,6 +115,56 @@ bug-2/3 entry above; nothing to commit for this entry beyond this writeup).
 
 ---
 
+## Session — 2026-08-10 (playtest bug 3 — driveway + road/forest ground)
+
+**Did:**
+- Before building anything, checked what actually exists: searched for any
+  existing "road"/"forest"/"tree" content. Found almost nothing — one stray
+  leftover `Tree_1_Trunk` (an unexplained old actor, floating well outside
+  and unrelated to any of tonight's work, X~1550/east of the house — left
+  alone, out of scope for this bug, noted here rather than silently ignored).
+  **There was no pre-existing gravel road or forest ground to "reconnect" —
+  this was new construction, not a reconnection fix**, despite how the bug
+  report was worded.
+- Built, per `HOUSE_ENVIRONMENT_SPEC.md` §4-6:
+  - **Driveway**: gate-to-garage-door approach (`Driveway_GateToGarage`,
+    220cm wide, centred on `Y=300` — the same centreline the garage door
+    `O01` already sits on from task 5), then continuing along the *outside*
+    of the house (north of `W03`, the garage's own wall, not overlapping the
+    building footprint — caught and fixed a placement mistake here: the
+    first attempt at the "continuing to the rear" segment landed *inside*
+    the garage's own floor footprint, invisible and useless; moved it
+    outside to `Y -220..0`) the full length of the house to the rear, per
+    spec's "left side... continuing to the rear yard/service area."
+  - **Boundary gate**: split the existing front-boundary fence segment to
+    add a second gate gap (`Y 190-410`) for the driveway, alongside the
+    existing front-door gate — verified both gaps independently clear and
+    the fence still solid everywhere else via `trace_world`.
+  - **Road/forest ground**: one large slab (`RoadForest_GroundPlane`,
+    `X -2000..-600`) sharing the exact `X=-600` edge with task 7's
+    `Yard_GroundPlane` — same grade (`Z=-54` top, same datum derived from
+    the blueprint's own front steps), so it's welded, not floating. A
+    `GravelRoad_ToMainRoad` strip continues the driveway's line through the
+    gate out to the far edge, per spec §5's "connecting to a larger main
+    road, at a distance."
+- **Verified the weld**, not just assumed it: top-down traces at `X=-605,
+  -600, -595` (straddling the seam) all hit at the identical distance —
+  continuous ground, no gap. Cross-checked in a fresh PIE session: teleported
+  the player onto the far road (`X=-900`) and the driveway (`X=-400`) and
+  watched it actually settle under real gravity onto the new ground both
+  times, not just trace-checked. (One teleport landed exactly on the gate's
+  boundary line/fence-post seam and never settled after several seconds —
+  the ground trace there confirmed solid geometry directly underneath, so
+  this reads as a spawn-exactly-on-a-seam physics edge case, not a real gap;
+  moving a few units off the exact line settled normally.)
+
+**Pushed:** no.
+
+**Next:** all three playtest bugs addressed. Ready for task 8
+(materials/furniture) on a human go-ahead.
+
+---
+
 ## Session — 2026-08-10 (HOUSE_BLUEPRINT.md replacement, task 2 — triage)
 
 **Did:**
