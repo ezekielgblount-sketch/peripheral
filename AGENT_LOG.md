@@ -59,6 +59,60 @@ structure at the blueprint's exact coordinates).
 
 ---
 
+## Session — 2026-08-10 (HOUSE_BLUEPRINT.md replacement, task 3 — structure)
+
+**Did:**
+- Built the full grey-box structure from Tables 1-4, coordinates taken literally
+  (no `CLAUDE.md` axis conversion — confirmed not applicable per the blueprint's
+  own header). Used the MCP `ProgrammaticToolset` (batched Python against the
+  scene/primitive tool APIs) instead of one tool call per box — ~160 actors would
+  have been slow and expensive one at a time.
+- Discovered `PrimitiveTools.add_cube`'s `dimensions` parameter silently floors
+  any axis below 256uu to a fixed 256uu cube instead of respecting the requested
+  size — confirmed by direct test (a 10×20×30 request produced a 256×256×256
+  box). That's unusable for 15-30cm-thick walls, so switched to spawning
+  `/Game/LevelPrototyping/Meshes/SM_Cube` directly (confirmed via
+  `StaticMeshTools.get_bounds`: a corner-pivoted 0..100 unit cube) and setting
+  actor location = AABB min corner, scale = size/100 per axis. This reproduces
+  exact world-space AABBs reliably and is worth remembering for any future
+  primitive-geometry work in this project — **don't use `PrimitiveTools.add_cube`
+  for anything under ~256uu on any axis.**
+- **Floors/slabs (Table 1):** all 41 spawned directly from min/max corners, no
+  openings needed. Folder `House/Floors`.
+- **Walls (Table 2):** all 27 walls are axis-aligned (each row's Start/End share
+  either X or Y), so every wall reduces to one or more AABB segments — no
+  rotation math needed anywhere. For each wall, gathered its Table 3 openings
+  (by host-wall ID), sorted along the wall, and split the wall into: solid
+  full-height segments in the gaps between openings, a sill segment below an
+  opening when `sill > 0`, and a lintel segment above an opening when its top is
+  below the wall's top. Zero-opening walls got one solid segment. This produced
+  91 wall segments (`House/Walls`), including the 5-opening `W10` (hall/room
+  boundary — O12, O13a, O13b, O14, O15) split into 6 solid segments plus lintels.
+  Verified against the source data before running: `W20`'s door (height 205) vs.
+  wall height 210 leaves a genuine 5cm lintel, and `W25`'s door (height 205) vs.
+  wall height 205 leaves none — both are the blueprint's own numbers, not a
+  building mistake.
+- **Stairs (Table 4):** built as stacked solid blockout steps (rising boxes, each
+  successive step taller/further along than the last) — standard greybox
+  stair technique. 28 steps total (`House/Stairs`: S01 attic ×15, S02 basement
+  ×13). **Assumption, not explicit in the blueprint:** interpreted each stair's
+  `Bottom-start (X,Y,Z)` as the stair's starting/left edge (spanning `X` to
+  `X+width`), not a centerline. Cross-checked this against Table 3/Table 5 data
+  before committing to it: S01's start X=365 matches door `O13a`'s position and
+  width exactly; S02's start X=485 matches door `O13b` and the basement landing
+  slab `F11` (485-575) exactly. Both stairs' Z ranges also land exactly on the
+  floor/ceiling datums they should (attic stair 0→270, basement stair -234→0).
+- Left all door/window openings as literal gaps — no `BP_Door` instances placed
+  yet, per task 3's explicit instruction (that's task 5).
+
+**Pushed:** no.
+
+**Next:** task 4 — independently re-verify the blueprint's self-check claims
+(closure, sightline) against what was actually built here, using bounds/trace
+tools rather than trusting the document.
+
+---
+
 ## Session — 2026-08-10 — playtest fix: blocked Hallway-Utility doorway (back room, same failure mode as Entry-Hallway)
 
 Fresh session, no memory of prior ones — bootstrapped from `CLAUDE.md` +
