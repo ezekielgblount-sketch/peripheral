@@ -223,6 +223,64 @@ real playthrough (not just my teleport-based checks), then task 8.
 
 ---
 
+## Session — 2026-08-11 (playtest bug — stair headroom investigation)
+
+**Did:**
+- New report after the basement-floor fix: player's head clips something on
+  `S02` partway down. Hypothesis given was `F12`-`F15` (basement ceiling
+  slabs) missing a stairwell cutout.
+- **Disproved the `F12`-`F15` hypothesis directly**: none of the four
+  basement ceiling slabs' `X`/`Y` bounds overlap the stair's footprint
+  (`X485-575, Y1290-1654`) at all — confirmed by reading their actual built
+  bounds, not just the table. `F12` stops at `Y=1290`, `F15` starts at
+  `Y=1654`, `F13`/`F14` don't reach into `X485-575`. That part of the report's
+  theory doesn't hold.
+- **Swept the full stair path for real**, not just one point per step, per
+  the instruction: first pass sampled 3 X-positions per step (39 points) with
+  a vertical trace from above head height down to each tread — all 39 came
+  back clean, hit exactly at the tread. Second pass, finer (every 5cm along
+  the whole `Y1290-1654` range) with a generous head-height overlap box,
+  flagged one real hit: `W10_O13b_lintel` (the lintel over the door from the
+  hallway into the stairwell) reaching down to `Z=204.7` right at the top
+  step. Investigated further with a *precisely* calibrated head-zone (using
+  the empirically-measured stand height from live PIE settling, not just the
+  nominal capsule math) and a live PIE placement of the actual character
+  capsule at that exact spot — both came back clean, no real overlap. The
+  first flag was a false positive from an overly generous margin in my own
+  check, not a real collision.
+- **Root cause not conclusively found.** Every geometric check available to
+  me — table bounds, two rounds of trace/overlap sweeps at different
+  precision, and a live capsule placed at rest at the flagged spot — came
+  back clean. I can't rule out a *sweep-specific* collision (something that
+  only shows up during continuous forward motion, not static placement or
+  teleport-and-settle) since real WASD movement still doesn't register
+  through the tools available this session (confirmed again, same as the
+  bug-1 investigation) — that's a real gap in what I can verify, not a
+  claim that the stairs are proven clean.
+- **Fixed anyway, as a legitimate correctness issue independent of whether
+  it's the actual cause:** the epsilon padding added in the bug-2 wall fix
+  was being applied to *every* Z-face of every sill/lintel, including the
+  faces that border a door or window's own clear opening (sill top, lintel
+  bottom) — shrinking every doorway's usable clear height by 0.3uu each. That
+  padding belongs on wall-to-wall and wall-to-floor/ceiling seams (where it
+  prevents gaps), never on a face that borders the clear opening itself.
+  Rebuilt all 76 wall segments with padding correctly scoped: seams between
+  solid wall pieces still padded, sill-top/lintel-bottom faces exactly at
+  the opening's true dimensions. Confirmed `W10_O13b_lintel`'s bottom is
+  back to exactly `Z=205` (was `204.7`), sightline and a solid-wall spot
+  check still correct after the rebuild.
+
+**Pushed:** no.
+
+**Next:** the second-floor and basement subdivision work (see below) —
+requested mid-investigation on this bug. If the headroom clipping is still
+reproducible after this, I need either a live WASD repro (which I can't
+currently drive through the tools) or the human's exact position/heading
+when it happens, since teleport-based testing has now checked every
+candidate spot along the stairs.
+
+---
+
 ## Session — 2026-08-10 (HOUSE_BLUEPRINT.md replacement, task 2 — triage)
 
 **Did:**
