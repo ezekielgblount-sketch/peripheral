@@ -200,6 +200,39 @@ tools rather than trusting the document.
 
 ---
 
+## Session — 2026-08-10 (HOUSE_BLUEPRINT.md replacement, task 6 — anomaly)
+
+**Did:**
+- Re-placed the hallway-end figure (`BP_Anomaly`, unchanged class) in the new
+  hallway (room registry X 180-1200, Y 1140-1290, per `NEXT_TASKS.md`).
+- Worked out placement the same way as the doors — inspected the class's own
+  component transforms rather than guessing: `FigureMesh` sits at relative
+  Z=-140, `BlockingCapsule` at relative Z=-50 with half-height 90 (world span
+  -140 to +40 relative to actor root), so **actor root Z = 140 puts the
+  figure's feet on the floor**. Confirmed with a top-down `trace_world` after
+  placing: hit at world Z=180, exactly matching the capsule's predicted top —
+  feet-on-floor confirmed against the real placed actor, not just the math.
+- **Position and reasoning (logged per NEXT_TASKS' explicit instruction, since
+  the blueprint has no coordinate for this — it's architecture, not gameplay
+  placement):** `(1150, 1215, 140)`, yaw 180°. X=1150 is 50cm short of the
+  back wall (X≈1200) — deep in the hallway, past every side-room doorway
+  (last one, `O15`, ends at x=1090), so it reads as "the figure standing at
+  the end of the hall" the way anomaly #10 is named, without physically
+  blocking the back door's swing clearance. Y=1215 is the hallway's clear
+  centreline (same line the task 4 sightline check used). Yaw 180° faces the
+  figure back down the hallway toward the front entrance — the classic
+  "something standing at the far end, facing you" read, rather than facing
+  away or sideways.
+- Folder: `Anomalies` (recreated — it was deleted automatically in task 2 once
+  the old instance was removed and the folder went empty).
+
+**Pushed:** no.
+
+**Next:** task 7 — rework the yard around the new front-door position (`W02`,
+~(0,1215), facing -X).
+
+---
+
 ## Session — 2026-08-10 — playtest fix: blocked Hallway-Utility doorway (back room, same failure mode as Entry-Hallway)
 
 Fresh session, no memory of prior ones — bootstrapped from `CLAUDE.md` +
