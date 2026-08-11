@@ -113,6 +113,43 @@ tools rather than trusting the document.
 
 ---
 
+## Session — 2026-08-10 (HOUSE_BLUEPRINT.md replacement, task 4 — re-verify)
+
+**Did:**
+- **Sightline:** `trace_world` from `(0,1215,170)` to `(1200,1215,170)` (the
+  blueprint's own stated front-door-centre-to-back-door-centre line) returned no
+  hit — confirmed clear, against the actual placed geometry, not the document's
+  claim.
+- **Closure:** wrote an independent perimeter-sampling check (separate script
+  from the one that built the geometry) — for every one of Table 5's 11 rooms,
+  matched each of its 4 edges against Table 2's wall rows by coordinate, then
+  `trace_world`'d ~500 sample points at 50cm spacing along those edges at each
+  floor's mid-wall-height, checking solid where no opening is expected and clear
+  where Table 3 says there should be a door/window. All 44 edges found a
+  matching wall row (no unenclosed edges). 512 samples, 7 initial mismatches —
+  all traced to bugs in the *verification script itself*, not the build:
+  - 5 were on `W08` (main house right wall) — its Start/End run **X-decreasing**
+    (`(1200,1800)→(0,1800)`), and the verification script's opening-position
+    math didn't account for wall direction (the *build* script from task 3
+    did handle this, correctly). Once the direction sign was added, the two
+    windows on `W08` (`O18`, `O19`) landed exactly where the trace already
+    showed them clear — the wall was right, the checker was wrong.
+  - 2 were exact-boundary sampling artifacts (`Hallway` at x=800 and x=1000,
+    landing precisely on the opening's edge coordinate). Re-traced 5cm to
+    either side of each: solid on the wall side, clear on the opening side —
+    confirms correct construction, not a defect.
+  - After fixing both issues, re-verification is clean: 0 real mismatches.
+- Conclusion: `HOUSE_BLUEPRINT.md`'s self-check claims for closure and
+  sightline hold against the actual built level, independently confirmed with
+  engine trace queries rather than by re-reading the document.
+
+**Pushed:** no.
+
+**Next:** task 5 — place `BP_Door` instances at every `door`-type row in Table 3
+(not the `window` rows), reusing the existing class.
+
+---
+
 ## Session — 2026-08-10 — playtest fix: blocked Hallway-Utility doorway (back room, same failure mode as Entry-Hallway)
 
 Fresh session, no memory of prior ones — bootstrapped from `CLAUDE.md` +
