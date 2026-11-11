@@ -253,6 +253,41 @@ def _floral(d, x, y, k, rot, r):
 W.save("damask", _damask() * (0.96 + 0.06 * wv)[..., None], wv * 0.3, 0.8, 120, bump=0.25)
 W.save("quilt", _quilt() * (0.9 + 0.15 * wv)[..., None], wv, 0.92, 80, bump=1.2)
 W.save("floral_red", pattern(3, (150, 42, 36), _floral, 70) * (0.92 + 0.1 * wv)[..., None], wv, 0.9, 60, bump=0.8)
+def _stripe():
+    """Upstairs hall paper: faded sage and cream stripes with a pin line at each edge."""
+    x = (U * 8.0) % 1.0
+    sage = smooth(0.04, 0.07, x) * (1 - smooth(0.43, 0.46, x))
+    pin = (smooth(0.0, 0.012, np.abs(x - 0.055)) * smooth(0.0, 0.012, np.abs(x - 0.445))
+           * smooth(0.0, 0.01, np.abs(x - 0.70)) * smooth(0.0, 0.01, np.abs(x - 0.76)))
+    c = mix((0.83, 0.76, 0.58), (0.42, 0.50, 0.36), sage)
+    return c * (0.72 + 0.28 * pin)[..., None]
+
+
+def _ditsy(d, gx, gy, c):
+    """Kitchen paper: a small country print, blue flower heads and green sprigs in a half-drop grid."""
+    for iy in range(-1, 9):
+        for ix in range(-1, 9):
+            x = ix * c + (c / 2 if iy % 2 else 0); y = iy * c
+            if (ix + iy) % 2 == 0:
+                for i in range(5):
+                    a = i * 1.2566 + 0.3
+                    d.ellipse([x + 11 * np.cos(a) - 8, y + 11 * np.sin(a) - 8, x + 11 * np.cos(a) + 8, y + 11 * np.sin(a) + 8], fill=(86, 112, 158))
+                d.ellipse([x - 5, y - 5, x + 5, y + 5], fill=(214, 170, 70))
+            else:
+                d.line([(x - 12, y + 12), (x, y), (x + 12, y - 10)], fill=(104, 132, 84), width=4)
+                for (ox, oy) in ((-12, 12), (12, -10), (2, -14)):
+                    d.ellipse([x + ox - 6, y + oy - 4, x + ox + 6, y + oy + 4], fill=(104, 132, 84))
+
+
+def _ditsy_tile():
+    from PIL import Image, ImageDraw
+    im = Image.new("RGB", (N, N), (236, 224, 188)); d = ImageDraw.Draw(im)
+    _ditsy(d, 0, 0, N / 8.0)
+    return (np.asarray(im).astype(np.float64) / 255.0) ** 2.2
+
+
+W.save("stripe", _stripe() * (0.95 + 0.07 * wv)[..., None], wv * 0.3, 0.82, 64, bump=0.25)
+W.save("ditsy", _ditsy_tile() * (0.95 + 0.07 * wv)[..., None], wv * 0.3, 0.8, 72, bump=0.25)
 W.save("grunge", color((1, 1, 1), smooth(0.25, 0.85, fnoise(108, 2.0, 1, 40))), fnoise(109, 1.5, 2, 80), fnoise(110, 1.8, 1, 60), 300, bump=0.0)
 W.finish()
 print("wrote", len(W.manifest), "texture sets to", W.out)

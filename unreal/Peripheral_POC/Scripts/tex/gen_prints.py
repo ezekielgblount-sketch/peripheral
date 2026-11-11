@@ -462,13 +462,13 @@ panel("ui_howto", ["W A S D  walk        mouse  look        C  crouch        F  
                    "Esc  pause        N  day / night        L  jump to the loop",
                    "F1  unease test bar  (1-9, 0, minus;  up / down = preset)", "",
                    "Day One: follow the note in the corner. A faint glow sits on the thing it is about.",
-                   "The loop: walk the hall to the piano. If anything in the house is wrong,", "     turn back and go down the stairs instead. Five right calls in a row ends it.",
+                   "The loop: the upstairs hall keeps coming back. If anything in it has changed,", "     go back the way you came; if not, keep going. Five right calls in a row ends it.",
                    "     A wrong call only starts the count again. Nothing can hurt you."], (1600, 640), head="HOW TO PLAY", fs=30, foot="Enter or Esc  -  back")
 for c, cn in enumerate(("OFF", "HALF", "FULL")):
     for q, qn in enumerate(("LOWEST", "LOW", "MEDIUM", "HIGH")):
         panel("ui_settings_%d_%d" % (c, q), ["Camera motion:    %s        (left / right)" % cn, "Graphics:             %s        (up / down)" % qn], (900, 360), head="SETTINGS", fs=34, foot="Enter or Esc  -  back")
 for i in range(5):
-    panel("ui_loop_%d" % i, ["Something is wrong: turn back, go down the stairs.      Nothing is wrong: go on to the piano.", "right in a row:   %d of 5" % i], (1400, 100), fs=26)
+    panel("ui_loop_%d" % i, ["Something in the hall changed: go back the way you came.      Nothing changed: keep going.", "right in a row:   %d of 5" % i], (1400, 100), fs=26)
 for i, pn in enumerate(("SUBTLE", "MEDIUM", "HEAVY")):
     panel("ui_preset_%d" % i, ["UNEASE    1-9 = level 1-9,  0 = level 10,  minus = clean,  left / right adjust", "levels 8-10 preset:   %s      (up / down)" % pn], (1400, 100), fs=26)
 

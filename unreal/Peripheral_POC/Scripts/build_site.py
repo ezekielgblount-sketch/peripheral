@@ -28,8 +28,9 @@ k = K.Kit()
 gable_roof(k, -50 - L.OX, 920 - L.OX, uy(1720), uy(580), C2 + 15)
 U(k, "white", -54, 578, F2 - 22, -50, 1722, F2 - 2)                       # belt board under the siding overhang
 # chimney on the far end wall
-U(k, "brick", 520, 1720, GR - 20, 640, 1790, 800)
-U(k, "concrete", 514, 1716, 800, 646, 1796, 812)
+ch = K.Kit()                                                              # its own actor: the loop corridor runs through here, so the loop hides it
+U(ch, "brick", 520, 1720, GR - 20, 640, 1790, 800)
+U(ch, "concrete", 514, 1716, 800, 646, 1796, 812)
 # shutters and white trim around the three front floor-2 windows
 for (a, b) in ((800, 920), (1265, 1355), (1480, 1600)):
     z0, z1 = F2 + 90, F2 + 220
@@ -61,6 +62,9 @@ k.prism_xz("siding", tri, uy(160), uy(140))
 house = k.save("house_exterior")
 a = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).spawn_actor_from_object(house, unreal.Vector(0, 0, 0))
 a.set_actor_label("HouseExterior"); a.set_folder_path("Site"); a.tags = ["site"]
+a.static_mesh_component.set_mobility(unreal.ComponentMobility.STATIC)
+a = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).spawn_actor_from_object(ch.save("chimney"), unreal.Vector(0, 0, 0))
+a.set_actor_label("Chimney"); a.set_folder_path("Site"); a.tags = ["site", "annex_hide"]
 a.static_mesh_component.set_mobility(unreal.ComponentMobility.STATIC)
 
 # ---------------- garage (blockout inside) ----------------

@@ -40,9 +40,9 @@ with unreal.ScopedSlowTask(1, "Building shell"):
     slab("F2_gallery_a", -30, 1239, 572, 1350, F2, "f_hall2", "ceiling", folder=f2)
     slab("F2_b3_bath", 572, 1239, 900, 1350, F2, "f_bath", "ceiling", folder=f2)
     slab("F2_gallery_b", -30, 1350, 572, 1377, F2, "f_hall2", "ceiling", folder=f2)
-    slab("F2_b4_blk", -30, 1377, 452, 1500, F2, "f_blk", "ceiling", folder=f2)
+    slab("F2_b4_blk", -30, 1377, 452, 1500, F2, "f_hall2", "ceiling", folder=f2)
     slab("F2_leg", 452, 1377, 572, 1500, F2, "f_hall2", "ceiling", folder=f2)
-    slab("F2_b5_blk", -30, 1500, 572, 1700, F2, "f_blk", "ceiling", folder=f2)
+    slab("F2_b5_blk", -30, 1500, 572, 1700, F2, "f_hall2", "ceiling", folder=f2)
     slab("F2_bed", 572, 1350, 900, 1700, F2, "f_bed", "ceiling", folder=f2)
     slab("C2_top", -30, 600, 900, 1700, C2 + 15, "blk", "ceiling", folder=f2)
 

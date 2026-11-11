@@ -56,3 +56,9 @@ def banner_thankful():
 @prop
 def banner_wrong():
     k = K.Kit(); k.print_quad("p_banner_wrong", 0, -80, -15, 80, 15); return k
+
+
+@prop
+def annex_cap_trim():
+    """Baseboard for the corridor's moving end wall (back at x=0, centred; the wall is 424 wide)."""
+    k = K.Kit(); k.box("trim", 0, -212, 0, 1.3, 212, 9); return k

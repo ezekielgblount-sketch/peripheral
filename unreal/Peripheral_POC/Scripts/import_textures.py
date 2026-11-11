@@ -5,7 +5,7 @@ src = os.path.join(root, "SourceArt", "Textures")
 dest = "/Game/Textures"
 tasks = []
 for f in sorted(os.listdir(src)):
-    if not f.endswith(".png"):
+    if not f.endswith(".png") or (globals().get("ONLY") and not any(o in f for o in ONLY)):
         continue
     t = unreal.AssetImportTask()
     t.set_editor_property("filename", os.path.join(src, f))
@@ -17,7 +17,7 @@ for f in sorted(os.listdir(src)):
 unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks(tasks)
 n = 0
 for f in sorted(os.listdir(src)):
-    if not f.endswith(".png"):
+    if not f.endswith(".png") or (globals().get("ONLY") and not any(o in f for o in ONLY)):
         continue
     name = f[:-4]
     tex = unreal.EditorAssetLibrary.load_asset("%s/%s" % (dest, name))

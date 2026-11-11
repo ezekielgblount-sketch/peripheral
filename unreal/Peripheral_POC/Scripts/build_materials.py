@@ -12,9 +12,11 @@ FN = "/Engine/Functions/Engine_MaterialFunctions01/Texturing/"
 # key: (texture set, tint rgb, roughness scale, dirt amount)
 KEYS = {
     "brick": ("brick", (1, 1, 1), 1.0, 0.25), "siding": ("siding", (1, 1, 1), 1.0, 0.3),
-    "liv": ("damask", (1, 1, 1), 1.0, 0.15), "hall": ("damask", (1, 1, 1), 1.0, 0.18),
-    "hall2": ("damask", (1, 0.99, 0.97), 1.0, 0.2), "kit": ("paint", (0.93, 0.82, 0.55), 1.0, 0.25),
-    "bath": ("paint", (0.72, 0.84, 0.80), 0.8, 0.25), "bed": ("paint", (0.93, 0.87, 0.68), 1.0, 0.25),
+    # walls: every room has its own finish (living room damask, entry hall off-white paint, upstairs hall striped paper,
+    # kitchen small-print paper, bathroom aqua paint, Jack's room dusty blue paint)
+    "liv": ("damask", (1, 1, 1), 1.0, 0.15), "hall": ("paint", (0.86, 0.80, 0.66), 0.95, 0.3),
+    "hall2": ("stripe", (1, 1, 1), 1.0, 0.2), "kit": ("ditsy", (1, 1, 1), 1.0, 0.22),
+    "bath": ("paint", (0.72, 0.84, 0.80), 0.8, 0.25), "bed": ("paint", (0.50, 0.64, 0.80), 1.0, 0.25),
     "blk": ("paint", (0.42, 0.42, 0.42), 1.0, 0.0), "bsmt": ("concrete", (0.9, 0.9, 0.9), 1.0, 0.4),
     "ceiling": ("popcorn", (1, 1, 1), 1.0, 0.2), "trim": ("paint", (0.90, 0.87, 0.78), 0.75, 0.3),
     "rail": ("wood_plain", (0.6, 0.38, 0.3), 0.9, 0.2),

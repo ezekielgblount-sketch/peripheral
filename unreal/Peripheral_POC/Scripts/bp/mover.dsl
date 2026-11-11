@@ -5,11 +5,15 @@
   (bind cr (Math|Rotator|MakeRotator :Roll (.roll r0) :Pitch (.pitch r0) :Yaw (- (.yaw r0) (* (Variables|Default|GetOpenYaw) o))))
   (Variables|Default|SetClosedRot cr)
   (Variables|Default|SetClosedLoc (- (Transformation|GetActorLocation) (Math|Vector|RotateVector :A (* (Variables|Default|GetSlide) o) :B cr)))
-  (Variables|Default|SetAlpha o))
+  (Variables|Default|SetAlpha o)
+  ; a door with LoopKey set is locked by day but opens during the loop sequence (the loop blackboard's X says it is running)
+  (bind f_LB (Actor|GetAllActorswithTag :Tag "lb"))
+  (for a_LB f_LB (Variables|Default|SetLB a_LB)))
 
 (event Game|Damage|EventAnyDamage (Damage DamageType InstigatedBy DamageCauser)
   (bind stick (Variables|Default|GetStickCount))
-  (if (or (Variables|Default|GetLocked) (> stick 0))
+  (bind key (and (Variables|Default|GetLoopKey) (> (.x (Transformation|GetActorLocation :self (Variables|Default|GetLB))) 0.5)))
+  (if (or (and (Variables|Default|GetLocked) (not key)) (> stick 0))
     (Variables|Default|SetStickCount (- stick 1))
     (Audio|PlaySoundatLocation :Sound (Variables|Default|GetSndLocked) :Location (Transformation|GetActorLocation))
     (else
