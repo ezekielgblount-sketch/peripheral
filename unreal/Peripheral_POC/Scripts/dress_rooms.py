@@ -6,6 +6,7 @@ importlib.reload(L); importlib.reload(K); importlib.reload(PF)
 import props_small as PS
 import props_90s as P9
 import props_home as PH
+import props_lived as PL
 importlib.reload(PS)
 LND, F1, C1, F2, C2 = -126, 0, 244, 259, 503
 L.clear("dress")
@@ -136,8 +137,8 @@ P("light_switch", 564, 1262, F2 + 120, (-1, 0), r, collide=False); P("vent", -28
 
 # ---------------- Jack's bedroom ----------------
 r = "Bedroom"
-P("bed_quilt", 736, 1698, F2, (0, -1), r)
-P("teddy", 740, 1575, F2 + 55, (0.3, -1), r, tag="inspect")
+P("bed_unmade", 736, 1698, F2, (0, -1), r)
+P("teddy", 664, 1612, F2, (0.6, -1), r, tag="inspect")
 P("dresser", 580, 1600, F2, (1, 0), r); P("boombox", 584, 1626, F2 + 83, (1, 0), r, tag="inspect")
 P("desk_wood", 898, 1525, F2, (-1, 0), r); P("chair_red", 786, 1530, F2, (1, 0.1), r)
 P("table_lamp", 872, 1488, F2 + 75, (1, 0), r, collide=False); lamp("bed_desk", 872, 1488, F2 + 108, 400, r, 450)
@@ -165,4 +166,18 @@ P("towel_bar", 640, 1342, F2 + 125, (0, -1), r, collide=False)
 P("doormat", 780, 1235, F2, (0, 1), r, collide=False)
 P("ceiling_light_off", 700, 1235, C2, (1, 0), r, collide=False); lamp("bath", 700, 1235, C2 - 22, 900, r, 500, (255, 236, 205), always=True)
 P("light_switch", 580, 1262, F2 + 120, (1, 0), r, collide=False)
+# ---------------- lived-in clutter: the family left mid-day and never got back to tidy ----------------
+r = "Lived"
+P("fridge_notes", 826.6, 645, F1, (-1, 0), r, collide=False); P("note_mom", 587, 1235, F1 + 150, (1, 0), r, tag="inspect")
+P("calendar_wall", 587, 1440, F1 + 160, (1, 0), r, collide=False)
+P("dishes", 868, 800, F1 + 91.6, (-1, 0.2), r, collide=False); P("dishes", 840, 1385, F1 + 76, (0.4, 1), r, collide=False)
+P("dish_towel", 829, 965, F1 + 80, (-1, 0), r, collide=False); P("mail_keys", 612, 1060, F1 + 94, (1, 0.2), r, collide=False)
+P("shoes", 40, 1075, LND, (1, 0.3), r, collide=False); P("shoes", 130, 1470, F1, (0, -1), r, collide=False)
+P("magazine", 262, 765, F1 + 45.8, (0.9, 0.3), r, collide=False); P("remote_mug", 236, 748, F1 + 45.8, (0.3, 1), r, collide=False)
+P("magazine", 300, 960, F1 + 51, (0.2, -1), r, collide=False)
+P("clothes_floor", 690, 1610, F2, (1, 0.4), r, collide=False); P("clothes_floor", 660, 1500, F2, (0.2, 1), r, collide=False)
+P("homework", 862, 1500, F2 + 76.7, (-1, 0.2), r, tag="inspect"); P("homework", 760, 1425, F2, (0.7, 0.6), r, collide=False)
+P("laundry_basket", 612, 1305, F2, (1, 0), r)
+P("towel_floor", 700, 1290, F2, (1, 0.5), r, collide=False); P("bath_bits", 790, 1140, F2 + 82, (0, 1), r, collide=False)
+P("clothes_floor", 110, 640, F1, (0.5, 1), r, collide=False)
 print("dressed:", sum(count.values()), "props")

@@ -7,6 +7,7 @@ importlib.reload(L)
 import props_small as PS
 import props_90s as P9
 import props_home as PH
+import props_lived as PL
 F1, F2 = 0, 259
 L.clear("interactive")
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)

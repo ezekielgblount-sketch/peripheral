@@ -9,6 +9,8 @@ import props_90s as P9
 importlib.reload(P9)
 import props_home as PH
 importlib.reload(PH)
+import props_lived as PL
+importlib.reload(PL)
 bad = []
 for name in sorted(PF.REG):
     try:

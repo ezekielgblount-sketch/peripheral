@@ -127,3 +127,14 @@ Joel's direction plus ten photos of a real home (kept in `Reference/private/`, n
 - Call 22: first pass went "90s pop" (teal and purple, lava lamp, bean bag, mini blinds). Joel's photos showed a traditional home instead, so those were removed. The props still exist in `Scripts/props_90s.py`.
 - Call 23: no TV in the living room now (piano took the wall). The family photo anomaly moved to the left of the mirror over the sofa.
 - New prop files: `Scripts/props_90s.py`, `Scripts/props_home.py` (114 props in total). Fit check ALL PASS. All 48 screenshots retaken.
+
+### Lived-in pass (Nov 10, late)
+Joel: the family that lived here could not get home to tidy up. Added `Scripts/props_lived.py` and a "Lived" block in `dress_rooms.py`:
+- Fridge: grocery list, chore chart, phone numbers, a note from Mom, alphabet magnets. A second copy of Mom's note by the kitchen phone can be picked up and read.
+- Kitchen: dishes by the sink and on the table, dish towel on the oven handle, mail and keys on the hutch, wall calendar with days crossed off that stop mid-month.
+- Entry and hall: shoes kicked off by the door.
+- Living room: magazine, mug and remote on the coffee table, clothes on the floor by the armchair.
+- Jack's room: unmade bed, clothes on the floor, homework on the desk (can be picked up) and on the floor, teddy on the floor.
+- Bathroom: towel on the floor, toothbrush cup, laundry basket.
+- Call 24: kept a few moving boxes. If the family left suddenly, the boxes may no longer fit the story; Joel to decide.
+- 130 props in total, 131 placed. Fit check ALL PASS. All 48 screenshots retaken.

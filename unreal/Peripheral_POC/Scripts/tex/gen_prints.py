@@ -297,6 +297,47 @@ def banner(name, text):
     im.save(os.path.join(OUT, name + ".png"))
 
 
+def note(name, lines, bg=(250, 240, 150), size=(384, 480), lined=True, fsize=40, ink=(30, 40, 110)):
+    im = Image.new("RGB", size, bg); d = ImageDraw.Draw(im)
+    if lined:
+        for y in range(70, size[1], 46):
+            d.line([(0, y), (size[0], y)], fill=tuple(int(v * 0.82) for v in bg), width=2)
+    for i, t in enumerate(lines):
+        d.text((26, 30 + i * 46), t, font=font(fsize, "hand"), fill=ink)
+    im.filter(ImageFilter.GaussianBlur(0.4)).save(os.path.join(OUT, name + ".png"))
+
+
+def calendar(name):
+    im = Image.new("RGB", (512, 640), (246, 244, 236)); d = ImageDraw.Draw(im)
+    d.rectangle([0, 0, 512, 150], fill=(150, 70, 40)); d.text((256, 78), "NOVEMBER", font=font(70, "bold"), fill=(250, 240, 220), anchor="mm")
+    for i in range(35):
+        x, y = 16 + (i % 7) * 69, 170 + (i // 7) * 90
+        d.rectangle([x, y, x + 66, y + 86], outline=(150, 150, 150), width=2)
+        if i < 30:
+            d.text((x + 8, y + 4), str(i + 1), font=font(24, "bold"), fill=(60, 60, 60))
+        if i < 12:
+            d.line([(x + 12, y + 20), (x + 56, y + 76)], fill=(170, 40, 40), width=4)            # days crossed off, then they stop
+    x, y = 16 + (12 % 7) * 69, 170 + (12 // 7) * 90
+    d.ellipse([x + 2, y + 2, x + 64, y + 84], outline=(30, 40, 150), width=5)
+    d.text((16 + 4 * 69 + 4, 170 + 3 * 90 + 34), "Jack\nrecital", font=font(20, "hand"), fill=(30, 40, 150))
+    im.save(os.path.join(OUT, name + ".png"))
+
+
+def homework(name):
+    im = Image.new("RGB", (384, 512), (248, 248, 244)); d = ImageDraw.Draw(im)
+    d.text((20, 14), "Name:  Jack", font=font(30, "hand"), fill=(40, 40, 40))
+    for i, t in enumerate(("7 x 6 = 42", "8 x 4 = 32", "9 x 7 = 61", "6 x 6 = 36", "12 x 3 =", "5 x 9 =")):
+        d.text((40, 80 + i * 66), t, font=font(44, "hand"), fill=(50, 50, 50))
+    d.ellipse([200, 196, 330, 270], outline=(200, 30, 30), width=4)
+    im.save(os.path.join(OUT, name + ".png"))
+
+
+note("note_grocery", ["milk", "eggs", "bread", "Jack's cereal", "batteries (D)", "candles?"])
+note("note_mom", ["Back by 6.", "Dinner's in the", "oven - 350.", "Don't wait up", "   love, Mom"], bg=(250, 250, 244))
+note("note_chores", ["CHORES", "Jack - trash  x", "Jack - piano  x", "Dad - gutters", "Mom - call Gram"], bg=(200, 230, 250))
+note("note_numbers", ["Gram  555-0142", "Dr. Hale 555-0117", "school 555-0190", "PIZZA 555-0123"], bg=(250, 215, 220), fsize=32)
+calendar("calendar_nov"); homework("homework")
+note("magazine", ["", "HOME &", " GARDEN", "", "fall issue"], bg=(120, 150, 110), lined=False, fsize=58, ink=(250, 245, 230))
 import math
 rug_oriental("rug_oriental"); landscape("print_landscape_a", 1); landscape("print_landscape_b", 5)
 chart_alphabet("chart_alphabet"); chart_fractions("chart_fractions"); banner("banner_thankful", "THANKFUL")
