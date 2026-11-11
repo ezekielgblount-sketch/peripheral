@@ -61,3 +61,16 @@ Joel said "you can take over" before answering the plan questions, so these are 
 - Player Blueprint (`BP_Player`) built through the MCP Blueprint tools: WASD walk, mouse look, C to crouch, F for the flashlight, B to switch head bob off, M to cycle camera-motion intensity (full, half, off). Logic source is `Scripts/bp/player_tick.dsl`.
 - Bodycam motion is in: head-turn lag, walk sway, a small dip on each step, idle drift, and an ease-out when you stop.
 - Play-tested by script: the player spawns on the porch, walks through the front door onto the landing, the camera bobs, and crouch drops the capsule to 110 cm. Real keyboard and mouse input still needs a human to try it.
+- Generated 23 tiling PBR texture sets with code (`Scripts/tex/gen_surfaces.py`): paint, popcorn ceiling, wood paneling, wallpapers, oak, shag, worn carpet, linoleum, bath tile, brick, siding and more. Imported them and rebuilt the master material so every wall and floor is textured at real-world scale.
+- Screenshots now use the MCP `CaptureViewport` tool. The editor's own screenshot command stopped firing after play tests.
+- Joel sent two style references (saved in `Reference/`): brick ground floor, white lap siding above with dark shutters, attached garage with its own lower roof, small porch by the door, picture window, mature trees, sidewalks and fences, warm low sun.
+
+## Known problems to fix
+
+- Interiors are too dark in daylight away from the windows. Needs exposure tuning and interior lamps.
+- The shag carpet shows faint grid lines at its 50 cm tile repeat.
+- The exterior is still a bare box: no garage, roof, porch, shutters, street or trees yet.
+
+## Open question for Joel
+
+The reference photo has the garage on the LEFT of the front door (seen from the street). The prompt says the up flight turns LEFT, away from the garage. Both cannot be true: with the garage on the left, turning left is toward it. Right now the house is built with the garage on the right and the flight turning left. Flipping it is a one-line change.
