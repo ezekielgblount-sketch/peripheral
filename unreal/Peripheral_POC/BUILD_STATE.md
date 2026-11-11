@@ -45,3 +45,16 @@ Joel said "you can take over" before answering the plan questions, so these are 
 
 - Created the empty project, confirmed it loads headlessly with Lumen, Nanite and Virtual Shadow Maps switched on.
 - Installed Git LFS. Set up and tested the MCP connection and the Python runner.
+- Built the house shell from a script (`Scripts/build_shell.py`): walls, floors, three stair flights, both storeys. Placeholder flat-colour materials for now.
+- Added sun, sky, clouds, volumetric fog and the base post-process volume (`Scripts/build_env.py`). Lumen lighting works on this Mac.
+- Screenshots are taken through the editor viewport (`Scripts/shot.py`). Scene-capture cameras rendered without Lumen bounce light, so I dropped that route.
+- **Fit check passes** (`Scripts/fit_check.py`): a 178 cm, 35 cm radius capsule clears the front door, landing, all three flights, both halls and every slice doorway.
+
+## More calls I made on my own
+
+8. **House is mirrored left-to-right from the blueprint numbers.** Unreal's Y axis points the opposite way to the blueprint's maths. Mirroring makes the up flight turn left as you walk in, away from the garage, which is what the prompt asks for. Seen from the street the garage is on the right.
+9. **Garage sits at ground level** instead of a sloped apron. It is a closed blockout, and split-entry houses often have the garage on the lower level. This replaces call 6.
+10. **Dining room wall moved 40 cm** so the top of the up flight has a 95 cm deep landing. The first version left 55 cm and failed the fit check. Dining is a closed door in this slice.
+11. **Stair to floor 2 starts 110 cm short of the kitchen wall** so there is room to walk onto it. Its top three steps pass over the entry.
+12. **Upstairs hall is a 120 cm gallery beside the stairwell plus a short leg to Jack's door**, not the blueprint's 6 m by 11 m open landing, which was not a believable hallway.
+13. **Procedural textures instead of scanned ones.** Fab and Megascans need Joel's Epic login in the launcher, so I generate textures with code.
