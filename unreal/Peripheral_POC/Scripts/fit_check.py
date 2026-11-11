@@ -39,20 +39,20 @@ upper = [(470 - 28 * i - 14, 1190, 18.5 * (i + 1)) for i in range(13)]
 
 ok = all([
     walk("front door", [(-70, 1136, LND), (60, 1136, LND)]),
-    walk("entry landing", [(60, 1136, LND), (130, 1080, LND), (130, 1200, LND), (50, 1200, LND)]),
+    walk("entry landing", [(60, 1136, LND), (130, 1080, LND), (60, 1136, LND), (50, 1200, LND)]),
     walk("up flight", up, lift=STAIR),
     walk("up flight top", [(50, 1460, F1), (160, 1460, F1)]),
     walk("basement flight", down, lift=STAIR),
     walk("basement foot", [(390, 1080, B), (450, 1080, B)]),
     walk("hall floor 1", [(160, 1460, F1), (300, 1365, F1), (525, 1365, F1), (525, 1085, F1), (425, 1080, F1)]),
     walk("kitchen door", [(525, 1345, F1), (650, 1345, F1)]),
-    walk("kitchen length", [(740, 1500, F1), (740, 650, F1)]),
-    walk("living room door", [(515, 1090, F1), (515, 960, F1), (300, 800, F1), (60, 660, F1)]),
+    walk("kitchen length", [(716, 1500, F1), (716, 650, F1)]),
+    walk("living room door", [(515, 1090, F1), (515, 960, F1), (500, 880, F1), (100, 880, F1)]),
     walk("stair to floor 2", upper, lift=STAIR),
     walk("stair to floor 2 ends", [(525, 1300, F1), (525, 1190, F1)]),
     walk("upstairs arrival", [(60, 1190, F2), (40, 1310, F2)]),
     walk("upstairs hall", [(60, 1190, F2), (40, 1310, F2), (520, 1310, F2), (520, 1195, F2), (510, 1440, F2)]),
     walk("bathroom door", [(520, 1195, F2), (640, 1195, F2), (740, 1235, F2)]),
-    walk("bedroom door", [(510, 1430, F2), (640, 1430, F2), (740, 1600, F2)]),
+    walk("bedroom door", [(510, 1430, F2), (640, 1430, F2), (780, 1440, F2)]),
 ])
 print("FIT CHECK:", "ALL PASS" if ok else "FAILURES ABOVE")

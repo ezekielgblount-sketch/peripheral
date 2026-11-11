@@ -48,6 +48,35 @@ class Kit:
         P.append_cylinder(self.m, self._o(key), t, r, d.length(), steps, 0, True, BASE)
         return self
 
+    def quad(self, key, x, y0, z0, y1, z1, flip=False):
+        """Flat printed image facing +X at x, spanning y0..y1 and z0..z1 (image top is +Z)."""
+        tmp, tmp2 = unreal.DynamicMesh(), unreal.DynamicMesh()
+        P.append_rectangle_xy(tmp, self._o(key), T(), abs(y1 - y0), z1 - z0, 0, 0)
+        unreal.GeometryScript_MeshEdits.append_mesh(tmp2, tmp, T(yaw=(90 if flip else -90)))       # turn the image upright
+        # the rectangle lies in XY facing +Z: stand it up so it faces +X
+        unreal.GeometryScript_MeshEdits.append_mesh(self.m, tmp2, T(x, (y0 + y1) / 2.0, (z0 + z1) / 2.0, pitch=-90))
+        return self
+
+    def decal_top(self, key, x0, y0, x1, y1, z):
+        """Flat printed image lying face-up at height z."""
+        P.append_rectangle_xy(self.m, self._o(key), T((x0 + x1) / 2.0, (y0 + y1) / 2.0, z), x1 - x0, y1 - y0, 0, 0)
+        return self
+
+    def soft(self, key, x0, y0, z0, x1, y1, z1, steps=5, iters=6, alpha=0.4):
+        """Cushion-like rounded box."""
+        tmp = unreal.DynamicMesh()
+        P.append_box(tmp, self._o(key), T((x0 + x1) / 2.0, (y0 + y1) / 2.0, z0), x1 - x0, y1 - y0, z1 - z0, steps, steps, steps, BASE)
+        o = unreal.GeometryScriptIterativeMeshSmoothingOptions(); o.num_iterations = iters; o.alpha = alpha
+        unreal.GeometryScript_MeshDeformers.apply_iterative_smoothing_to_mesh(tmp, unreal.GeometryScriptMeshSelection(), o)
+        unreal.GeometryScript_Normals.recompute_normals(tmp, unreal.GeometryScriptCalculateNormalsOptions())
+        unreal.GeometryScript_MeshEdits.append_mesh(self.m, tmp, T())
+        return self
+
+    def torus(self, key, cx, cy, cz, R, r, roll=0, pitch=0, major=20, minor=8):
+        P.append_torus(self.m, self._o(key), T(cx, cy, cz, roll, pitch), unreal.GeometryScriptRevolveOptions(), R, r, major, minor,
+                       unreal.GeometryScriptPrimitiveOriginMode.CENTER)
+        return self
+
     def cone(self, key, cx, cy, z0, r0, r1, h, steps=16, roll=0, pitch=0):
         P.append_cone(self.m, self._o(key), T(cx, cy, z0, roll, pitch), r0, r1, h, steps, 0, True, BASE)
         return self

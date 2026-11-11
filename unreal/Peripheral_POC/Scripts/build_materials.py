@@ -42,6 +42,12 @@ KEYS = {
     "enamel": ("paint", (0.95, 0.95, 0.93), 0.35, 0.2), "enamel_gold": ("paint", (0.85, 0.68, 0.3), 0.45, 0.25),
     "enamel_avocado": ("paint", (0.38, 0.42, 0.18), 0.45, 0.25), "laminate": ("plastic", (0.8, 0.72, 0.5), 1.1, 0.35),
     "paper": ("paint", (0.9, 0.87, 0.78), 1.1, 0.4), "rubber": ("plastic", (0.05, 0.05, 0.05), 2.0, 0.2),
+    "mirror": ("metal", (0.95, 0.95, 0.95), 0.04, 0.0), "steel": ("metal", (0.75, 0.76, 0.78), 0.9, 0.2),
+    "plastic_red": ("plastic", (0.6, 0.06, 0.05), 1.0, 0.25), "plastic_blue": ("plastic", (0.08, 0.2, 0.55), 1.0, 0.25),
+    "plastic_yellow": ("plastic", (0.8, 0.62, 0.08), 1.0, 0.25), "plastic_green": ("plastic", (0.1, 0.4, 0.15), 1.0, 0.25),
+    "fabric_plaid": ("fabric", (0.5, 0.3, 0.16), 1.0, 0.45), "fabric_white": ("fabric", (0.9, 0.9, 0.88), 1.0, 0.3),
+    "vinyl": ("plastic", (0.45, 0.1, 0.08), 1.3, 0.35), "skin_grey": ("paint", (0.5, 0.5, 0.5), 1.0, 0.0),
+    "tile_wall": ("tile_bath", (0.8, 0.95, 0.9), 1.0, 0.2), "enamel_pink": ("paint", (0.9, 0.7, 0.68), 0.35, 0.2),
 }
 
 
@@ -149,6 +155,29 @@ def build_master():
     return m
 
 
+def build_lamp():
+    """Glowing lamp-shade / bulb material: MI_lamp_on (warm) and MI_lamp_off."""
+    path = MAT_DIR + "/M_Lamp"
+    m = eal.load_asset(path) or at.create_asset("M_Lamp", MAT_DIR, unreal.Material, unreal.MaterialFactoryNew())
+    mel.delete_all_material_expressions(m)
+    col = mel.create_material_expression(m, unreal.MaterialExpressionVectorParameter, -500, 0)
+    col.set_editor_property("parameter_name", "Color"); col.set_editor_property("default_value", unreal.LinearColor(1.0, 0.82, 0.55, 1))
+    st = mel.create_material_expression(m, unreal.MaterialExpressionScalarParameter, -500, 250)
+    st.set_editor_property("parameter_name", "Glow"); st.set_editor_property("default_value", 0.0)
+    mul = mel.create_material_expression(m, unreal.MaterialExpressionMultiply, -250, 100)
+    mel.connect_material_expressions(col, "", mul, "A"); mel.connect_material_expressions(st, "", mul, "B")
+    mel.connect_material_property(mul, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
+    mel.connect_material_property(col, "", unreal.MaterialProperty.MP_BASE_COLOR)
+    mel.recompile_material(m); eal.save_asset(path)
+    for name, glow in (("lamp_on", 900.0), ("lamp_off", 0.0), ("lamp_dim", 60.0)):
+        for pre in ("MI_", "MIL_"):
+            p = "%s/%s%s" % (MAT_DIR, pre, name)
+            mi = eal.load_asset(p) or at.create_asset(pre + name, MAT_DIR, unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
+            mi.set_editor_property("parent", m)
+            mel.set_material_instance_scalar_parameter_value(mi, "Glow", glow)
+            mel.update_material_instance(mi); eal.save_asset(p)
+
+
 def build_glass():
     path = MAT_DIR + "/M_Glass"
     m = eal.load_asset(path) or at.create_asset("M_Glass", MAT_DIR, unreal.Material, unreal.MaterialFactoryNew())
@@ -182,6 +211,7 @@ def build_glass():
 
 master = build_master()
 build_glass()
+build_lamp()
 for key, (ts, tint, rough, dirt) in KEYS.items():
     for prefix, local in (("MI_", False), ("MIL_", True)):
         p = "%s/%s%s" % (MAT_DIR, prefix, key)
