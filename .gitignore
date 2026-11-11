@@ -34,3 +34,11 @@ $RECYCLE.BIN/
 
 # Local Claude Code overrides
 .claude/settings.local.json
+
+# ── Unreal Engine 5 (unreal/Peripheral_POC/) ─────────────────────
+unreal/Peripheral_POC/Binaries/
+unreal/Peripheral_POC/Build/
+unreal/Peripheral_POC/DerivedDataCache/
+unreal/Peripheral_POC/Intermediate/
+unreal/Peripheral_POC/Saved/
+unreal/Peripheral_POC/.mcp.json
