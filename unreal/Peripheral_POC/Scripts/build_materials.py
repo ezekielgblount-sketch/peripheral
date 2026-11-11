@@ -25,10 +25,13 @@ KEYS = {
     "f_blk": ("concrete", (0.6, 0.6, 0.6), 1.0, 0.0), "f_bsmt": ("concrete", (0.8, 0.8, 0.8), 1.0, 0.5),
     "roof": ("shingles", (1, 1, 1), 1.0, 0.3), "lawn": ("grass", (1, 1, 1), 1.0, 0.3),
     "concrete": ("concrete", (1, 1, 1), 1.0, 0.4), "asphalt": ("asphalt", (1, 1, 1), 1.0, 0.3),
-    "garage_door": ("paint", (0.85, 0.83, 0.77), 0.7, 0.4), "bark": ("wood_plain", (0.45, 0.4, 0.35), 1.3, 0.3),
-    "leaf": ("grass", (0.8, 0.95, 0.7), 1.0, 0.0), "nb_a": ("siding", (0.85, 0.74, 0.55), 1.0, 0.3),
+    "garage_door": ("paint", (0.85, 0.83, 0.77), 0.7, 0.4), "bark": ("bark", (1, 1, 1), 1.0, 0.3),
+    "leaf": ("foliage", (1, 1, 1), 1.0, 0.35), "nb_a": ("siding", (0.85, 0.74, 0.55), 1.0, 0.3),
     "nb_b": ("siding", (0.62, 0.72, 0.78), 1.0, 0.3), "nb_c": ("siding", (0.9, 0.86, 0.72), 1.0, 0.3),
     "glass_dark": ("plastic", (0.03, 0.04, 0.05), 0.25, 0.0),
+    "shutter": ("paint", (0.06, 0.09, 0.08), 0.8, 0.3), "white": ("paint", (0.93, 0.92, 0.88), 0.7, 0.35),
+    "fence": ("wood_plain", (0.62, 0.6, 0.58), 1.4, 0.6), "metal": ("metal", (1, 1, 1), 1.0, 0.3),
+    "metal_dark": ("metal", (0.25, 0.25, 0.27), 1.0, 0.3), "door_red": ("paint", (0.36, 0.07, 0.06), 0.6, 0.3),
 }
 
 
@@ -130,6 +133,7 @@ for key, (ts, tint, rough, dirt) in KEYS.items():
     mel.set_material_instance_texture_parameter_value(mi, "RoughTex", tex(ts, "R"))
     mel.set_material_instance_scalar_parameter_value(mi, "TileSize", float(manifest[ts]["size_cm"]))
     mel.set_material_instance_scalar_parameter_value(mi, "RoughScale", rough)
+    mel.set_material_instance_scalar_parameter_value(mi, "GrungeSize", 1700.0 if key in ("lawn", "leaf", "asphalt", "concrete", "roof") else 300.0)
     mel.set_material_instance_scalar_parameter_value(mi, "DirtAmount", dirt)
     mel.set_material_instance_scalar_parameter_value(mi, "Metallic", float(manifest[ts].get("metallic", 0.0)))
     mel.set_material_instance_vector_parameter_value(mi, "Tint", unreal.LinearColor(tint[0], tint[1], tint[2], 1))

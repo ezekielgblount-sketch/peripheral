@@ -74,3 +74,13 @@ Joel said "you can take over" before answering the plan questions, so these are 
 ## Open question for Joel
 
 The reference photo has the garage on the LEFT of the front door (seen from the street). The prompt says the up flight turns LEFT, away from the garage. Both cannot be true: with the garage on the left, turning left is toward it. Right now the house is built with the garage on the right and the flight turning left. Flipping it is a one-line change.
+
+### Exterior and neighbourhood (Nov 10)
+- Joel said the garage side "doesn't matter". Kept it as built: garage on the right seen from the street, up flight turns left (matches the written prompt).
+- Added `Scripts/meshkit.py`: builds props and building parts from simple shapes into reusable meshes in `/Game/Meshes`.
+- `Scripts/build_site.py`: gable roof, garage with its own lower roof and panel door, porch with posts, chimney, shutters, rear deck, lawn, driveway, walk, sidewalks, street.
+- `Scripts/build_hood.py`: 4 neighbour house types placed 15 times, 145 trees from 3 tree meshes, shrubs, yard fences, swing set, utility poles.
+- Call 14: trees are solid leafy shapes, not leaf-card trees. They read well through windows; up close they look simple.
+- Call 15: no parked cars yet. A believable car is a large modelling job; left for after the rooms.
+- Call 16: kit meshes are plain static meshes (Nanite off on them). Nanite stays enabled for the project; these meshes are too small to need it.
+- Fixed the carpet and lawn grid lines (removed the low-frequency part of those textures).

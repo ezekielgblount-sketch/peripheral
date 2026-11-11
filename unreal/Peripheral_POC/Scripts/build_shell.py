@@ -58,9 +58,9 @@ with unreal.ScopedSlowTask(1, "Building shell"):
           [(760, 880, 107, 207), door(1030, 1121), (1300, 1420, 90, 220)], e)
     wallx("W_rear_halfbath", 900, 920, 1550, 1700, -15, F2, "blk", "brick", (), e)
     wallx("W_rear_b", 900, 920, 600, 1700, B - 15, -15, "bsmt", "brick", (), e)
-    wally("W_left_living", 580, 600, -20, 580, -15, F2, "blk", "liv", (), e)
-    wally("W_left_kitchen", 580, 600, 580, 920, -15, F2, "blk", "kit", [door(655, 746)], e)
-    wally("W_left_b", 580, 600, -20, 920, B - 15, -15, "blk", "bsmt", (), e)
+    wally("W_left_living", 580, 600, -20, 580, -15, F2, "brick", "liv", (), e)
+    wally("W_left_kitchen", 580, 600, 580, 920, -15, F2, "brick", "kit", [door(655, 746)], e)
+    wally("W_left_b", 580, 600, -20, 920, B - 15, -15, "brick", "bsmt", (), e)
     wally("W_right", 1700, 1720, -20, 920, -15, F2, "blk", "brick", [(300, 420, 90, 220)], e)
     wally("W_right_b", 1700, 1720, -20, 920, B - 15, -15, "bsmt", "brick", (), e)
 
