@@ -27,6 +27,15 @@ def ue(code):
                    stdout=subprocess.DEVNULL)
 
 
+SPEED = """
+for a in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors():
+    if a.get_actor_label() == "PP_Base":
+        st = a.settings
+        st.set_editor_property("auto_exposure_speed_up", %s); st.set_editor_property("auto_exposure_speed_down", %s)
+        a.set_editor_property("settings", st)
+"""
+ue(SPEED % (20.0, 20.0))          # let exposure settle instantly for stills; restored below
+import time
 for spec in sys.argv[2:]:
     name, p, t = spec.split(":")[:3]
     out = os.path.join(out_dir, name + ".png")
@@ -35,7 +44,7 @@ p = L.to_ue({p}); t = L.to_ue({t})
 ues.set_level_viewport_camera_info(p, unreal.MathLibrary.find_look_at_rotation(p, t))
 """)
     for _ in range(TICKS):
-        ue(REDRAW)
+        ue(REDRAW); time.sleep(0.05)
     r = call("EditorToolset.EditorAppToolset", "CaptureViewport", {"captureTransform": None, "annotations": None, "bShowUI": False})
     try:
         data = base64.b64decode(r["returnValue"]["image"]["data"])
@@ -49,3 +58,4 @@ ues.set_level_viewport_camera_info(p, unreal.MathLibrary.find_look_at_rotation(p
         print("ok", out)
     except Exception as e:
         print("MISSING", out, str(r)[:200], e)
+ue(SPEED % (1.2, 0.7))

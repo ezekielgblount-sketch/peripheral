@@ -12,7 +12,7 @@ STATIC = [unreal.ObjectTypeQuery.OBJECT_TYPE_QUERY1]
 
 def blocked(x, y, floor_z, lift=LIFT):
     hits = unreal.SystemLibrary.capsule_overlap_actors(world, L.to_ue(x, y, floor_z + HH + lift), R, HH, STATIC, None, [])
-    return [a.get_actor_label() for a in (hits or [])]
+    return [a.get_actor_label() for a in (hits or []) if not a.actor_has_tag("door")]      # doors open; frames stay
 
 
 def walk(name, pts, step=10.0, lift=LIFT):

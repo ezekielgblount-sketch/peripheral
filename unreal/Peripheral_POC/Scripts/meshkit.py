@@ -114,9 +114,9 @@ class Kit:
         unreal.GeometryScript_Normals.recompute_normals(self.m, unreal.GeometryScriptCalculateNormalsOptions())
         return self
 
-    def save(self, name, collide=True, mats=None):
+    def save(self, name, collide=True, mats=None, local=True):
         path = "%s/SM_%s" % (MESH_DIR, name)
-        materials = [(L.mat(k) if isinstance(k, str) else k) for k in (mats or self.keys)]
+        materials = [(L.mat(k, local) if isinstance(k, str) else k) for k in (mats or self.keys)]
         sm = eal.load_asset(path)
         if sm is None:
             o = unreal.GeometryScriptCreateNewStaticMeshAssetOptions()

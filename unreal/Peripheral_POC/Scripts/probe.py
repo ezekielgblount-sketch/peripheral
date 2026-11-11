@@ -1,13 +1,14 @@
-import sys, importlib
-sys.path.insert(0, unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir()) + "Scripts")
-import poc_lib as L, meshkit as K
-importlib.reload(L); importlib.reload(K)
-k = K.Kit()
-k.prism_xz("siding", [(0, 0), (200, 0), (100, 80)], 10, 30)
-print("vol", K.Q.get_mesh_volume_area(k.m))
-bb = K.Q.get_mesh_bounding_box(k.m); print(bb.min, bb.max)
-k.box("brick", 0, 0, -50, 50, 50, 0).cyl("roof", 100, 0, 0, 10, 40)
-sm = k.save("test_probe")
-print(sm, [m.get_name() for m in [sm.get_material(i) for i in range(3)]])
-k2 = K.Kit(); k2.sphere("leaf", 0, 0, 0, 100, 8).noise(30, 0.01)
-print("noise ok", K.Q.get_mesh_bounding_box(k2.m).max)
+mel = unreal.MaterialEditingLibrary
+at = unreal.AssetToolsHelpers.get_asset_tools()
+m = at.create_asset("M_Probe", "/Game/Materials", unreal.Material, unreal.MaterialFactoryNew())
+FN = "/Engine/Functions/Engine_MaterialFunctions01/Texturing/"
+for fn in ("WorldAlignedTexture", "WorldAlignedNormal"):
+    e = mel.create_material_expression(m, unreal.MaterialExpressionMaterialFunctionCall, 0, 0)
+    e.set_material_function(unreal.load_asset(FN + fn))
+    c = mel.create_material_expression(m, unreal.MaterialExpressionConstant3Vector, -300, 0)
+    print(fn, "inputs:", [str(n) for n in mel.get_material_expression_input_names(e)] if hasattr(mel, "get_material_expression_input_names") else "n/a",
+          "outputs:", [str(n) for n in mel.get_material_expression_output_names(e)])
+print([n for n in dir(mel) if "static" in n or "switch" in n])
+print([n for n in dir(unreal) if n.startswith("MaterialExpressionTransform") or n.startswith("MaterialExpressionStaticSwitch") or n in ("MaterialExpressionWorldPosition","MaterialExpressionVertexNormalWS","MaterialExpressionPixelNormalWS")])
+print([str(x) for x in list(unreal.MaterialVectorCoordTransformSource)] if hasattr(unreal,"MaterialVectorCoordTransformSource") else "", [n for n in dir(unreal) if "PositionTransform" in n or "MaterialVectorCoord" in n])
+unreal.EditorAssetLibrary.delete_asset("/Game/Materials/M_Probe")

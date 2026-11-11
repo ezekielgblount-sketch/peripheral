@@ -1,16 +1,46 @@
 (event EventTick (DeltaSeconds)
   (bind pc (Game|GetPlayerController :PlayerIndex 0))
+  (bind cam (Variables|Default|GetCam))
+  (bind inspecting (Variables|Default|GetInspecting))
+  (bind free (select inspecting 0.0 1.0))
   ; ---------------- walk ----------------
   (bind fwd (- (select (Game|Player|IsInputKeyDown :self pc :Key "W") 1.0 0.0)
                (select (Game|Player|IsInputKeyDown :self pc :Key "S") 1.0 0.0)))
   (bind side (- (select (Game|Player|IsInputKeyDown :self pc :Key "D") 1.0 0.0)
                 (select (Game|Player|IsInputKeyDown :self pc :Key "A") 1.0 0.0)))
-  (Pawn|Input|AddMovementInput :WorldDirection (Transformation|GetActorForwardVector) :ScaleValue fwd)
-  (Pawn|Input|AddMovementInput :WorldDirection (Transformation|GetActorRightVector) :ScaleValue side)
-  ; ---------------- look ----------------
+  (Pawn|Input|AddMovementInput :WorldDirection (Transformation|GetActorForwardVector) :ScaleValue (* fwd free))
+  (Pawn|Input|AddMovementInput :WorldDirection (Transformation|GetActorRightVector) :ScaleValue (* side free))
+  ; ---------------- look (or rotate the held object) ----------------
   (bind (dx dy) (Game|Player|GetInputMouseDelta :self pc))
-  (Pawn|Input|AddControllerYawInput :Val (* dx 1.2))
-  (Pawn|Input|AddControllerPitchInput :Val (* dy -1.2))
+  (Pawn|Input|AddControllerYawInput :Val (* (* dx 1.2) free))
+  (Pawn|Input|AddControllerPitchInput :Val (* (* dy -1.2) free))
+  (bind camLoc (Transformation|GetWorldLocation :self cam))
+  (bind camFwd (Transformation|GetForwardVector :self cam))
+  ; ---------------- use / inspect (E) ----------------
+  (if (Game|Player|WasInputKeyJustPressed :self pc :Key "E")
+    (if inspecting
+      (bind held0 (Variables|Default|GetHeld))
+      (Transformation|SetActorTransform :self held0 :NewTransform (Variables|Default|GetHeldHome))
+      (Collision|SetActorEnableCollision :self held0 :bNewActorEnableCollision true)
+      (Variables|Default|SetInspecting false)
+      (else
+        (bind (hit ok) (Collision|LineTraceByChannel :Start camLoc :End (+ camLoc (* camFwd 190.0))))
+        (if ok
+          (bind (h1 h2 h3 h4 h5 h6 h7 h8 h9 hitActor hitComp hitBone) (Collision|BreakHitResult :Hit hit))
+          (if (Actor|ActorHasTag :self hitActor :Tag "inspect")
+            (Variables|Default|SetHeld hitActor)
+            (Variables|Default|SetHeldHome (Transformation|GetActorTransform :self hitActor))
+            (Variables|Default|SetHeldRot (Transformation|GetActorRotation :self hitActor))
+            (Collision|SetActorEnableCollision :self hitActor :bNewActorEnableCollision false)
+            (Variables|Default|SetInspecting true)
+            (else
+              (Game|Damage|ApplyDamage :DamagedActor hitActor :BaseDamage 1.0)))))))
+  (if (Variables|Default|GetInspecting)
+    (bind hr (Math|Rotator|CombineRotators :A (Variables|Default|GetHeldRot)
+                                           :B (Math|Rotator|MakeRotator :Roll 0.0 :Pitch (* dy 2.0) :Yaw (* dx -2.0))))
+    (Variables|Default|SetHeldRot hr)
+    (Transformation|SetActorLocationAndRotation :self (Variables|Default|GetHeld)
+      :NewLocation (+ camLoc (* camFwd 45.0)) :NewRotation hr))
   ; ---------------- toggles ----------------
   (if (Game|Player|WasInputKeyJustPressed :self pc :Key "F")
     (Rendering|ToggleVisibility :self (Variables|Default|GetFlashlight)))
@@ -24,7 +54,6 @@
       (Character|UnCrouch)
       (else (Character|Crouch))))
   ; ---------------- bodycam camera ----------------
-  (bind cam (Variables|Default|GetCam))
   (bind t (Utilities|Time|GetGameTimeinSeconds))
   ; head turn lag: the camera chases the look direction instead of snapping to it
   (bind lagged (Math|Interpolation|RInterpTo :Current (Variables|Default|GetCamRot) :Target (Pawn|GetControlRotation :self pc)

@@ -12,7 +12,7 @@ FN = "/Engine/Functions/Engine_MaterialFunctions01/Texturing/"
 # key: (texture set, tint rgb, roughness scale, dirt amount)
 KEYS = {
     "brick": ("brick", (1, 1, 1), 1.0, 0.25), "siding": ("siding", (1, 1, 1), 1.0, 0.3),
-    "liv": ("wood_panel", (1, 1, 1), 1.0, 0.15), "hall": ("wallpaper_hall", (1, 1, 1), 1.0, 0.25),
+    "liv": ("wood_panel", (0.74, 0.68, 0.64), 1.0, 0.2), "hall": ("wallpaper_hall", (1, 1, 1), 1.0, 0.25),
     "hall2": ("wallpaper_hall", (0.96, 0.98, 1.0), 1.0, 0.3), "kit": ("wallpaper_kitchen", (1, 1, 1), 1.0, 0.3),
     "bath": ("paint", (0.72, 0.84, 0.80), 0.8, 0.25), "bed": ("wallpaper_bed", (1, 1, 1), 1.0, 0.2),
     "blk": ("paint", (0.42, 0.42, 0.42), 1.0, 0.0), "bsmt": ("concrete", (0.9, 0.9, 0.9), 1.0, 0.4),
@@ -32,6 +32,16 @@ KEYS = {
     "shutter": ("paint", (0.06, 0.09, 0.08), 0.8, 0.3), "white": ("paint", (0.93, 0.92, 0.88), 0.7, 0.35),
     "fence": ("wood_plain", (0.62, 0.6, 0.58), 1.4, 0.6), "metal": ("metal", (1, 1, 1), 1.0, 0.3),
     "metal_dark": ("metal", (0.25, 0.25, 0.27), 1.0, 0.3), "door_red": ("paint", (0.36, 0.07, 0.06), 0.6, 0.3),
+    "door_wood": ("wood_plain", (1.0, 0.82, 0.62), 0.9, 0.25), "brass": ("metal", (0.80, 0.62, 0.30), 1.2, 0.4),
+    "chrome": ("metal", (0.92, 0.93, 0.95), 0.6, 0.15), "wood_dark": ("wood_plain", (0.55, 0.45, 0.4), 1.0, 0.3),
+    "wood_light": ("wood_plain", (1.5, 1.3, 1.0), 1.0, 0.25), "black": ("plastic", (0.03, 0.03, 0.03), 1.0, 0.1),
+    "plastic_beige": ("plastic", (0.78, 0.72, 0.6), 1.0, 0.3), "plastic_grey": ("plastic", (0.35, 0.35, 0.36), 1.0, 0.3),
+    "cardboard": ("cardboard", (1, 1, 1), 1.0, 0.3), "fabric_brown": ("fabric", (0.36, 0.24, 0.15), 1.0, 0.35),
+    "fabric_green": ("fabric", (0.25, 0.32, 0.2), 1.0, 0.35), "fabric_cream": ("fabric", (0.85, 0.8, 0.68), 1.0, 0.4),
+    "fabric_blue": ("fabric", (0.2, 0.3, 0.5), 1.0, 0.3), "fabric_red": ("fabric", (0.5, 0.1, 0.08), 1.0, 0.3),
+    "enamel": ("paint", (0.95, 0.95, 0.93), 0.35, 0.2), "enamel_gold": ("paint", (0.85, 0.68, 0.3), 0.45, 0.25),
+    "enamel_avocado": ("paint", (0.38, 0.42, 0.18), 0.45, 0.25), "laminate": ("plastic", (0.8, 0.72, 0.5), 1.1, 0.35),
+    "paper": ("paint", (0.9, 0.87, 0.78), 1.1, 0.4), "rubber": ("plastic", (0.05, 0.05, 0.05), 2.0, 0.2),
 }
 
 
@@ -59,6 +69,9 @@ def build_master():
     def call(fn, y):
         e = E(unreal.MaterialExpressionMaterialFunctionCall, -1100, y)
         e.set_material_function(unreal.load_asset(FN + fn))
+        mel.connect_material_expressions(pos, "", e, "WorldPosition")
+        if fn == "WorldAlignedTexture":
+            mel.connect_material_expressions(nrm, "", e, "World Space Normal")
         return e
 
     def xyz_out(e):
@@ -71,6 +84,21 @@ def build_master():
         b = E(unreal.MaterialExpressionAppendVector, -1300, y)
         mel.connect_material_expressions(a, "", b, "A"); mel.connect_material_expressions(src, "", b, "B")
         return b
+
+    def local_switch(world_expr, transform_cls, y):
+        t = E(transform_cls, -1500, y)
+        for prop, enum_name, want in (("transform_source_type", None, "WORLD"), ("transform_type", None, "LOCAL")):
+            cur = t.get_editor_property(prop)
+            val = next(v for v in type(cur) if str(v).split(".")[-1].split(":")[0].endswith(want))
+            t.set_editor_property(prop, val)
+        mel.connect_material_expressions(world_expr, "", t, "")
+        sw = E(unreal.MaterialExpressionStaticSwitchParameter, -1300, y)
+        sw.set_editor_property("parameter_name", "LocalSpace"); sw.set_editor_property("default_value", False)
+        mel.connect_material_expressions(t, "", sw, "True"); mel.connect_material_expressions(world_expr, "", sw, "False")
+        return sw
+
+    pos = local_switch(E(unreal.MaterialExpressionWorldPosition, -1700, -900), unreal.MaterialExpressionTransformPosition, -900)
+    nrm = local_switch(E(unreal.MaterialExpressionVertexNormalWS, -1700, -700), unreal.MaterialExpressionTransform, -700)
 
     tile = size3(scalar("TileSize", 100.0, 0), 0)
     gsize = size3(scalar("GrungeSize", 300.0, 900), 900)
@@ -121,24 +149,58 @@ def build_master():
     return m
 
 
+def build_glass():
+    path = MAT_DIR + "/M_Glass"
+    m = eal.load_asset(path) or at.create_asset("M_Glass", MAT_DIR, unreal.Material, unreal.MaterialFactoryNew())
+    mel.delete_all_material_expressions(m)
+    m.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
+    m.set_editor_property("two_sided", True)
+    m.set_editor_property("translucency_lighting_mode", unreal.TranslucencyLightingMode.TLM_SURFACE_PER_PIXEL_LIGHTING)
+    E = lambda cls, x, y: mel.create_material_expression(m, cls, x, y)
+    col = E(unreal.MaterialExpressionConstant3Vector, -400, -200); col.set_editor_property("constant", unreal.LinearColor(0.55, 0.6, 0.55, 1))
+    mel.connect_material_property(col, "", unreal.MaterialProperty.MP_BASE_COLOR)
+    gr = E(unreal.MaterialExpressionMaterialFunctionCall, -700, 100)
+    gr.set_material_function(unreal.load_asset(FN + "WorldAlignedTexture"))
+    to = E(unreal.MaterialExpressionTextureObject, -1000, 100); to.set_editor_property("texture", tex("grunge", "BC"))
+    sz = E(unreal.MaterialExpressionConstant3Vector, -1000, 300); sz.set_editor_property("constant", unreal.LinearColor(170, 170, 170, 1))
+    mel.connect_material_expressions(to, "", gr, "TextureObject"); mel.connect_material_expressions(sz, "", gr, "TextureSize")
+    msk = E(unreal.MaterialExpressionComponentMask, -450, 100)
+    msk.set_editor_property("r", True); msk.set_editor_property("g", False); msk.set_editor_property("b", False); msk.set_editor_property("a", False)
+    mel.connect_material_expressions(gr, "XYZ Texture", msk, "")
+    a0 = E(unreal.MaterialExpressionConstant, -450, 250); a0.set_editor_property("r", 0.30)      # dusty where the grunge map is dark
+    a1 = E(unreal.MaterialExpressionConstant, -450, 320); a1.set_editor_property("r", 0.07)
+    lerp = E(unreal.MaterialExpressionLinearInterpolate, -250, 200)
+    mel.connect_material_expressions(a0, "", lerp, "A"); mel.connect_material_expressions(a1, "", lerp, "B"); mel.connect_material_expressions(msk, "", lerp, "Alpha")
+    mel.connect_material_property(lerp, "", unreal.MaterialProperty.MP_OPACITY)
+    r = E(unreal.MaterialExpressionConstant, -250, 400); r.set_editor_property("r", 0.08)
+    mel.connect_material_property(r, "", unreal.MaterialProperty.MP_ROUGHNESS)
+    sp = E(unreal.MaterialExpressionConstant, -250, 470); sp.set_editor_property("r", 0.5)
+    mel.connect_material_property(sp, "", unreal.MaterialProperty.MP_SPECULAR)
+    mel.recompile_material(m)
+    eal.save_asset(path)
+
+
 master = build_master()
+build_glass()
 for key, (ts, tint, rough, dirt) in KEYS.items():
-    p = "%s/MI_%s" % (MAT_DIR, key)
-    mi = eal.load_asset(p)
-    if mi is None:
-        mi = at.create_asset("MI_" + key, MAT_DIR, unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
-    mi.set_editor_property("parent", master)
-    mel.set_material_instance_texture_parameter_value(mi, "BaseColorTex", tex(ts, "BC"))
-    mel.set_material_instance_texture_parameter_value(mi, "NormalTex", tex(ts, "N"))
-    mel.set_material_instance_texture_parameter_value(mi, "RoughTex", tex(ts, "R"))
-    mel.set_material_instance_scalar_parameter_value(mi, "TileSize", float(manifest[ts]["size_cm"]))
-    mel.set_material_instance_scalar_parameter_value(mi, "RoughScale", rough)
-    mel.set_material_instance_scalar_parameter_value(mi, "GrungeSize", 1700.0 if key in ("lawn", "leaf", "asphalt", "concrete", "roof") else 300.0)
-    mel.set_material_instance_scalar_parameter_value(mi, "DirtAmount", dirt)
-    mel.set_material_instance_scalar_parameter_value(mi, "Metallic", float(manifest[ts].get("metallic", 0.0)))
-    mel.set_material_instance_vector_parameter_value(mi, "Tint", unreal.LinearColor(tint[0], tint[1], tint[2], 1))
-    mel.update_material_instance(mi)
-    eal.save_asset(p)
+    for prefix, local in (("MI_", False), ("MIL_", True)):
+        p = "%s/%s%s" % (MAT_DIR, prefix, key)
+        mi = eal.load_asset(p)
+        if mi is None:
+            mi = at.create_asset(prefix + key, MAT_DIR, unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
+        mi.set_editor_property("parent", master)
+        mel.set_material_instance_texture_parameter_value(mi, "BaseColorTex", tex(ts, "BC"))
+        mel.set_material_instance_texture_parameter_value(mi, "NormalTex", tex(ts, "N"))
+        mel.set_material_instance_texture_parameter_value(mi, "RoughTex", tex(ts, "R"))
+        mel.set_material_instance_scalar_parameter_value(mi, "TileSize", float(manifest[ts]["size_cm"]))
+        mel.set_material_instance_scalar_parameter_value(mi, "RoughScale", rough)
+        mel.set_material_instance_scalar_parameter_value(mi, "GrungeSize", 1700.0 if key in ("lawn", "leaf", "asphalt", "concrete", "roof") else 300.0)
+        mel.set_material_instance_scalar_parameter_value(mi, "DirtAmount", dirt)
+        mel.set_material_instance_scalar_parameter_value(mi, "Metallic", float(manifest[ts].get("metallic", 0.0)))
+        mel.set_material_instance_vector_parameter_value(mi, "Tint", unreal.LinearColor(tint[0], tint[1], tint[2], 1))
+        mel.set_material_instance_static_switch_parameter_value(mi, "LocalSpace", local)
+        mel.update_material_instance(mi)
+        eal.save_asset(p)
 if eal.does_asset_exist(MAT_DIR + "/M_Probe"):
     eal.delete_asset(MAT_DIR + "/M_Probe")
 print("master rebuilt, instances:", len(KEYS))

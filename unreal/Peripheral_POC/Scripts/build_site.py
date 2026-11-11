@@ -55,7 +55,7 @@ for y in (980, 1176):
         U(k, "fence", x, y, -2, x + 4, y + 4, 90)
 U(k, "fence", 1136, 980, 86, 1140, 1030, 95); U(k, "fence", 1136, 1130, 86, 1140, 1180, 95)
 # garage roof (lower, its own gable) and the gable end wall
-gable_roof(k, -20 - L.OX, 780 - L.OX, uy(580), uy(140), 150, gable=None)
+gable_roof(k, -20 - L.OX, 780 - L.OX, uy(579), uy(110), 150, ov_gable=0, gable=None)     # stops at the house wall
 tri = [(-20 - L.OX, 150), (780 - L.OX, 150), (380 - L.OX, 150 + 400 * 5.0 / 12.0)]
 k.prism_xz("siding", tri, uy(160), uy(140))
 house = k.save("house_exterior")

@@ -112,9 +112,10 @@ def put_tree(x, y, collide=False):
     a = K.place(rnd.choice(trees), "Tree_%02d" % n, x, y, GR, face=(math.cos(n * 2.4), math.sin(n * 2.4)), collide=collide,
                 scale=rnd.uniform(0.85, 1.2), **Tk)
 for y in range(-4700, 6800, 1150):                                                    # street trees on both verges
-    put_tree(-1095 + rnd.uniform(-20, 20), y + rnd.uniform(-150, 150) + 380)
+    if not (500 < y + 380 < 1500):                                                    # keep the low sun on our front windows
+        put_tree(-1095 + rnd.uniform(-20, 20), y + rnd.uniform(-150, 150) + 380)
     put_tree(-2175 + rnd.uniform(-20, 20), y + rnd.uniform(-150, 150) + 900)
-for (x, y) in ((-560, 1560), (1900, 520), (2250, 1650), (-450, -500), (-520, 2900), (1800, 3300), (2000, -1300)):
+for (x, y) in ((-560, 1900), (1900, 520), (2250, 1650), (-450, -500), (-520, 2900), (1800, 3300), (2000, -1300)):
     put_tree(x, y, collide=True)
 for y in range(-5000, 7000, 520):                                                     # tree lines that close the horizon
     put_tree(3100 + rnd.uniform(-250, 250), y + rnd.uniform(-200, 200))

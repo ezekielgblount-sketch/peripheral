@@ -18,13 +18,17 @@ def to_ue(x, y, z):
     return unreal.Vector(x - OX, -(y - OY), z)
 
 
-def mat(key):
-    if key not in _mats:
-        m = unreal.EditorAssetLibrary.load_asset("%s/MI_%s" % (MAT_DIR, key))
+def mat(key, local=False):
+    """Surface material by key. local=True gives the variant whose texture sticks to the object (for props that move)."""
+    if key == "glass":
+        return unreal.EditorAssetLibrary.load_asset(MAT_DIR + "/M_Glass")
+    name = ("MIL_" if local else "MI_") + key
+    if name not in _mats:
+        m = unreal.EditorAssetLibrary.load_asset("%s/%s" % (MAT_DIR, name))
         if m is None:
-            unreal.log_warning("POC: missing material MI_%s" % key)
-        _mats[key] = m
-    return _mats[key]
+            unreal.log_warning("POC: missing material " + name)
+        _mats[name] = m
+    return _mats[name]
 
 
 def clear(tag):
