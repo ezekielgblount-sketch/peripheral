@@ -113,7 +113,10 @@ def put_tree(x, y, collide=False):
                 scale=rnd.uniform(0.85, 1.2), **Tk)
 for y in range(-4700, 6800, 1150):                                                    # street trees on both verges
     if not (500 < y + 380 < 1500):                                                    # keep the low sun on our front windows
-        put_tree(-1095 + rnd.uniform(-20, 20), y + rnd.uniform(-150, 150) + 380)
+        ty = y + rnd.uniform(-150, 150) + 380
+        if 130 < ty < 590:                                                            # never in the mouth of our driveway (215..505): stand it on the grass beside it
+            ty = 20.0
+        put_tree(-1095 + rnd.uniform(-20, 20), ty)
     put_tree(-2175 + rnd.uniform(-20, 20), y + rnd.uniform(-150, 150) + 900)
 for (x, y) in ((-560, 1900), (1900, 520), (2250, 1650), (-450, -500), (-520, 2900), (1800, 3300), (2000, -1300)):
     put_tree(x, y, collide=True)
