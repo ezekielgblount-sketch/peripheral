@@ -8,7 +8,9 @@
   (Variables|Default|SetAlpha o))
 
 (event Game|Damage|EventAnyDamage (Damage DamageType InstigatedBy DamageCauser)
-  (if (Variables|Default|GetLocked)
+  (bind stick (Variables|Default|GetStickCount))
+  (if (or (Variables|Default|GetLocked) (> stick 0))
+    (Variables|Default|SetStickCount (- stick 1))
     (Audio|PlaySoundatLocation :Sound (Variables|Default|GetSndLocked) :Location (Transformation|GetActorLocation))
     (else
       (Variables|Default|SetOpen (not (Variables|Default|GetOpen)))

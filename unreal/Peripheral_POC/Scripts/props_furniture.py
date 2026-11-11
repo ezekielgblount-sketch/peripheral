@@ -25,18 +25,21 @@ def legs(k, key, x0, y0, x1, y1, h, t=4):
 
 
 def sofa(w, fabric, seats):
+    """One-piece sofa: a continuous upholstered body, with cushions that butt up against each other and the arms."""
     k = K.Kit()
-    k.box("wood_dark", 4, -w / 2 + 4, 6, 84, w / 2 - 4, 22)
-    legs(k, "wood_dark", 6, -w / 2 + 6, 84, w / 2 - 6, 8, 5)
-    sw = (w - 44) / seats
+    k.box("wood_dark", 6, -w / 2 + 6, 3, 82, w / 2 - 6, 9)
+    for (x, y) in ((6, -w / 2 + 6), (6, w / 2 - 11), (78, -w / 2 + 6), (78, w / 2 - 11)):
+        k.box("wood_dark", x, y, 0, x + 5, y + 5, 4)
+    k.soft(fabric, 0, -w / 2, 8, 86, w / 2, 34, 5, 2, 0.3)                # body: seat platform, front rail
+    k.soft(fabric, 0, -w / 2, 8, 20, w / 2, 82, 5, 2, 0.3)                # body: back
+    for s_ in (-1, 1):
+        y0, y1 = sorted((s_ * (w / 2 - 20), s_ * w / 2))
+        k.soft(fabric, 0, y0, 8, 88, y1, 62, 5, 2, 0.3)                   # arms, part of the body
+    sw = (w - 36) / seats
     for i in range(seats):
-        y = -w / 2 + 22 + i * sw
-        k.soft(fabric, 22, y + 1, 21, 88, y + sw - 1, 45)                 # seat cushion, top at 44
-        k.soft(fabric, 4, y + 1, 40, 28, y + sw - 1, 86, iters=5)         # back cushion
-    k.soft(fabric, 0, -w / 2, 18, 14, w / 2, 80, iters=3)                 # back frame
-    for s in (-1, 1):
-        y0, y1 = sorted((s * (w / 2 - 22), s * w / 2))
-        k.soft(fabric, 2, y0, 18, 86, y1, 62, iters=4)                    # arm
+        y = -w / 2 + 18 + i * sw
+        k.soft(fabric, 16, y - 1.5, 31, 89, y + sw + 1.5, 46, 5, 2, 0.35)   # seat cushions overlap a little, so no gaps
+        k.soft(fabric, 12, y - 1.5, 42, 30, y + sw + 1.5, 86, 5, 2, 0.35)   # back cushions likewise
     return k
 
 

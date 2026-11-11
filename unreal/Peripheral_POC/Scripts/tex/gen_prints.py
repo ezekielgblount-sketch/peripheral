@@ -74,7 +74,9 @@ def family(name, with_child=True, seed=1):
         person(d, W * 0.48, g, H * 0.36, (170, 40, 40), (90, 60, 34), child=True)
     im = im.resize((640, 480), Image.LANCZOS)
     im = age(im, fade=0.22, warm=(1.04, 1.0, 0.9), seed=seed)
-    ImageDraw.Draw(im).text((612, 448), "7  4 '98", font=font(26, "bold"), fill=(255, 140, 30), anchor="rs")      # orange camera date stamp
+
+    im = im.resize((176, 132), Image.BILINEAR).resize((640, 480), Image.BILINEAR)      # very low resolution, like a small drugstore print
+    ImageDraw.Draw(im).text((612, 448), "7  4 '04", font=font(26, "bold"), fill=(255, 140, 30), anchor="rs")
     out = Image.new("RGB", (704, 544), (232, 226, 206)); out.paste(im, (32, 32))        # white print border
     out.save(os.path.join(OUT, name + ".png"))
 
@@ -338,6 +340,83 @@ note("note_chores", ["CHORES", "Jack - trash  x", "Jack - piano  x", "Dad - gutt
 note("note_numbers", ["Gram  555-0142", "Dr. Hale 555-0117", "school 555-0190", "PIZZA 555-0123"], bg=(250, 215, 220), fsize=32)
 calendar("calendar_nov"); homework("homework")
 note("magazine", ["", "HOME &", " GARDEN", "", "fall issue"], bg=(120, 150, 110), lined=False, fsize=58, ink=(250, 245, 230))
+def posed(name, people, bg, stamp, size=(480, 384), seed=1):
+    """Posed portrait: people = [(x 0..1, height 0..1, body colour, hair colour, dress, child)]."""
+    W, H = size[0] * SS, size[1] * SS
+    im = Image.new("RGB", (W, H), bg); d = ImageDraw.Draw(im)
+    for i in range(30):
+        d.ellipse([W * 0.5 - W * (0.8 - i * 0.02), H * 0.45 - W * (0.8 - i * 0.02), W * 0.5 + W * (0.8 - i * 0.02), H * 0.45 + W * (0.8 - i * 0.02)], fill=tuple(min(255, int(c * (0.8 + i * 0.012))) for c in bg))
+    for (x, h, body, hair, dress, child) in people:
+        person(d, W * x, H * 1.05, H * h, body, hair, dress=dress, child=child)
+    im = age(im.resize(size, Image.LANCZOS), fade=0.2, warm=(1.06, 1.0, 0.86), grain=8, seed=seed)
+    im = im.resize((size[0] // 4, size[1] // 4), Image.BILINEAR).resize(size, Image.BILINEAR)
+    ImageDraw.Draw(im).text((size[0] - 14, size[1] - 12), stamp, font=font(20, "bold"), fill=(255, 140, 30), anchor="rs")
+    im.save(os.path.join(OUT, name + ".png"))
+
+
+navy = (40, 50, 90)
+posed("photo_portrait_matching", [(0.3, 0.92, navy, (60, 42, 30), False, False), (0.52, 0.86, navy, (120, 84, 40), True, False), (0.72, 0.6, navy, (90, 60, 34), False, True)], (120, 130, 150), "11 2 '03")
+posed("photo_wedding", [(0.4, 0.95, (30, 30, 34), (50, 36, 26), False, False), (0.6, 0.9, (240, 238, 230), (110, 80, 40), True, False)], (110, 140, 100), "6 14 '89", (384, 480))
+posed("photo_grandparents", [(0.38, 0.9, (90, 110, 150), (200, 200, 200), False, False), (0.62, 0.84, (150, 80, 90), (210, 205, 200), True, False)], (130, 120, 100), "8 9 '08")
+
+
+def dog(name):
+    im = Image.new("RGB", (384 * 2, 480 * 2), (90, 120, 80)); d = ImageDraw.Draw(im)
+    d.ellipse([200, 420, 600, 900], fill=(214, 186, 130)); d.ellipse([250, 200, 540, 520], fill=(224, 196, 140))
+    d.ellipse([230, 230, 300, 400], fill=(190, 160, 110)); d.ellipse([490, 230, 560, 400], fill=(190, 160, 110)); d.ellipse([350, 380, 440, 450], fill=(60, 50, 44))
+    im = age(im.resize((384, 480), Image.LANCZOS), fade=0.2, warm=(1.05, 1.0, 0.88)).resize((96, 120), Image.BILINEAR).resize((384, 480), Image.BILINEAR)
+    im.save(os.path.join(OUT, name + ".png"))
+
+
+def band_poster(name):
+    im = Image.new("RGB", (512, 720), (16, 16, 20)); d = ImageDraw.Draw(im); r = random.Random(21)
+    for i in range(5):
+        x = 70 + i * 92; d.rectangle([x - 26, 330, x + 26, 600], fill=(40 + i * 8, 40, 60)); d.ellipse([x - 22, 280, x + 22, 334], fill=(70, 60, 60))
+    for _ in range(300):
+        d.point((r.randint(0, 511), r.randint(0, 719)), fill=(90, 90, 100))
+    d.text((256, 110), "THE STATIC", font=font(78, "bold"), fill=(230, 60, 60), anchor="mm")
+    d.text((256, 660), "WORLD TOUR  '06", font=font(34, "bold"), fill=(220, 220, 220), anchor="mm")
+    age(im, fade=0.2, grain=6, blur=0.5).save(os.path.join(OUT, name + ".png"))
+
+
+def height_marks(name):
+    im = Image.new("RGBA", (96, 640), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    for i, (y, t) in enumerate(((560, "'99"), (470, "'01"), (380, "'03"), (300, "'05"), (210, "'07"), (150, "'09"))):
+        d.line([(6, y), (60, y)], fill=(40, 40, 50, 230), width=3); d.text((8, y - 30), "Jack " + t, font=font(20, "hand"), fill=(40, 40, 60, 230))
+    im.save(os.path.join(OUT, name + ".png"))
+
+
+def card(name, lines, size=(1024, 512), bg=(0, 0, 0, 255), ink=(235, 232, 220, 255), fs=(120, 44), kind="bold"):
+    im = Image.new("RGBA", size, bg); d = ImageDraw.Draw(im)
+    for i, t in enumerate(lines):
+        d.text((size[0] / 2, size[1] * (0.42 + i * 0.2)), t, font=font(fs[0] if i == 0 else fs[1], kind), fill=ink, anchor="mm")
+    im.save(os.path.join(OUT, name + ".png"))
+
+
+def task_note(name, text):
+    im = Image.new("RGBA", (512, 160), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    d.polygon([(6, 10), (500, 4), (506, 150), (10, 156)], fill=(244, 236, 190, 235))
+    words, lines, cur = text.split(), [], ""
+    for w in words:
+        if len(cur) + len(w) > 26:
+            lines.append(cur); cur = w
+        else:
+            cur = (cur + " " + w).strip()
+    lines.append(cur)
+    for i, t in enumerate(lines[:3]):
+        d.text((26, 22 + i * 44), t, font=font(38, "hand"), fill=(30, 36, 90, 255))
+    im.save(os.path.join(OUT, name + ".png"))
+
+
+dog("photo_dog"); band_poster("poster_band"); height_marks("height_marks")
+card("ui_title", ["PERIPHERAL", "Enter  -  Play          S  -  Settings          Q  -  Quit"])
+card("ui_title_card", ["PERIPHERAL"])
+card("ui_end", ["PERIPHERAL", "end of demo   -   Enter to return to the title"])
+card("ui_notyet", ["Not yet."], (512, 128), (0, 0, 0, 0), (240, 236, 220, 255), (64, 30), "hand")
+for i, t in enumerate(("Get the first box from the trunk.  (E to lift, E to set down)", "Carry it to the front door.", "Unlock the door with my old key.", "Bring both boxes inside.",
+                       "Pick up the mail. Put it on the kitchen counter.", "Find the breaker. Basement stairs.", "Open a living room window.",
+                       "Clean out the fridge.", "Figure out where to sleep.", "Lie down.")):
+    task_note("ui_task_%d" % (i + 1), t)
 import math
 rug_oriental("rug_oriental"); landscape("print_landscape_a", 1); landscape("print_landscape_b", 5)
 chart_alphabet("chart_alphabet"); chart_fractions("chart_fractions"); banner("banner_thankful", "THANKFUL")
@@ -351,3 +430,7 @@ for n, t, s in (("label_kitchen", "KITCHEN", "dishes"), ("label_jack", "JACK'S R
 rug("rug_braided"); clock("clock_face"); spines("book_spines_a", 1); spines("book_spines_b", 2)
 vhs_label("vhs_xmas", "XMAS '89"); vhs_label("vhs_bday", "Jack 6th B-DAY"); vhs_label("vhs_blank", "")
 print("prints:", len(os.listdir(OUT)))
+
+# objective wording as Jack's stability drops (montage)
+for i, t_ in enumerate(("unpack.   (did you unpack?)", "there was something you were going to do", "stay"), 1):
+    task_note("ui_vague_%d" % i, t_)

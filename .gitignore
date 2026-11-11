@@ -46,3 +46,4 @@ unreal/Peripheral_POC/.mcp.json
 # Generated source textures (rebuild with Scripts/tex/gen_surfaces.py)
 unreal/Peripheral_POC/SourceArt/
 unreal/Peripheral_POC/Reference/private/
+unreal/Peripheral_POC/Builds/

@@ -14,14 +14,14 @@ KEYS = {
     "brick": ("brick", (1, 1, 1), 1.0, 0.25), "siding": ("siding", (1, 1, 1), 1.0, 0.3),
     "liv": ("damask", (1, 1, 1), 1.0, 0.15), "hall": ("damask", (1, 1, 1), 1.0, 0.18),
     "hall2": ("damask", (1, 0.99, 0.97), 1.0, 0.2), "kit": ("paint", (0.93, 0.82, 0.55), 1.0, 0.25),
-    "bath": ("paint", (0.72, 0.84, 0.80), 0.8, 0.25), "bed": ("paint", (0.92, 0.84, 0.6), 1.0, 0.25),
+    "bath": ("paint", (0.72, 0.84, 0.80), 0.8, 0.25), "bed": ("paint", (0.93, 0.87, 0.68), 1.0, 0.25),
     "blk": ("paint", (0.42, 0.42, 0.42), 1.0, 0.0), "bsmt": ("concrete", (0.9, 0.9, 0.9), 1.0, 0.4),
     "ceiling": ("popcorn", (1, 1, 1), 1.0, 0.2), "trim": ("paint", (0.90, 0.87, 0.78), 0.75, 0.3),
     "rail": ("wood_plain", (0.6, 0.38, 0.3), 0.9, 0.2),
-    "f_liv": ("oak_floor", (0.42, 0.3, 0.22), 0.9, 0.25), "f_hall": ("oak_floor", (0.42, 0.3, 0.22), 0.9, 0.25),
+    "f_liv": ("oak_floor", (1.25, 0.92, 0.55), 0.9, 0.3), "f_hall": ("oak_floor", (1.25, 0.92, 0.55), 0.9, 0.3),
     "f_entry": ("linoleum", (0.9, 0.9, 0.95), 1.0, 0.45), "f_kit": ("tile_bath", (1.0, 0.97, 0.9), 1.4, 0.3),
-    "f_stair": ("carpet_worn", (1.5, 1.36, 1.3), 1.0, 0.35), "f_hall2": ("carpet_worn", (1.5, 1.36, 1.3), 1.0, 0.3),
-    "f_bath": ("tile_bath", (1, 1, 1), 1.0, 0.3), "f_bed": ("carpet_worn", (1.5, 1.36, 1.3), 1.0, 0.3),
+    "f_stair": ("carpet_worn", (1.32, 1.18, 1.02), 1.0, 0.6), "f_hall2": ("carpet_worn", (1.32, 1.18, 1.02), 1.0, 0.55),
+    "f_bath": ("tile_bath", (1, 1, 1), 1.0, 0.3), "f_bed": ("carpet_worn", (1.32, 1.18, 1.02), 1.0, 0.55),
     "f_blk": ("concrete", (0.6, 0.6, 0.6), 1.0, 0.0), "f_bsmt": ("concrete", (0.8, 0.8, 0.8), 1.0, 0.5),
     "roof": ("shingles", (1, 1, 1), 1.0, 0.3), "lawn": ("grass", (1, 1, 1), 1.0, 0.3),
     "concrete": ("concrete", (1, 1, 1), 1.0, 0.4), "asphalt": ("asphalt", (1, 1, 1), 1.0, 0.3),
@@ -42,7 +42,7 @@ KEYS = {
     "enamel": ("paint", (0.95, 0.95, 0.93), 0.35, 0.2), "enamel_gold": ("paint", (0.93, 0.91, 0.85), 0.4, 0.2),
     "enamel_avocado": ("paint", (0.38, 0.42, 0.18), 0.45, 0.25), "laminate": ("plastic", (0.86, 0.86, 0.83), 1.1, 0.3),
     "paper": ("paint", (0.9, 0.87, 0.78), 1.1, 0.4), "rubber": ("plastic", (0.05, 0.05, 0.05), 2.0, 0.2),
-    "mirror": ("metal", (0.95, 0.95, 0.95), 0.04, 0.0), "steel": ("metal", (0.75, 0.76, 0.78), 0.9, 0.2),
+    "mirror": ("plastic", (0.42, 0.45, 0.47), 0.2, 0.0), "steel": ("metal", (0.75, 0.76, 0.78), 0.9, 0.2),
     "plastic_red": ("plastic", (0.6, 0.06, 0.05), 1.0, 0.25), "plastic_blue": ("plastic", (0.08, 0.2, 0.55), 1.0, 0.25),
     "plastic_yellow": ("plastic", (0.8, 0.62, 0.08), 1.0, 0.25), "plastic_green": ("plastic", (0.1, 0.4, 0.15), 1.0, 0.25),
     "fabric_plaid": ("fabric", (0.5, 0.3, 0.16), 1.0, 0.45), "fabric_white": ("fabric", (0.9, 0.9, 0.88), 1.0, 0.3),
@@ -52,7 +52,10 @@ KEYS = {
     "fabric_hunter": ("fabric", (0.1, 0.24, 0.15), 1.0, 0.35), "fabric_burgundy": ("fabric", (0.38, 0.07, 0.1), 1.0, 0.35),
     "plastic_teal": ("plastic", (0.05, 0.5, 0.5), 1.0, 0.2), "plastic_purple": ("plastic", (0.35, 0.12, 0.55), 1.0, 0.2),
     "plastic_pink": ("plastic", (0.85, 0.15, 0.45), 1.0, 0.2), "plastic_lime": ("plastic", (0.45, 0.8, 0.1), 1.0, 0.2),
-    "oak": ("wood_plain", (1.7, 1.2, 0.7), 0.85, 0.2), "fabric_butter": ("fabric", (0.86, 0.78, 0.5), 1.0, 0.3),
+    "oak": ("wood_plain", (1.9, 1.25, 0.62), 0.85, 0.25), "shiplap": ("siding", (1.25, 1.24, 1.18), 1.0, 0.2), "cherry": ("wood_plain", (0.9, 0.42, 0.3), 0.8, 0.2),
+    "copper": ("metal", (0.85, 0.45, 0.28), 1.2, 0.4), "car_paint": ("paint", (0.2, 0.33, 0.3), 0.5, 0.55), "fabric_tan": ("fabric", (0.6, 0.48, 0.34), 1.0, 0.4),
+    "fabric_sage": ("fabric", (0.45, 0.52, 0.4), 1.0, 0.35), "fabric_navy": ("fabric", (0.08, 0.11, 0.22), 1.0, 0.3), "fabric_rust": ("fabric", (0.5, 0.16, 0.1), 1.0, 0.35),
+    "plastic_mint": ("plastic", (0.6, 0.85, 0.72), 1.0, 0.2), "plastic_clear": ("plastic", (0.8, 0.84, 0.86), 0.5, 0.2), "liquid_blue": ("plastic", (0.1, 0.35, 0.8), 0.3, 0.0), "fabric_butter": ("fabric", (0.86, 0.78, 0.5), 1.0, 0.3),
     "quilt": ("quilt", (1, 1, 1), 1.0, 0.2), "floral_red": ("floral_red", (1, 1, 1), 1.0, 0.2), "globe": ("paint", (0.8, 0.72, 0.55), 0.6, 0.4),
     "pumpkin": ("paint", (0.85, 0.38, 0.08), 0.8, 0.2), "fabric_stripe": ("fabric", (0.5, 0.45, 0.3), 1.0, 0.3), "plastic_black": ("plastic", (0.035, 0.035, 0.04), 1.2, 0.15), "enamel_pink": ("paint", (0.9, 0.7, 0.68), 0.35, 0.2),
 }
@@ -168,9 +171,14 @@ def build_lamp():
     mpc = eal.load_asset(mpc_path)
     if mpc is None:
         mpc = at.create_asset("MPC_World", MAT_DIR, unreal.MaterialParameterCollection, unreal.MaterialParameterCollectionFactoryNew())
-        sp = unreal.CollectionScalarParameter(); sp.set_editor_property("parameter_name", "Night"); sp.set_editor_property("default_value", 0.0)
-        mpc.set_editor_property("scalar_parameters", [sp])
         eal.save_asset(mpc_path)
+    want = {"Night": 0.0, "Unease": 0.0, "Motion": 1.0, "Frozen": 0.0, "Fade": 0.0}
+    have = set(str(n) for n in mpc.get_scalar_parameter_names())
+    if set(want) - set(have):
+        arr = []
+        for n, v in want.items():
+            sp = unreal.CollectionScalarParameter(); sp.set_editor_property("parameter_name", n); sp.set_editor_property("default_value", v); arr.append(sp)
+        mpc.set_editor_property("scalar_parameters", arr); eal.save_asset(mpc_path)
     path = MAT_DIR + "/M_Lamp"
     m = eal.load_asset(path) or at.create_asset("M_Lamp", MAT_DIR, unreal.Material, unreal.MaterialFactoryNew())
     mel.delete_all_material_expressions(m)
@@ -180,20 +188,33 @@ def build_lamp():
     st.set_editor_property("parameter_name", "Glow"); st.set_editor_property("default_value", 0.0)
     night = mel.create_material_expression(m, unreal.MaterialExpressionCollectionParameter, -700, 400)
     night.set_editor_property("collection", mpc); night.set_editor_property("parameter_name", "Night")
-    g = mel.create_material_expression(m, unreal.MaterialExpressionMultiply, -450, 300)
-    mel.connect_material_expressions(st, "", g, "A"); mel.connect_material_expressions(night, "", g, "B")
+    tm = mel.create_material_expression(m, unreal.MaterialExpressionTime, -700, 520)
+    def sc(name, y):
+        e = mel.create_material_expression(m, unreal.MaterialExpressionScalarParameter, -700, y)
+        e.set_editor_property("parameter_name", name); e.set_editor_property("default_value", 0.0); return e
+    g = mel.create_material_expression(m, unreal.MaterialExpressionCustom, -450, 300)
+    g.set_editor_property("output_type", unreal.CustomMaterialOutputType.CMOT_FLOAT1)
+    ins = []
+    for n in ("Glow", "Night", "T", "Blink", "Always"):
+        ci = unreal.CustomInput(); ci.set_editor_property("input_name", n); ins.append(ci)
+    g.set_editor_property("inputs", ins)
+    g.set_editor_property("code", "return Glow * max(Night, Always) * lerp(1.0, step(0.45, frac(T * 1.7)), Blink);")
+    mel.connect_material_expressions(st, "", g, "Glow"); mel.connect_material_expressions(night, "", g, "Night"); mel.connect_material_expressions(tm, "", g, "T")
+    mel.connect_material_expressions(sc("Blink", 620), "", g, "Blink"); mel.connect_material_expressions(sc("Always", 720), "", g, "Always")
     mul = mel.create_material_expression(m, unreal.MaterialExpressionMultiply, -250, 100)
     mel.connect_material_expressions(col, "", mul, "A"); mel.connect_material_expressions(g, "", mul, "B")
     mel.connect_material_property(mul, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
     mel.connect_material_property(col, "", unreal.MaterialProperty.MP_BASE_COLOR)
     mel.recompile_material(m); eal.save_asset(path)
     for name, glow, c in (("lamp_on", 700.0, (1.0, 0.85, 0.6)), ("lamp_off", 0.0, (0.9, 0.88, 0.8)), ("lamp_dim", 30.0, (0.3, 1.0, 0.5)),
-                          ("lamp_shade", 45.0, (0.86, 0.74, 0.52)), ("lamp_lava", 60.0, (0.9, 0.1, 0.45)), ("lamp_star", 5.0, (0.55, 1.0, 0.45))):
+                          ("lamp_shade", 45.0, (0.86, 0.74, 0.52)), ("lamp_lava", 60.0, (0.9, 0.1, 0.45)), ("lamp_star", 5.0, (0.55, 1.0, 0.45)), ("lamp_blink", 40.0, (0.3, 1.0, 0.3)), ("lamp_led", 25.0, (1.0, 0.2, 0.1))):
         for pre in ("MI_", "MIL_"):
             p = "%s/%s%s" % (MAT_DIR, pre, name)
             mi = eal.load_asset(p) or at.create_asset(pre + name, MAT_DIR, unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
             mi.set_editor_property("parent", m)
             mel.set_material_instance_scalar_parameter_value(mi, "Glow", glow)
+            mel.set_material_instance_scalar_parameter_value(mi, "Blink", 1.0 if name == "lamp_blink" else 0.0)
+            mel.set_material_instance_scalar_parameter_value(mi, "Always", 1.0 if name in ("lamp_blink", "lamp_led") else 0.0)
             mel.set_material_instance_vector_parameter_value(mi, "Color", unreal.LinearColor(c[0], c[1], c[2], 1))
             mel.update_material_instance(mi); eal.save_asset(p)
 

@@ -18,11 +18,11 @@ def spawn(cls, label, loc=unreal.Vector(0, 0, 600), rot=unreal.Rotator(0, 0, 0))
 sun = spawn(unreal.DirectionalLight, "Sun", rot=unreal.Rotator(roll=0, pitch=-27, yaw=20))
 sc = sun.light_component
 sc.set_mobility(unreal.ComponentMobility.MOVABLE)
-sc.set_editor_property("intensity", 45000.0)       # lux: a real low afternoon sun, so lamps can use real lumens
+sc.set_editor_property("intensity", 24000.0)       # lux: a real low afternoon sun, so lamps can use real lumens
 sc.set_editor_property("light_color", unreal.Color(r=255, g=240, b=220, a=255))
 sc.set_editor_property("atmosphere_sun_light", True)
 sc.set_editor_property("volumetric_scattering_intensity", 0.6)
-sc.set_editor_property("light_source_angle", 0.8)
+sc.set_editor_property("light_source_angle", 3.0)
 
 sun.tags = ["env", "day_light"]
 moon = spawn(unreal.DirectionalLight, "Moon", rot=unreal.Rotator(roll=0, pitch=-38, yaw=-140))
@@ -41,7 +41,7 @@ sky = spawn(unreal.SkyLight, "SkyLight")
 kc = sky.light_component
 kc.set_mobility(unreal.ComponentMobility.MOVABLE)
 kc.set_editor_property("real_time_capture", True)
-kc.set_editor_property("intensity", 1.0)
+kc.set_editor_property("intensity", 1.6)
 sky.tags = ["env", "day_light"]          # off at night with the sun (it would keep its daytime brightness otherwise)
 
 fog = spawn(unreal.ExponentialHeightFog, "Fog", loc=unreal.Vector(0, 0, -126))
@@ -66,12 +66,12 @@ for k, v in {
     "override_auto_exposure_bias": True, "auto_exposure_bias": 1.0,
     "override_auto_exposure_low_percent": True, "auto_exposure_low_percent": 35.0,
     "override_auto_exposure_high_percent": True, "auto_exposure_high_percent": 80.0,
-    "override_bloom_intensity": True, "bloom_intensity": 0.12,
+    "override_bloom_intensity": True, "bloom_intensity": 0.06,
     "override_bloom_threshold": True, "bloom_threshold": 1.0,
     "override_vignette_intensity": True, "vignette_intensity": 0.35,
     "override_film_grain_intensity": True, "film_grain_intensity": 0.25,
     "override_motion_blur_amount": True, "motion_blur_amount": 0.25,
-    "override_local_exposure_highlight_contrast_scale": True, "local_exposure_highlight_contrast_scale": 0.8,
+    "override_local_exposure_highlight_contrast_scale": True, "local_exposure_highlight_contrast_scale": 0.6,
     "override_local_exposure_shadow_contrast_scale": True, "local_exposure_shadow_contrast_scale": 0.85,
     "override_lumen_scene_lighting_quality": True, "lumen_scene_lighting_quality": 1.5,
     "override_lumen_final_gather_quality": True, "lumen_final_gather_quality": 1.5,

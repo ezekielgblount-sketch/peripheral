@@ -10,7 +10,7 @@ for f in sorted(os.listdir(src)):
             t.set_editor_property(k, v)
         tasks.append(t)
 unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks(tasks)
-for n in ("room_tone", "fridge_hum", "outdoor_day"):
+for n in ("room_tone", "fridge_hum", "outdoor_day", "tape_hiss", "clock_tick", "music_dayone", "underwater", "car_engine"):
     w = unreal.EditorAssetLibrary.load_asset("/Game/Audio/" + n)
     w.set_editor_property("looping", True); unreal.EditorAssetLibrary.save_asset("/Game/Audio/" + n)
 print("audio imported:", len(tasks))

@@ -11,6 +11,13 @@ import props_home as PH
 importlib.reload(PH)
 import props_lived as PL
 importlib.reload(PL)
+import props_story as PST
+importlib.reload(PST)
+try:
+    import props_pool as PP
+    importlib.reload(PP)
+except ImportError:
+    pass
 bad = []
 for name in sorted(PF.REG):
     try:

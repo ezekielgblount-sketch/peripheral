@@ -138,3 +138,60 @@ Joel: the family that lived here could not get home to tidy up. Added `Scripts/p
 - Bathroom: towel on the floor, toothbrush cup, laundry basket.
 - Call 24: kept a few moving boxes. If the family left suddenly, the boxes may no longer fit the story; Joel to decide.
 - 130 props in total, 131 placed. Fit check ALL PASS. All 48 screenshots retaken.
+
+## How to play (Peripheral_Demo)
+Open `Builds/Peripheral_Demo.app` (double-click; the first launch pauses about 15 seconds while it prepares shaders), or open the project in Unreal and press Play.
+
+**Title screen:** Enter = Play, S = Settings, Q = Quit. In Settings: left/right changes camera motion (full, half, off), up/down changes graphics quality, Enter or Esc goes back.
+
+**Controls:** WASD walk, mouse look, C crouch, F flashlight, E use / lift and set down / pick up and inspect, B head bob on/off, M camera motion, N day/night.
+
+**Opening:** after Enter, a short drive seen from the driver's seat: down the street and into the driveway. Then Jack is standing by the car.
+
+**Day One** (a small handwritten note in the bottom-left corner shows the current task; a faint warm glow sits on the thing the note is about):
+1. Lift the first box from the car boot (E), 2. carry it to the front door, 3. unlock the door (it sticks once, press E again), 4. bring both boxes inside, 5. carry the mail to the kitchen counter, 6. flip the breaker at the foot of the basement stairs (take the flashlight), 7. open the living room window (left pane), 8. open the fridge and clear out the four items, 9. go upstairs: the parents' door opens but shows "Not yet."; walk into Jack's room, 10. stand by the bed and press E to lie down. Fade to black, PERIPHERAL card.
+
+**Time-skip montage** follows on its own: living room at level 5, kitchen at 7.5, Jack's room at 10, about 45 seconds each and walkable, then an end card (Enter returns to the title).
+
+**Debug keys:** 1-9 = unease level 1-9, 0 = level 10, minus = clean. F1 shows the unease bar; hold left/right to set any value 0-100. N = day/night.
+
+## Tonight's design session (Nov 10-11): what changed
+- **Story:** Jack arrives with two boxes in his car. The house was lived in until weeks ago: mail at the door, dishes, notes on the fridge.
+- **Tech realism:** living room now has a small thick-bezel flat screen on an old oak entertainment centre, with DVD player, a 2010-era console, blinking router, cordless phone, laptop and tablet in the kitchen, chargers in outlets. Tapes and discs fill the cabinet. Jack's room keeps the beige CRT computer, handheld, glow stars and posters. No CRT remains in a shared room.
+- **Reference rooms:** piano corner (A), seating with mirror and brackets (B), built-ins with photo shelf and keepsake box (C), fireplace with THANKFUL banner (D), secretary desk with map and barometer (E), hutch, beams, pendant and red valance (F), Jack's room with paneled walls, shiplap ceiling, glass-top desk, red chair, charts (G).
+- **Palette:** honey-oak floors and cabinets, tan worn carpet, burgundy / hunter / navy accents, cream damask and warm walls.
+- **Family photos:** posed portraits at very low resolution, warm print colour, orange date stamp, blank blurry faces.
+- **Unease dial:** one value 0-100 drives picture and sound. After Joel's note it is colour-kept VHS and digital glitching seen from Jack's point of view (chromatic splitting, slipping blocks, tears, pixel patches), not grey and not a TV overlay. The centre of the screen always stays clear. Levels 1-10 = 10-100.
+- **Sofa** rebuilt as one piece. **Daylight** softened (weaker sun, softer shadow edges, more sky fill).
+
+## Calls made tonight
+- 25: Menus are drawn directly on screen (the editor exposes no menu-design tool I can drive). Settings use arrow keys, and the F1 "slider" is a bar moved with left/right. No mouse-driven menus.
+- 26: Graphics quality moved from keys 1/2/3 into Settings, because the number keys now set unease levels.
+- 27: Joel asked for levels 1-10 after first asking for stages 0-4. Keys now follow the ten levels; the old stages are levels 2.5, 5, 7.5 and 10.
+- 28: Sound can only be paused or pitched from the director, not filtered. So: tape hiss switches in from level 4, music warbles and slows from level 6, and a low muffled "underwater" bed comes in at level 9. Footsteps are not muffled.
+- 29: "Frames freeze and skip" is done as vertical jumps and slipping blocks in the picture; the game itself never pauses.
+- 30: The attic loft (G) is done as a restyle of Jack's existing room (paneling, flat shiplap ceiling). Steep slanted ceilings and a stair opening with spindles would change the house layout, which needs Joel's OK first.
+- 31: The dining room (F) stays a locked blockout room; its hutch, beams, pendant and valance are in the eat-in end of the kitchen. No sliding patio door yet.
+- 32: The breaker is at the foot of the basement stairs. The basement has no power until it is flipped, so the flashlight is needed.
+- 33: The living room window "opens" by raising a sash in front of the fixed glass; the opening itself is not cut through.
+- 34: The parents' room is an empty dark room behind an invisible barrier.
+- 35: Lying down moves the camera onto the bed looking up at the glow stars; there is no body animation.
+- 36: Trim stays white (as in the reference photos) although the palette note says honey-oak trim. Floors, cabinets and furniture are honey oak.
+- 37: Still using a few items that pre-date the 2010 rule in shared rooms as "old collection" (VHS tape on the coffee table, wall phone with coiled cord).
+
+## Did not make it in
+- Mouse-driven menus and a true slider. Printer, inflatable chair, sticker-covered dresser, bunk bed, frosted shower door, second mantel look, thermostat detail, wire mail basket.
+- Slanted attic ceilings and stair spindles (layout change), sliding patio door, dining room interior.
+- Parked neighbour cars, street lamps. Fridge hum and LEDs do not wait for the breaker.
+- Real key and mouse input has never been tested by a person. Every step was verified by script (objects moved and used by code), not by pressing keys.
+
+## Late additions (car, drive-in, objectives)
+- **Car:** an invented early-90s compact four-door (no real make), faded green, plain steel wheels, grey bumpers, boot open with both boxes. Simple interior: dashboard, steering wheel, seats.
+- **Drive-in:** about 17 seconds from the driver's seat, engine sound, fade, door sound, then control. Look and movement are locked during the drive.
+- **Objectives:** the handwritten note stays as the overlay. In the time-skip montage the note turns vague ("unpack. (did you unpack?)", "there was something you were going to do", "stay") and trembles slightly.
+- **Waypoints:** no floating markers. A faint warm glow marks the current objective and switches off once unease passes level 5.5. Mockups of the alternatives are in `screenshots/overlay_explore/overlay_options.png`.
+- **Screenshots:** `screenshots/unease_stages/` (levels 0-10 in the living room, plus morning / afternoon / golden hour / night at levels 0, 3, 6, 10, and kitchen and bedroom at 0, 5, 10) and `screenshots/drive_session/` (one folder per reference area, plus arrival and the parents' tech).
+- Call 38: the opening drive is a fixed cinematic, not player-driven.
+- Call 39: play-mode capture returns the editor camera, not the game view, so there are no true in-game frames of the drive or the note; the stills are editor views and the overlay sheet is a mockup.
+- Call 40: packaged build verified by launching it in the background and reading its log (map loads, no errors). Not played by hand.
+- Known: the car is blocky; wall mirror is a plain grey panel (real reflections were streaky); the room room-by-room `screenshots/<room>/` set from earlier is now out of date.

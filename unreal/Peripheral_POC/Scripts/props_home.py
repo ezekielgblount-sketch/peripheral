@@ -182,7 +182,6 @@ def chair_red():
 def sofa_butter():
     from props_furniture import sofa
     k = sofa(212, "fabric_butter", 3)
-    k.soft("fabric_white", 60, 62, 44, 92, 100, 88, 4, 3)                     # throw over the arm end
     k.soft("quilt", 40, -40, 44, 78, 20, 52, 4, 3)                            # patchwork quilt left on the seat
     k.soft("floral_red", 30, -92, 46, 44, -52, 84, 4, 5)                      # floral pillow
     return k
