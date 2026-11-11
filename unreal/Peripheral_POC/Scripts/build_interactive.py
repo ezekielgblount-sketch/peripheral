@@ -97,7 +97,7 @@ for a in eas.get_all_level_actors():
         a.set_actor_location_and_rotation(L.to_ue(-835, 360, GR + 92), unreal.Rotator(roll=0, pitch=0, yaw=0), False, False)
 blk = L.box("Blocker_parents_room", 152, 1384, F2, 239, 1390, F2 + 203, "blk", "Interactive/Story", "interactive")
 blk.set_actor_hidden_in_game(True)
-bb = eas.spawn_actor_from_class(unreal.StaticMeshActor, unreal.Vector(1, 0, 0))      # shared settings: X = camera-motion intensity
+bb = eas.spawn_actor_from_class(unreal.StaticMeshActor, unreal.Vector(1, 0.6, 0))      # shared settings: X = camera-motion intensity, Y = mouse speed, Z = power stage
 bb.set_actor_label("Settings_blackboard"); bb.set_folder_path("Interactive"); bb.tags = ["interactive", "bb"]
 bb.static_mesh_component.set_mobility(unreal.ComponentMobility.MOVABLE)
 
@@ -105,7 +105,9 @@ bb.static_mesh_component.set_mobility(unreal.ComponentMobility.MOVABLE)
 hud = eal.load_asset("/Game/Blueprints/BP_HUD")
 unreal.get_default_object(hud.generated_class()).set_editor_property("Notes", [eal.load_asset("/Game/Prints/ui_task_%d" % i) for i in range(1, 11)])
 UI_NAMES = (["ui_menu_%d" % i for i in range(5)] + ["ui_pause_%d" % i for i in range(3)] + ["ui_howto"] + ["ui_settings_%d_%d" % (c, q) for c in range(3) for q in range(4)]
-            + ["ui_loop_%d" % i for i in range(5)] + ["ui_preset_%d" % i for i in range(3)])            # menu and on-screen text, drawn as images
+            + ["ui_loop_%d" % i for i in range(5)] + ["ui_preset_%d" % i for i in range(3)]
+            + ["ui_row_cam_%d_%d" % (c, o) for c in range(3) for o in range(2)] + ["ui_row_gfx_%d_%d" % (q, o) for q in range(4) for o in range(2)]
+            + ["ui_row_mouse_%d_%d" % (m, o) for m in range(5) for o in range(2)] + ["ui_set_head", "ui_set_foot"])            # menu and on-screen text, drawn as images
 unreal.get_default_object(hud.generated_class()).set_editor_property("UI", [eal.load_asset("/Game/Prints/" + n) for n in UI_NAMES])
 eal.save_asset("/Game/Blueprints/BP_HUD")
 gm = eal.load_asset("/Game/Blueprints/BP_GameMode")

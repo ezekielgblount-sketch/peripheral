@@ -18,8 +18,8 @@
   (Pawn|Input|AddMovementInput :WorldDirection (Transformation|GetActorRightVector) :ScaleValue (* side free))
   ; ---------------- look (or rotate the held object) ----------------
   (bind (dx dy) (Game|Player|GetInputMouseDelta :self pc))
-  (Pawn|Input|AddControllerYawInput :Val (* (* dx 1.2) free))
-  (Pawn|Input|AddControllerPitchInput :Val (* (* dy -1.2) free))
+  (Pawn|Input|AddControllerYawInput :Val (* (* dx (.y (Transformation|GetActorLocation :self (Variables|Default|GetBB)))) free))
+  (Pawn|Input|AddControllerPitchInput :Val (* (* (* dy -1.0) (.y (Transformation|GetActorLocation :self (Variables|Default|GetBB)))) free))
   (bind camLoc (Transformation|GetWorldLocation :self cam))
   (bind camFwd (Transformation|GetForwardVector :self cam))
   ; ---------------- use / carry / inspect (E) ----------------

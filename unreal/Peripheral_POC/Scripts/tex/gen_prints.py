@@ -495,3 +495,21 @@ g.save(os.path.join(OUT, "ui_grad.png"))
 c = Image.new("RGBA", (48, 48), (0, 0, 0, 0)); dc = ImageDraw.Draw(c)
 dc.polygon([(4, 3), (4, 38), (13, 30), (20, 44), (26, 41), (19, 28), (31, 27)], fill=(245, 242, 232, 255), outline=(0, 0, 0, 255))
 c.save(os.path.join(OUT, "ui_cursor.png"))
+
+
+# settings rows (drawn one per line; the picked row is brighter and marked)
+def row(name, label, value, on):
+    im = Image.new("RGBA", (900, 60), (0, 0, 0, 0)); d = ImageDraw.Draw(im); f = font(34, "bold")
+    col = (240, 236, 222, 255) if on else (150, 147, 138, 255)
+    d.text((40, 8), (">  " if on else "    ") + label, font=f, fill=col); d.text((470, 8), ("<   %s   >" % value) if on else "     " + value, font=f, fill=col)
+    im.save(os.path.join(OUT, name + ".png"))
+
+
+for c, cn in enumerate(("OFF", "HALF", "FULL")):
+    for on in (0, 1): row("ui_row_cam_%d_%d" % (c, on), "Camera motion", cn, on)
+for q, qn in enumerate(("LOWEST", "LOW", "MEDIUM", "HIGH")):
+    for on in (0, 1): row("ui_row_gfx_%d_%d" % (q, on), "Graphics", qn, on)
+for m, mn in enumerate(("1  slowest", "2  slow", "3  normal", "4  fast", "5  fastest")):
+    for on in (0, 1): row("ui_row_mouse_%d_%d" % (m, on), "Mouse speed", mn, on)
+panel("ui_set_head", [], (900, 110), head="SETTINGS", fs=34)
+panel("ui_set_foot", ["up / down  pick a line        left / right  change it        Enter or Esc  back"], (900, 40), fs=20)
