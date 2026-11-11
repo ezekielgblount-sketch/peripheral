@@ -62,7 +62,7 @@ def box(name, x0, y0, z0, x1, y1, z1, m, folder="Shell", tag="shell", collide=Tr
     if mm:
         smc.set_material(0, mm)
     if not collide:
-        smc.set_collision_enabled(unreal.CollisionEnabled.NO_COLLISION)
+        smc.set_collision_profile_name("NoCollision")       # saved with the level (set_collision_enabled alone is lost on reload)
     smc.set_cast_shadow(shadow)
     return a
 

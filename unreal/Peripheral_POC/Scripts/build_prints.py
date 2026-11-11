@@ -18,6 +18,7 @@ path = "/Game/Materials/M_Print"
 m = eal.load_asset(path) or at.create_asset("M_Print", "/Game/Materials", unreal.Material, unreal.MaterialFactoryNew())
 mel.delete_all_material_expressions(m)
 m.set_editor_property("blend_mode", unreal.BlendMode.BLEND_MASKED)
+m.set_editor_property("two_sided", True)                 # flat prints show from either side
 tx = mel.create_material_expression(m, unreal.MaterialExpressionTextureSampleParameter2D, -600, 0)
 tx.set_editor_property("parameter_name", "Tex"); tx.set_editor_property("texture", eal.load_asset("/Game/Prints/" + names[0]))
 tint = mel.create_material_expression(m, unreal.MaterialExpressionVectorParameter, -600, -250)

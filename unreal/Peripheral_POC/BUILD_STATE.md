@@ -142,16 +142,20 @@ Joel: the family that lived here could not get home to tidy up. Added `Scripts/p
 ## How to play (Peripheral_Demo)
 Open `Builds/Peripheral_Demo.app` (double-click; the first launch pauses about 15 seconds while it prepares shaders), or open the project in Unreal and press Play.
 
-**Title screen:** Enter = Play, S = Settings, Q = Quit. In Settings: left/right changes camera motion (full, half, off), up/down changes graphics quality, Enter or Esc goes back.
+**Title menu:** up/down and Enter. Play - Day One, Play - The Loop (test), Settings, How to play, Quit. In Settings: left/right changes camera motion (full, half, off), up/down changes graphics quality, Enter or Esc goes back.
 
-**Controls:** WASD walk, mouse look, C crouch, F flashlight, E use / lift and set down / pick up and inspect, B head bob on/off, M camera motion, N day/night.
+**Pause:** Esc during play: Resume, Back to the title, Quit. (The world keeps running underneath; Jack just stands still.)
+
+**Controls:** WASD walk, mouse look, C crouch, F flashlight, E use / lift and set down / pick up and inspect / switch any lamp or wall switch, L jump to the loop, B head bob on/off, M camera motion, N day/night.
 
 **Opening:** after Enter, a short drive seen from the driver's seat: down the street and into the driveway. Then Jack is standing by the car.
 
 **Day One** (a small handwritten note in the bottom-left corner shows the current task; a faint warm glow sits on the thing the note is about):
 1. Lift the first box from the car boot (E), 2. carry it to the front door, 3. unlock the door (it sticks once, press E again), 4. bring both boxes inside, 5. carry the mail to the kitchen counter, 6. flip the breaker at the foot of the basement stairs (take the flashlight), 7. open the living room window (left pane), 8. open the fridge and clear out the four items, 9. go upstairs: the parents' door opens but shows "Not yet."; walk into Jack's room, 10. stand by the bed and press E to lie down. Fade to black, PERIPHERAL card.
 
-**Time-skip montage** follows on its own: living room at level 5, kitchen at 7.5, Jack's room at 10, about 45 seconds each and walkable, then an end card (Enter returns to the title).
+**Time-skip montage** follows on its own: living room at level 5, kitchen at 7.5, Jack's room at 10, about 45 seconds each and walkable, then the loop.
+
+**The loop** (also from the title menu, or L at any time): Jack stands at the top of the entry stairs. Walk the hall and into the living room, to the piano. If anything in the house is wrong, turn back and go down the entry stairs instead. Each pass may or may not have one thing wrong; the first pass never does. A right call adds one to the count in the corner, a wrong call sets it back to zero, five in a row ends the demo (end card, Enter returns to the title). Nothing can hurt Jack.
 
 **Debug keys:** 1-9 = unease level 1-9, 0 = level 10, minus = clean. F1 shows the unease bar; hold left/right to set any value 0-100. N = day/night. With the F1 bar open, up/down switches the preset for levels 8-10: Subtle, Medium (default), Heavy.
 
@@ -230,3 +234,41 @@ The editor grew to 30 GB after nine hours of scripted rebuilds on a 36 GB Mac. `
 ### Not verified
 - Script reads of shader values during play return 0 for everything, so the preset switch is confirmed in the HUD (default Medium) but its effect on screen in the running game has not been seen. The "live bursts" state is the zero state, so bursts run even if a value is never written.
 - All stills are editor views with the burst held; nobody has watched the bursts in motion or played with real keys.
+
+## Second feedback pass (Nov 11): switchable lamps, the loop, game menu
+**Every lamp is a real, switchable light.** New Blueprint `BP_Switch` (`Scripts/bp/switch.dsl`): press E on a wall switch or on a lamp itself.
+- 12 switches: wall switches for entry, hall, living room fan light, kitchen, upstairs hall, bedroom, bathroom; and the lamps themselves: hall table lamp, living room table lamp, piano lamp, torchiere, Jack's desk lamp.
+- Bulbs, shades and fixture globes glow only while their lamp is on (lit and unlit versions of each mesh), day or night.
+- Nothing lights before the breaker is flipped. Ceiling fixtures start "on", so they come alive room by room when the power returns; table lamps start off.
+- New fixtures: halogen track (three heads, 3000 K) over the kitchen counter and a lit brass sconce by the kitchen table, both on the kitchen switch.
+- The N key now only changes the sky; it no longer turns lamps on.
+
+**The loop** (prototype of the low-stability sequences). Set-up in `Scripts/build_loop.py`, logic in the director (`Scripts/bp/hud.dsl`, mode 6). Runs at unease level 7.
+Six things can be wrong, all made from the house's own objects:
+1. a door on the blank stair wall of the hall that was never there
+2. the family photo by the piano with the child gone
+3. the THANKFUL banner spelled THANFKUL
+4. the hall clock's second hand running backward (and fast)
+5. the chair by the piano pulled out and turned to face the wall
+6. the television on, showing nothing
+Changes are made while the screen is black between passes, never in view. The three peripheral anomalies from before are switched off during the loop so they cannot give a false alarm.
+
+**Game menu.** Title menu, pause menu and a How to play page, all keyboard-driven and drawn by the director.
+
+### Judgment calls
+48. "Prototype one": the Exit-8 style loop is the one built. Room expansion (a hallway that gets longer, a ceiling that rises) is not built: the house shell is fixed geometry, and stretching it needs a second, movable copy of the hall. It is the next step for this mechanic.
+49. The loop uses the real hall and living room rather than a copy; each pass ends in a quick fade and Jack is put back at the start.
+50. "Turn back" is going down the entry stairs; "keep going" is reaching the piano. Both are places you already know from Day One.
+51. A hall clock was added for the loop (it stays in the house in every mode; its second hand only moves during the loop).
+52. Pause does not freeze time: the montage timers keep counting while the pause menu is open.
+53. Menus are keyboard only (no mouse pointer yet).
+54. Table lamps start off and stay off at night until the player turns them on.
+
+### Build notes
+- Run order after re-dressing: `dress_rooms.py`, `build_interactive.py`, then `build_loop.py` (it tags things the first two rebuild).
+- Writing the director graph now takes several minutes (it is about 400 lines); use `MCP_TIMEOUT=900`.
+- In the graph language a named value is worked out again every time it is used. Reading one after changing the variable it came from gives the new value (this ended the loop one pass early until fixed).
+- Fixed along the way: the THANKFUL banner had never shown its letters (the print helper cropped wide images to their top strip). It is now a separate banner hung on the mantel, placed by `build_loop.py`; `Kit.print_quad` is the helper for wide prints. The family photo by the piano also overlapped the landscape above it; it moved to the wall above the spindle chair.
+- Stills: `screenshots/loop/` (each anomaly), `screenshots/lighting_pass/` (retaken with the track lights and lit fixtures).
+- Not verified by a person: the menus and the loop were driven by script in play mode (five right calls end it, a wrong call resets the count, L works from Day One, lamps toggle, power comes up in stages). Nobody has pressed real keys, and the drawn menu text has not been seen on screen.
+- Fixed a latent fault found by the fit check after an editor restart: props placed as walk-through (shoes, the card binder, wall items) lost that setting when the level was reloaded, so in earlier packaged builds shoes could block the top of the entry stairs and the binder the bedroom door. Placement now uses the NoCollision profile, which is saved. Exterior walk-through props built by other scripts keep the old setting until those scripts are re-run.

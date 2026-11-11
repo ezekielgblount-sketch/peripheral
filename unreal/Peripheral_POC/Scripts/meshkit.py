@@ -62,6 +62,16 @@ class Kit:
         unreal.GeometryScript_MeshEdits.append_mesh(self.m, tmp2, T(x, (y0 + y1) / 2.0, (z0 + z1) / 2.0, pitch=-90))
         return self
 
+    def print_quad(self, key, x, y0, z0, y1, z1):
+        """Printed image facing +X that fills the whole rectangle whatever its proportions (quad() crops wide images)."""
+        b = unreal.GeometryScriptSimpleMeshBuffers()
+        b.vertices = [unreal.Vector(x, y0, z0), unreal.Vector(x, y1, z0), unreal.Vector(x, y1, z1), unreal.Vector(x, y0, z1)]
+        b.normals = [unreal.Vector(1, 0, 0)] * 4
+        b.uv0 = [unreal.Vector2D(1, 1), unreal.Vector2D(0, 1), unreal.Vector2D(0, 0), unreal.Vector2D(1, 0)]      # seen from +X, image left is +Y
+        b.triangles = [unreal.IntVector(0, 2, 1), unreal.IntVector(0, 3, 2)]
+        unreal.GeometryScript_MeshEdits.append_buffers_to_mesh(self.m, b, self._o(key).material_id)
+        return self
+
     def decal_top(self, key, x0, y0, x1, y1, z):
         """Flat printed image lying face-up at height z."""
         P.append_rectangle_xy(self.m, self._o(key), T((x0 + x1) / 2.0, (y0 + y1) / 2.0, z), x1 - x0, y1 - y0, 0, 0)
@@ -228,7 +238,7 @@ def place(sm, name, x, y, z, face=(1, 0), folder="Props", tag="prop", collide=Tr
     c = a.static_mesh_component
     c.set_mobility(unreal.ComponentMobility.MOVABLE if movable else unreal.ComponentMobility.STATIC)
     if not collide:
-        c.set_collision_enabled(unreal.CollisionEnabled.NO_COLLISION)
+        c.set_collision_profile_name("NoCollision")       # a profile is saved with the level; set_collision_enabled alone is lost on reload
     c.set_cast_shadow(shadow)
     return a
 

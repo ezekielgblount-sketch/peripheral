@@ -53,7 +53,6 @@ def fireplace():
     k.box("white", 0, -95, 118, 30, 95, 140); k.box("white", 0, -102, 140, 40, 102, 146)       # frieze and shelf
     for y in (-95, 83):
         k.box("white", 26, y, 0, 30, y + 12, 118)
-    k.quad("p_banner_thankful", 30.4, -80, 112, 80, 142)
     k.cyl("wood_dark", 20, 0, 146, 10, 4, 14); k.cyl("brass", 22, 0, 150, 8, 5, 18, pitch=90); k.quad("p_clock_face", 27.2, -7, 151, 7, 165)
     r = random.Random(3)
     for y, col, s in ((-70, "pumpkin", 6), (-52, "enamel", 5), (-30, "pumpkin", 4), (34, "enamel", 5.5), (58, "pumpkin", 6.5), (78, "brass", 3.5)):

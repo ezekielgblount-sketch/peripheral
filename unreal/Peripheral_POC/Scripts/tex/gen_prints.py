@@ -419,7 +419,7 @@ for i, t in enumerate(("Get the first box from the trunk.  (E to lift, E to set 
     task_note("ui_task_%d" % (i + 1), t)
 import math
 rug_oriental("rug_oriental"); landscape("print_landscape_a", 1); landscape("print_landscape_b", 5)
-chart_alphabet("chart_alphabet"); chart_fractions("chart_fractions"); banner("banner_thankful", "THANKFUL")
+chart_alphabet("chart_alphabet"); chart_fractions("chart_fractions"); banner("banner_thankful", "THANKFUL"); banner("banner_wrong", "THANFKUL")
 family("photo_family_a", True, 1); family("photo_family_b", False, 1)
 portrait("photo_school", (60, 150, 150), (90, 60, 34), (24, 30, 90), 2)
 portrait("photo_school_b", (150, 60, 140), (40, 30, 24), (30, 20, 70), 3)

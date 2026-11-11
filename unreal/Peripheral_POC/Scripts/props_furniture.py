@@ -19,6 +19,20 @@ def get(name, rebuild=False):
     return REG[name]().save(name)
 
 
+LIT = {True: {"lamp_on": "bulb_lit", "lamp_shade": "shade_lit", "glass_dark": "tv_static"},
+       False: {"lamp_on": "lamp_off", "lamp_shade": "shade_unlit"}}
+
+
+def variant(name, on):
+    """The same prop with its bulb / shade surfaces lit or unlit (SM_<name>_on / _off), for things the player switches."""
+    vn = name + ("_on" if on else "_off")
+    path = "%s/SM_%s" % (K.MESH_DIR, vn)
+    if unreal.EditorAssetLibrary.does_asset_exist(path):
+        return unreal.EditorAssetLibrary.load_asset(path)
+    k = REG[name](); k.keys = [LIT[on].get(x, x) for x in k.keys]
+    return k.save(vn)
+
+
 def legs(k, key, x0, y0, x1, y1, h, t=4):
     for (x, y) in ((x0, y0), (x0, y1 - t), (x1 - t, y0), (x1 - t, y1 - t)):
         k.box(key, x, y, 0, x + t, y + t, h)

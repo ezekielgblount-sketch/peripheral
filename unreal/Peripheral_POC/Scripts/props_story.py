@@ -192,3 +192,4 @@ def box_carry_b():
 
 
 import props_car                                  # registers the car (kept in its own file)
+import props_loop                                 # track light and the loop sequence props

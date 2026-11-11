@@ -41,8 +41,8 @@ for a in eas.get_all_level_actors():
     if a.actor_has_tag("door"):
         a.set_editor_property("SndOpen", snd("door_creak")); a.set_editor_property("SndLocked", snd("locked_rattle"))
 
-# anomaly 1: the family photo above the couch. Unwatched, the child is gone from the picture.
-p = spawn_bp("BP_Anomaly", "Anomaly_family_photo", 105, 601, F1 + 155, (0, 1), "frame_family_a")
+# anomaly 1: the family photo above the chair by the piano. Unwatched, the child is gone from the picture.
+p = spawn_bp("BP_Anomaly", "Anomaly_family_photo", 215, 601, F1 + 150, (0, 1), "frame_family_a")
 p.set_editor_property("HomeMesh", PF.get("frame_family_a")); p.set_editor_property("AltMesh", PF.get("frame_family_b"))
 p.set_editor_property("Range", 900.0); p.set_editor_property("ArmTime", 0.6)
 # anomaly 2: the tin robot on Jack's dresser. Unwatched, it slides along the dresser and turns toward the bed.

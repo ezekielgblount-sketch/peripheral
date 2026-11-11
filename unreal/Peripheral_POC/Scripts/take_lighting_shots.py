@@ -4,7 +4,7 @@ import sys, os, subprocess
 here = os.path.dirname(os.path.abspath(__file__)); root = os.path.dirname(here)
 out = os.path.join(root, "screenshots", "lighting_pass")
 POV = {"living_seating": "500,985,165:200,720,110", "living_torchiere": "430,960,165:40,800,125", "kitchen": "700,1290,165:850,780,105",
-       "hall_table_lamp": "150,1330,165:560,1450,100", "bedroom": "650,1415,424:850,1650,330", "bathroom": "620,1250,424:790,1180,360"}
+       "kitchen_track_lights": "640,1120,165:870,1000,120", "hall_table_lamp": "150,1330,165:560,1450,100", "bedroom": "650,1415,424:850,1650,330", "bathroom": "620,1250,424:790,1180,360"}
 only = sys.argv[1:]
 def ue(code):
     subprocess.run([sys.executable, os.path.join(here, "uepy.py"), "-c", code, "300"], check=True, stdout=subprocess.DEVNULL)
