@@ -58,3 +58,6 @@ Joel said "you can take over" before answering the plan questions, so these are 
 11. **Stair to floor 2 starts 110 cm short of the kitchen wall** so there is room to walk onto it. Its top three steps pass over the entry.
 12. **Upstairs hall is a 120 cm gallery beside the stairwell plus a short leg to Jack's door**, not the blueprint's 6 m by 11 m open landing, which was not a believable hallway.
 13. **Procedural textures instead of scanned ones.** Fab and Megascans need Joel's Epic login in the launcher, so I generate textures with code.
+- Player Blueprint (`BP_Player`) built through the MCP Blueprint tools: WASD walk, mouse look, C to crouch, F for the flashlight, B to switch head bob off, M to cycle camera-motion intensity (full, half, off). Logic source is `Scripts/bp/player_tick.dsl`.
+- Bodycam motion is in: head-turn lag, walk sway, a small dip on each step, idle drift, and an ease-out when you stop.
+- Play-tested by script: the player spawns on the porch, walks through the front door onto the landing, the camera bobs, and crouch drops the capsule to 110 cm. Real keyboard and mouse input still needs a human to try it.

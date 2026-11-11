@@ -1,16 +1,53 @@
 (event EventTick (DeltaSeconds)
   (bind pc (Game|GetPlayerController :PlayerIndex 0))
-  ; --- walk ---
+  ; ---------------- walk ----------------
   (bind fwd (- (select (Game|Player|IsInputKeyDown :self pc :Key "W") 1.0 0.0)
                (select (Game|Player|IsInputKeyDown :self pc :Key "S") 1.0 0.0)))
   (bind side (- (select (Game|Player|IsInputKeyDown :self pc :Key "D") 1.0 0.0)
                 (select (Game|Player|IsInputKeyDown :self pc :Key "A") 1.0 0.0)))
   (Pawn|Input|AddMovementInput :WorldDirection (Transformation|GetActorForwardVector) :ScaleValue fwd)
   (Pawn|Input|AddMovementInput :WorldDirection (Transformation|GetActorRightVector) :ScaleValue side)
-  ; --- look ---
+  ; ---------------- look ----------------
   (bind (dx dy) (Game|Player|GetInputMouseDelta :self pc))
   (Pawn|Input|AddControllerYawInput :Val (* dx 1.2))
   (Pawn|Input|AddControllerPitchInput :Val (* dy -1.2))
-  ; --- flashlight ---
+  ; ---------------- toggles ----------------
   (if (Game|Player|WasInputKeyJustPressed :self pc :Key "F")
-    (Rendering|ToggleVisibility :self (Variables|Default|GetFlashlight))))
+    (Rendering|ToggleVisibility :self (Variables|Default|GetFlashlight)))
+  (if (Game|Player|WasInputKeyJustPressed :self pc :Key "B")
+    (Variables|Default|SetHeadBob (not (Variables|Default|GetHeadBob))))
+  (if (Game|Player|WasInputKeyJustPressed :self pc :Key "M")
+    (bind mi (Variables|Default|GetMotionIntensity))
+    (Variables|Default|SetMotionIntensity (select (> mi 0.75) 0.5 (select (> mi 0.25) 0.0 1.0))))
+  (if (Game|Player|WasInputKeyJustPressed :self pc :Key "C")
+    (if (Variables|Character|GetIsCrouched)
+      (Character|UnCrouch)
+      (else (Character|Crouch))))
+  ; ---------------- bodycam camera ----------------
+  (bind cam (Variables|Default|GetCam))
+  (bind t (Utilities|Time|GetGameTimeinSeconds))
+  ; head turn lag: the camera chases the look direction instead of snapping to it
+  (bind lagged (Math|Interpolation|RInterpTo :Current (Variables|Default|GetCamRot) :Target (Pawn|GetControlRotation :self pc)
+                                              :DeltaTime DeltaSeconds :InterpSpeed 16.0))
+  (Variables|Default|SetCamRot lagged)
+  ; walk amount eases in and out, which gives the settle when you stop
+  (bind speed (Math|Vector|VectorLengthXY (Transformation|GetVelocity)))
+  (bind walk (Math|Interpolation|FInterpTo :Current (Variables|Default|GetWalkAmt) :Target (/ speed 260.0)
+                                           :DeltaTime DeltaSeconds :InterpSpeed 5.0))
+  (Variables|Default|SetWalkAmt walk)
+  (bind phase (+ (Variables|Default|GetBobPhase) (* DeltaSeconds (* (/ speed 260.0) 10.5))))
+  (Variables|Default|SetBobPhase phase)
+  (bind k (* (Variables|Default|GetMotionIntensity) (select (Variables|Default|GetHeadBob) 1.0 0.0)))
+  (bind s (Math|Trig|Sin(Radians) phase))
+  (bind jolt (Math|Float|Absolute(Float) (Math|Trig|Sin(Radians) phase)))
+  (bind roll (* k (+ (* walk (* 1.1 s)) (* 0.25 (Math|Trig|Sin(Radians) (* t 0.9))))))
+  (bind pitchOff (* k (+ (* walk (* -0.8 jolt)) (* 0.2 (Math|Trig|Sin(Radians) (* t 1.3))))))
+  (bind yawOff (* k (* walk (* 0.5 s))))
+  (Transformation|SetWorldRotation :self cam
+    :NewRotation (Math|Rotator|MakeRotator :Roll roll :Pitch (+ (.pitch lagged) pitchOff) :Yaw (+ (.yaw lagged) yawOff)))
+  (bind eye (Math|Interpolation|FInterpTo :Current (Variables|Default|GetEyeZ)
+                                          :Target (select (Variables|Character|GetIsCrouched) 40.0 76.0)
+                                          :DeltaTime DeltaSeconds :InterpSpeed 8.0))
+  (Variables|Default|SetEyeZ eye)
+  (Transformation|SetRelativeLocation :self cam
+    :NewLocation (Math|Vector|MakeVector :X 0.0 :Y (* k (* walk (* 1.5 s))) :Z (- eye (* k (* walk (* 2.2 jolt)))))))
