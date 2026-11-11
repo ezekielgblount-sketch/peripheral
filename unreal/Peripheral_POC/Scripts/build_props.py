@@ -5,6 +5,10 @@ import poc_lib as L, meshkit as K, props_furniture as PF
 importlib.reload(L); importlib.reload(K); importlib.reload(PF)
 import props_small as PS
 importlib.reload(PS)
+import props_90s as P9
+importlib.reload(P9)
+import props_home as PH
+importlib.reload(PH)
 bad = []
 for name in sorted(PF.REG):
     try:

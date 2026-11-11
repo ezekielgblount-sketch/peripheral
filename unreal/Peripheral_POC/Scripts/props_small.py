@@ -5,7 +5,7 @@ from props_furniture import prop, legs
 
 
 # ---------------- kitchen ----------------
-def base_cabinet(w, doors=2, drawer_row=True, top="laminate", body="wood_dark"):
+def base_cabinet(w, doors=2, drawer_row=True, top="laminate", body="oak"):
     k = K.Kit()
     k.box("black", 6, -w / 2, 0, 56, w / 2, 10)                                     # toe kick
     k.box(body, 0, -w / 2, 10, 58, w / 2, 87)
@@ -41,9 +41,9 @@ def cab_drawer_shell():
     """Base cabinet whose top drawer is a separate moving part (see drawer_60)."""
     k = K.Kit(); w = 60
     k.box("black", 6, -w / 2, 0, 56, w / 2, 10)
-    k.box("wood_dark", 0, -w / 2, 10, 58, w / 2, 68); k.box("wood_dark", 0, -w / 2, 68, 2, w / 2, 87)
+    k.box("oak", 0, -w / 2, 10, 58, w / 2, 68); k.box("oak", 0, -w / 2, 68, 2, w / 2, 87)
     for y in (-w / 2, w / 2 - 2):
-        k.box("wood_dark", 0, y, 68, 58, y + 2, 87)
+        k.box("oak", 0, y, 68, 58, y + 2, 87)
     k.box("laminate", -1, -w / 2, 87, 62, w / 2, 91); k.box("laminate", -1, -w / 2, 91, 1.5, w / 2, 101)
     k.box("wood_light", 58, -w / 2 + 1.5, 12, 59.6, w / 2 - 1.5, 68); k.box("chrome", 59.6, w / 2 - 6.8, 52, 61.5, w / 2 - 5.2, 62)
     return k
@@ -76,7 +76,7 @@ def cab_sink_90():
 @prop
 def cab_upper_90():
     k = K.Kit(); w = 90
-    k.box("wood_dark", 0, -w / 2, 0, 32, w / 2, 76)
+    k.box("oak", 0, -w / 2, 0, 32, w / 2, 76)
     for i in range(2):
         y = -w / 2 + i * 45
         k.box("wood_light", 32, y + 1.5, 1.5, 33.6, y + 43.5, 74.5)

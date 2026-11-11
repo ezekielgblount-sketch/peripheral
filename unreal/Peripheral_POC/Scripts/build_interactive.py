@@ -5,6 +5,8 @@ sys.path.insert(0, unreal.Paths.convert_relative_path_to_full(unreal.Paths.proje
 import poc_lib as L, meshkit as K, props_furniture as PF
 importlib.reload(L)
 import props_small as PS
+import props_90s as P9
+import props_home as PH
 F1, F2 = 0, 259
 L.clear("interactive")
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
@@ -34,7 +36,7 @@ for a in eas.get_all_level_actors():
         a.set_editor_property("SndOpen", snd("door_creak")); a.set_editor_property("SndLocked", snd("locked_rattle"))
 
 # anomaly 1: the family photo above the couch. Unwatched, the child is gone from the picture.
-p = spawn_bp("BP_Anomaly", "Anomaly_family_photo", 280, 601, F1 + 152, (0, 1), "frame_family_a")
+p = spawn_bp("BP_Anomaly", "Anomaly_family_photo", 105, 601, F1 + 155, (0, 1), "frame_family_a")
 p.set_editor_property("HomeMesh", PF.get("frame_family_a")); p.set_editor_property("AltMesh", PF.get("frame_family_b"))
 p.set_editor_property("Range", 900.0); p.set_editor_property("ArmTime", 0.6)
 # anomaly 2: the tin robot on Jack's dresser. Unwatched, it slides along the dresser and turns toward the bed.

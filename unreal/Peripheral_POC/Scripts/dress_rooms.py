@@ -4,6 +4,8 @@ sys.path.insert(0, unreal.Paths.convert_relative_path_to_full(unreal.Paths.proje
 import poc_lib as L, meshkit as K, props_furniture as PF
 importlib.reload(L); importlib.reload(K); importlib.reload(PF)
 import props_small as PS
+import props_90s as P9
+import props_home as PH
 importlib.reload(PS)
 LND, F1, C1, F2, C2 = -126, 0, 244, 259, 503
 L.clear("dress")
@@ -38,6 +40,14 @@ def lamp(name, x, y, z, lumens, room, radius=600, color=(255, 214, 160), shadows
     return a
 
 
+def border(x0, y0, x1, y1, z, prop, room):
+    """Wallpaper border strip around a room, just under the ceiling, in 1 m pieces."""
+    for y in range(int(y0) + 50, int(y1) + 50, 100):
+        P(prop, x0 + 0.3, min(y, y1 - 50), z, (1, 0), room, collide=False); P(prop, x1 - 0.3, min(y, y1 - 50), z, (-1, 0), room, collide=False)
+    for x in range(int(x0) + 50, int(x1) + 50, 100):
+        P(prop, min(x, x1 - 50), y0 + 0.3, z, (0, 1), room, collide=False); P(prop, min(x, x1 - 50), y1 - 0.3, z, (0, -1), room, collide=False)
+
+
 # ---------------- entry and stair core ----------------
 r = "Entry"
 P("doormat", 45, 1136, LND, (1, 0), r, collide=False)
@@ -58,6 +68,12 @@ rail((180, 1037, LND + 92), (348, 1037, LND - 108 + 92))                        
 rail((470, 1147, 92), (106, 1147, F2 + 92))                                          # stair to floor 2
 cap(100, 1251, 112, 1419, F1 + 95); cap(376, 1031, 388, 1129, F1 + 95)
 cap(100, 1239, 470, 1251, F2 + 91); cap(470, 1141, 482, 1239, F2 + 91)
+def crown(x0, y0, x1, y1, z):                               # white crown moulding round a room
+    for (a0, b0, a1, b1) in ((x0, y0, x1, y0 + 7), (x0, y1 - 7, x1, y1), (x0, y0, x0 + 7, y1), (x1 - 7, y0, x1, y1)):
+        fx.box("white", a0 - L.OX, -(b1 - L.OY), z - 8, a1 - L.OX, -(b0 - L.OY), z)
+crown(0, 600, 574, 1019, C1)
+for y in (700, 900, 1100, 1300, 1480):                      # kitchen ceiling beams
+    fx.box("rail", 586 - L.OX, -(y + 7 - L.OY), C1 - 12, 900 - L.OX, -(y - 7 - L.OY), C1)
 a = eas.spawn_actor_from_object(fx.save("dress_fixed", local=False), unreal.Vector(0, 0, 0))
 a.set_actor_label("Rails_and_caps"); a.set_folder_path("Dress/Entry"); a.tags = ["dress"]
 a.static_mesh_component.set_mobility(unreal.ComponentMobility.STATIC)
@@ -68,43 +84,46 @@ P("ceiling_light_off", 340, 1380, C1, (1, 0), r, collide=False); lamp("hall", 34
 P("side_table", 572, 1460, F1, (-1, 0), r); P("table_lamp", 547, 1460, F1 + 55, (1, 0), r, collide=False)
 lamp("hall_table", 547, 1460, F1 + 88, 350, r, 400)
 P("frame_school", 200, 1512, F1 + 155, (0, -1), r, collide=False); P("frame_school_b", 160, 1512, F1 + 150, (0, -1), r, collide=False)
-P("box_misc", 440, 1488, F1, (0, -1), r); P("box_plain", 502, 1488, F1, (0.2, -1), r); P("box_books", 468, 1488, F1 + 45, (0, -1), r)
+P("secretary", 388, 1513, F1, (0, -1), r); P("frame_school", 372, 1500, F1 + 117, (0.2, -1), r, collide=False)
+P("box_misc", 505, 1488, F1, (0, -1), r); P("box_books", 505, 1488, F1 + 40, (0.1, -1), r)
+P("phone_cordless", 552, 1438, F1 + 55, (-1, 0.2), r, collide=False)
 P("light_switch", 572, 1420, F1 + 120, (-1, 0), r, collide=False); P("outlet", 572, 1100, F1 + 30, (-1, 0), r, collide=False)
 P("vent", 300, 1512, F1 + 12, (0, -1), r, collide=False)
 
-# ---------------- living room ----------------
+# ---------------- living room (traditional: damask walls, dark floor, oriental rug, piano, fireplace) ----------------
 r = "Living"
-P("rug", 290, 800, F1, (0, 1), r, collide=False)
-P("couch", 280, 603, F1, (0, 1), r)
-P("coffee_table", 280, 722, F1, (0, 1), r)
-P("side_table", 420, 603, F1, (0, 1), r); P("table_lamp", 420, 628, F1 + 55, (1, 0), r, collide=False)
-lamp("living_table", 420, 628, F1 + 90, 500, r, 500)
-P("armchair", 62, 668, F1, (0.75, 0.66), r)
-P("tv_console", 250, 1016, F1, (0, -1), r); P("crt_tv", 215, 1014, F1 + 60, (0, -1), r)
-P("vcr", 284, 1010, F1 + 35, (0, -1), r, collide=False); P("vhs_stack", 300, 1004, F1 + 60, (0.3, -1), r, collide=False); P("vhs_tape", 262, 742, F1 + 42, (0.8, 0.5), r, tag="inspect")
-P("bookshelf", 572, 780, F1, (-1, 0), r)
-P("floor_lamp", 30, 975, F1, (1, 0), r); lamp("living_floor", 45, 975, F1 + 150, 800, r)
+P("rug_oriental", 270, 800, F1, (0, 1), r, collide=False)
+P("sofa_butter", 250, 603, F1, (0, 1), r); P("mirror_wall", 250, 601, F1 + 168, (0, 1), r, collide=False)
+P("coffee_table_glass", 250, 722, F1, (0, 1), r); P("vhs_tape", 262, 742, F1 + 46, (0.8, 0.5), r, tag="inspect")
+P("side_table", 395, 603, F1, (0, 1), r); P("table_lamp_drum", 395, 628, F1 + 55, (1, 0), r, collide=False)
+lamp("living_table", 395, 628, F1 + 100, 650, r, 550)
+P("armchair_red", 62, 668, F1, (0.75, 0.66), r)
+P("piano", 270, 1017, F1, (0, -1), r); P("piano_bench", 270, 938, F1, (0, -1), r)
+P("globe", 212, 1000, F1 + 108, (1, 0), r, collide=False); P("piano_lamp", 285, 1003, F1 + 108, (0, -1), r, collide=False)
+lamp("piano", 285, 990, F1 + 128, 250, r, 300)
+P("frame_landscape_a", 270, 1017.5, F1 + 178, (0, -1), r, collide=False)
+P("fireplace", 573, 708, F1, (-1, 0), r); P("frame_landscape_b", 573, 708, F1 + 203, (-1, 0), r, collide=False)
+P("bookshelf_white", 573, 868, F1, (-1, 0), r)
 P("curtain_rod", 2, 820, F1 + 224, (1, 0), r, collide=False)
 P("curtain_living", 3, 684, F1 + 32, (1, 0), r, collide=False); P("curtain_living", 3, 956, F1 + 32, (1, 0), r, collide=False)
-P("frame_school", 205, 601, F1 + 152, (0, 1), r, collide=False); P("frame_school_b", 352, 601, F1 + 150, (0, 1), r, collide=False)
-P("box_living", 500, 650, F1, (-1, 0.15), r); P("box_plain", 498, 652, F1 + 45, (-1, -0.2), r); P("box_books", 130, 996, F1, (-0.4, -1), r)
-P("box_fragile", 520, 720, F1, (-1, 0.4), r)
+P("frame_school_b", 385, 601, F1 + 160, (0, 1), r, collide=False)
+P("box_living", 62, 985, F1, (1, -0.15), r); P("box_books", 135, 996, F1, (-0.4, -1), r)
 P("light_switch", 450, 1017, F1 + 120, (0, -1), r, collide=False); P("outlet", 130, 601, F1 + 30, (0, 1), r, collide=False)
-P("outlet", 2, 1000, F1 + 30, (1, 0), r, collide=False); P("vent", 572, 640, F1 + 12, (-1, 0), r, collide=False)
+P("outlet", 2, 1000, F1 + 30, (1, 0), r, collide=False); P("vent", 572, 930, F1 + 12, (-1, 0), r, collide=False)
 
-# ---------------- kitchen ----------------
+# ---------------- kitchen (honey-maple cabinets, yellow walls, red floral valance, ceiling beams) ----------------
 r = "Kitchen"
 P("fridge", 898, 645, F1, (-1, 0), r, tag="fridge")
 P("cab_base_60", 898, 715, F1, (-1, 0), r); P("cab_sink_90", 898, 820, F1, (-1, 0), r)
 P("cab_drawer_shell", 898, 895, F1, (-1, 0), r); P("stove", 898, 965, F1, (-1, 0), r)
 P("cab_upper_90", 898, 730, F1 + 140, (-1, 0), r); P("cab_upper_90", 898, 950, F1 + 140, (-1, 0), r)
-P("curtain_kitchen", 897, 820, F1 + 172, (-1, 0), r, collide=False)
-P("kitchen_table", 845, 1360, F1, (1, 0), r)
+P("valance_red", 897, 820, F1 + 172, (-1, 0), r, collide=False); P("valance_red", 897, 1360, F1 + 186, (-1, 0), r, collide=False)
+P("microwave", 896, 715, F1 + 91, (-1, 0), r); P("cereal_a", 845, 1335, F1 + 76, (-1, 0.3), r, collide=False)
+P("hutch", 587, 1100, F1, (1, 0), r)
+P("kitchen_table", 845, 1360, F1, (1, 0), r); P("pendant", 845, 1360, C1, (1, 0), r, collide=False)
 P("kitchen_chair", 762, 1332, F1, (1, 0), r); P("kitchen_chair", 760, 1392, F1, (1, 0.15), r); P("kitchen_chair", 845, 1470, F1, (0, -1), r)
-P("wall_phone", 588, 1262, F1 + 140, (1, 0), r, collide=False)
-P("wall_clock", 588, 820, F1 + 185, (1, 0), r, collide=False)
-P("box_kitchen", 868, 715, F1 + 91, (-1, 0.1), r); P("box_kitchen", 612, 905, F1, (1, 0.1), r); P("box_plain", 612, 965, F1, (1, -0.05), r)
-P("box_fragile", 845, 1350, F1 + 76, (-1, 0.3), r)
+P("wall_phone", 588, 1262, F1 + 140, (1, 0), r, collide=False); P("wall_clock", 588, 820, F1 + 185, (1, 0), r, collide=False)
+P("box_kitchen", 612, 905, F1, (1, 0.1), r); P("box_plain", 612, 965, F1, (1, -0.05), r); P("box_fragile", 845, 1350, F1 + 76, (-1, 0.3), r)
 for y in (800, 1250):
     P("ceiling_light_off", 743, y, C1, (1, 0), r, collide=False); lamp("kitchen_%d" % y, 743, y, C1 - 22, 1100, r, 700, (255, 228, 190), always=True)
 P("light_switch", 588, 1410, F1 + 120, (1, 0), r, collide=False); P("outlet", 898, 880, F1 + 110, (-1, 0), r, collide=False)
@@ -117,19 +136,22 @@ P("light_switch", 564, 1262, F2 + 120, (-1, 0), r, collide=False); P("vent", -28
 
 # ---------------- Jack's bedroom ----------------
 r = "Bedroom"
-P("bed_twin", 736, 1698, F2, (0, -1), r)
+P("bed_quilt", 736, 1698, F2, (0, -1), r)
 P("teddy", 740, 1575, F2 + 55, (0.3, -1), r, tag="inspect")
 P("dresser", 580, 1600, F2, (1, 0), r); P("boombox", 584, 1626, F2 + 83, (1, 0), r, tag="inspect")
-P("desk", 898, 1525, F2, (-1, 0), r); P("chair_wood", 800, 1530, F2, (1, 0.1), r)
+P("desk_wood", 898, 1525, F2, (-1, 0), r); P("chair_red", 786, 1530, F2, (1, 0.1), r)
 P("table_lamp", 872, 1488, F2 + 75, (1, 0), r, collide=False); lamp("bed_desk", 872, 1488, F2 + 108, 400, r, 450)
 P("toy_chest", 628, 1698, F2, (0, -1), r)
-P("toy_blocks", 700, 1440, F2, (1, 0.3), r, collide=False); P("toy_ball", 826, 1418, F2, (1, 0), r, tag="inspect")
+P("toy_blocks", 700, 1440, F2, (1, 0.3), r, collide=False); P("toy_ball", 884, 1440, F2, (1, 0), r, tag="inspect")
 P("toy_car", 756, 1462, F2, (0.6, 1), r, tag="inspect")
-P("poster_space", 579, 1520, F2 + 150, (1, 0), r, collide=False); P("poster_shapes", 800, 1357, F2 + 150, (0, 1), r, collide=False)
+P("chart_alphabet", 579, 1520, F2 + 155, (1, 0), r, collide=False); P("chart_fractions", 820, 1357, F2 + 165, (0, 1), r, collide=False)
 P("shelf_wall", 700, 1357, F2 + 120, (0, 1), r, collide=False)
 P("curtain_bed", 664, 1697, F2 + 78, (0, -1), r, collide=False); P("curtain_bed", 808, 1697, F2 + 78, (0, -1), r, collide=False)
 P("curtain_bed", 897, 1452, F2 + 78, (-1, 0), r, collide=False); P("curtain_bed", 897, 1598, F2 + 78, (-1, 0), r, collide=False)
-P("box_jack", 612, 1522, F2, (1, 0.3), r); P("box_misc", 868, 1400, F2, (-1, 0.2), r); P("box_plain", 860, 1650, F2, (-1, 0.2), r)
+P("pc_monitor", 892, 1548, F2 + 75, (-1, 0), r, collide=False); P("pc_keyboard", 851, 1548, F2 + 75, (-1, 0), r, collide=False)
+P("pc_tower", 898, 1598, F2, (-1, 0), r)
+P("glow_stars", 736, 1600, C2, (1, 0), r, collide=False); P("backpack", 838, 1412, F2, (-0.6, 0.6), r, collide=False)
+P("box_jack", 612, 1522, F2, (1, 0.3), r); P("box_plain", 860, 1650, F2, (-1, 0.2), r)
 P("ceiling_light_off", 740, 1530, C2, (1, 0), r, collide=False); lamp("bedroom", 740, 1530, C2 - 22, 900, r)
 P("light_switch", 580, 1492, F2 + 120, (1, 0), r, collide=False); P("outlet", 580, 1680, F2 + 30, (1, 0), r, collide=False)
 

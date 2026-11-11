@@ -47,7 +47,7 @@ ok = all([
     walk("hall floor 1", [(160, 1460, F1), (300, 1365, F1), (525, 1365, F1), (525, 1085, F1), (425, 1080, F1)]),
     walk("kitchen door", [(525, 1345, F1), (650, 1345, F1)]),
     walk("kitchen length", [(716, 1500, F1), (716, 650, F1)]),
-    walk("living room door", [(515, 1090, F1), (515, 960, F1), (500, 880, F1), (100, 880, F1)]),
+    walk("living room door", [(515, 1090, F1), (515, 990, F1), (490, 940, F1), (490, 880, F1), (100, 880, F1)]),
     walk("stair to floor 2", upper, lift=STAIR),
     walk("stair to floor 2 ends", [(525, 1300, F1), (525, 1190, F1)]),
     walk("upstairs arrival", [(60, 1190, F2), (40, 1310, F2)]),

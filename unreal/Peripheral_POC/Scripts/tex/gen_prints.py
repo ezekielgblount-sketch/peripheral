@@ -73,7 +73,8 @@ def family(name, with_child=True, seed=1):
     if with_child:
         person(d, W * 0.48, g, H * 0.36, (170, 40, 40), (90, 60, 34), child=True)
     im = im.resize((640, 480), Image.LANCZOS)
-    im = age(im, seed=seed)
+    im = age(im, fade=0.22, warm=(1.04, 1.0, 0.9), seed=seed)
+    ImageDraw.Draw(im).text((612, 448), "7  4 '98", font=font(26, "bold"), fill=(255, 140, 30), anchor="rs")      # orange camera date stamp
     out = Image.new("RGB", (704, 544), (232, 226, 206)); out.paste(im, (32, 32))        # white print border
     out.save(os.path.join(OUT, name + ".png"))
 
@@ -81,11 +82,13 @@ def family(name, with_child=True, seed=1):
 def portrait(name, body, hair, bg, seed):
     W, H = 384 * SS, 480 * SS
     im = Image.new("RGB", (W, H), bg); d = ImageDraw.Draw(im)
-    for i in range(40):
-        d.ellipse([W * 0.5 - W * (0.9 - i * 0.02), H * 0.4 - W * (0.9 - i * 0.02), W * 0.5 + W * (0.9 - i * 0.02), H * 0.4 + W * (0.9 - i * 0.02)],
-                  fill=tuple(min(255, int(c * (0.8 + i * 0.01))) for c in bg))
+    r = random.Random(seed)                       # 90s school-photo laser backdrop
+    for i in range(14):
+        c = r.choice([(255, 60, 200), (60, 220, 255), (120, 90, 255), (255, 255, 255)])
+        x0 = r.uniform(-0.2, 1.2) * W
+        d.line([(x0, 0), (x0 + r.uniform(-0.9, 0.9) * W, H)], fill=tuple(int(v * 0.75) for v in c), width=int(r.uniform(4, 14)))
     person(d, W * 0.5, H * 2.25, H * 2.0, body, hair, child=True)
-    im = age(im.resize((384, 480), Image.LANCZOS), seed=seed)
+    im = age(im.resize((384, 480), Image.LANCZOS), fade=0.15, warm=(1.02, 1.0, 0.94), seed=seed)
     out = Image.new("RGB", (416, 512), (232, 226, 206)); out.paste(im, (16, 16)); out.save(os.path.join(OUT, name + ".png"))
 
 
@@ -200,9 +203,106 @@ def vhs_label(name, text):
     im.save(os.path.join(OUT, name + ".png"))
 
 
+def cereal(name, title, bg, bowl):
+    im = Image.new("RGB", (384, 544), bg); d = ImageDraw.Draw(im); r = random.Random(len(title))
+    d.polygon([(0, 150), (384, 90), (384, 200), (0, 250)], fill=(250, 220, 40))
+    d.text((192, 172), title, font=font(54, "bold"), fill=(200, 30, 40), anchor="mm")
+    d.ellipse([70, 330, 314, 500], fill=(240, 240, 235)); d.ellipse([90, 340, 294, 420], fill=(250, 250, 245))
+    for _ in range(26):
+        x, y = r.uniform(110, 270), r.uniform(350, 405); c = r.choice(bowl)
+        d.ellipse([x - 12, y - 9, x + 12, y + 9], outline=c, width=6)
+    d.text((192, 40), "NEW!  PRIZE INSIDE", font=font(26, "bold"), fill=(255, 255, 255), anchor="mm")
+    age(im, fade=0.12, grain=3, blur=0.4, warm=(1.02, 1.0, 0.95)).save(os.path.join(OUT, name + ".png"))
+
+
+def border(name, bg, kind):
+    W, H = 768, 96
+    im = Image.new("RGB", (W, H), bg); d = ImageDraw.Draw(im); r = random.Random(kind)
+    d.rectangle([0, 0, W, 8], fill=(40, 80, 50) if kind == 1 else (110, 30, 40)); d.rectangle([0, H - 8, W, H], fill=(40, 80, 50) if kind == 1 else (110, 30, 40))
+    for i in range(8):
+        x = i * 96 + 48
+        if kind == 1:                             # fruit: apples and pears with leaves
+            d.ellipse([x - 20, 28, x + 12, 66], fill=(190, 40, 40)); d.ellipse([x + 6, 34, x + 30, 70], fill=(210, 190, 60))
+            d.ellipse([x - 8, 18, x + 14, 30], fill=(50, 120, 50))
+        else:                                     # hunter green ivy and burgundy flowers
+            d.line([(x - 48, 48 + 14 * (-1) ** i), (x, 48), (x + 48, 48 - 14 * (-1) ** i)], fill=(40, 90, 55), width=5)
+            d.ellipse([x - 14, 34, x + 14, 62], fill=(120, 30, 50)); d.ellipse([x - 5, 43, x + 5, 53], fill=(230, 200, 120))
+            d.ellipse([x + 22, 30, x + 40, 44], fill=(40, 90, 55))
+    im.filter(ImageFilter.GaussianBlur(0.5)).save(os.path.join(OUT, name + ".png"))
+
+
+cereal("cereal_a", "RAINBOW RINGS", (40, 90, 200), [(230, 60, 60), (250, 200, 40), (60, 190, 90), (240, 120, 30)])
+cereal("cereal_b", "CHOCO BLASTS", (150, 60, 160), [(90, 50, 30), (120, 70, 40)])
+border("border_fruit", (240, 232, 205), 1); border("border_ivy", (236, 226, 200), 2)
+def rug_oriental(name):
+    W, H = 1024, 720
+    im = Image.new("RGB", (W, H), (226, 214, 188)); d = ImageDraw.Draw(im); r = random.Random(12)
+    for i, c in enumerate(((60, 50, 70), (150, 70, 50), (226, 214, 188), (70, 80, 100))):
+        d.rectangle([i * 16, i * 16, W - i * 16, H - i * 16], outline=c, width=16)
+    for _ in range(90):
+        x, y = r.uniform(90, W - 90), r.uniform(90, H - 90); c = r.choice([(150, 70, 50), (70, 80, 100), (110, 120, 80), (180, 140, 90)])
+        for i in range(6):
+            a = i * 1.047
+            d.ellipse([x + 16 * math.cos(a) - 9, y + 16 * math.sin(a) - 9, x + 16 * math.cos(a) + 9, y + 16 * math.sin(a) + 9], fill=c)
+        d.line([(x, y), (x + r.uniform(-50, 50), y + r.uniform(-50, 50))], fill=(110, 120, 80), width=3)
+    age(im, fade=0.18, grain=6, blur=0.8, warm=(1.02, 1.0, 0.94)).save(os.path.join(OUT, name + ".png"))
+
+
+def landscape(name, seed):
+    W, H = 640, 448
+    im = Image.new("RGB", (W, H), (236, 232, 220)); d = ImageDraw.Draw(im); r = random.Random(seed)
+    x0, y0, x1, y1 = 70, 60, W - 70, H - 60
+    for y in range(y0, y1):
+        f = (y - y0) / (y1 - y0)
+        d.line([(x0, y), (x1, y)], fill=(int(150 + 60 * f), int(170 + 40 * f), int(200 - 10 * f)) if f < 0.55 else (int(120 - 40 * (f - 0.55)), int(140 - 30 * (f - 0.55)), int(90)))
+    for _ in range(40):
+        x = r.uniform(x0, x1); h = r.uniform(30, 90)
+        d.polygon([(x, y0 + 190 - h), (x - h * 0.25, y0 + 190), (x + h * 0.25, y0 + 190)], fill=(50 + r.randint(0, 30), 70 + r.randint(0, 30), 60))
+    d.rectangle([x0 + 300, y0 + 150, x0 + 370, y0 + 195], fill=(120, 40, 36)); d.polygon([(x0 + 292, y0 + 150), (x0 + 335, y0 + 120), (x0 + 378, y0 + 150)], fill=(60, 50, 50))
+    d.rectangle([x0 - 6, y0 - 6, x1 + 6, y1 + 6], outline=(120, 140, 170), width=4)
+    age(im, fade=0.15, grain=4, blur=0.9, warm=(1.02, 1.0, 0.95), seed=seed).save(os.path.join(OUT, name + ".png"))
+
+
+def chart_alphabet(name):
+    im = Image.new("RGB", (512, 720), (246, 246, 240)); d = ImageDraw.Draw(im)
+    d.rectangle([0, 0, 511, 719], outline=(40, 70, 170), width=8)
+    letters = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
+    for i in range(26):
+        x, y = 40 + (i % 4) * 118, 40 + (i // 4) * 96
+        d.line([(x - 10, y + 62), (x + 100, y + 62)], fill=(120, 150, 220), width=2); d.line([(x - 10, y + 30), (x + 100, y + 30)], fill=(200, 210, 235), width=1)
+        d.text((x, y), letters[i * 2:i * 2 + 2], font=font(56, "hand"), fill=(20, 20, 20))
+    im.save(os.path.join(OUT, name + ".png"))
+
+
+def chart_fractions(name):
+    im = Image.new("RGB", (640, 384), (250, 250, 250)); d = ImageDraw.Draw(im)
+    cols = [(230, 60, 140), (240, 130, 40), (240, 190, 40), (110, 190, 70), (60, 170, 90), (150, 70, 180), (110, 60, 160), (60, 90, 190), (40, 150, 220), (40, 180, 180)]
+    for i, c in enumerate(cols):
+        x, y = (i % 5) * 128, (i // 5) * 192
+        d.rectangle([x + 4, y + 4, x + 124, y + 188], fill=c)
+        d.ellipse([x + 24, y + 50, x + 104, y + 130], fill=tuple(min(255, v + 90) for v in c))
+        d.pieslice([x + 24, y + 50, x + 104, y + 130], -90, -90 + 360 // (i + 1), fill=tuple(int(v * 0.6) for v in c))
+        d.text((x + 64, y + 26), "1/%d" % (i + 1) if i else "1", font=font(26, "bold"), fill=(255, 255, 255), anchor="mm")
+    im.save(os.path.join(OUT, name + ".png"))
+
+
+def banner(name, text):
+    im = Image.new("RGBA", (1024, 200), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    cols = [(90, 40, 90), (200, 150, 40), (40, 80, 110), (200, 150, 40), (160, 50, 40), (40, 80, 110), (90, 40, 90), (40, 80, 110)]
+    n = len(text)
+    for i, ch in enumerate(text):
+        x = 110 + i * (800 / (n - 1)); y = 40 + 50 * math.sin(math.pi * i / (n - 1))
+        d.text((x, y + 60), ch, font=font(120, "bold"), fill=cols[i % len(cols)] + (255,), anchor="mm")
+    d.line([(20, 20)] + [(110 + i * (800 / (n - 1)), 30 + 50 * math.sin(math.pi * i / (n - 1))) for i in range(n)] + [(1004, 20)], fill=(150, 120, 80, 255), width=4)
+    im.save(os.path.join(OUT, name + ".png"))
+
+
+import math
+rug_oriental("rug_oriental"); landscape("print_landscape_a", 1); landscape("print_landscape_b", 5)
+chart_alphabet("chart_alphabet"); chart_fractions("chart_fractions"); banner("banner_thankful", "THANKFUL")
 family("photo_family_a", True, 1); family("photo_family_b", False, 1)
-portrait("photo_school", (60, 90, 150), (90, 60, 34), (110, 140, 170), 2)
-portrait("photo_school_b", (150, 120, 60), (40, 30, 24), (150, 120, 110), 3)
+portrait("photo_school", (60, 150, 150), (90, 60, 34), (24, 30, 90), 2)
+portrait("photo_school_b", (150, 60, 140), (40, 30, 24), (30, 20, 70), 3)
 poster_space("poster_space"); poster_shapes("poster_shapes"); kid_drawing("kid_drawing")
 for n, t, s in (("label_kitchen", "KITCHEN", "dishes"), ("label_jack", "JACK'S ROOM", ""), ("label_living", "LIVING RM", ""),
                 ("label_fragile", "FRAGILE", "this side up"), ("label_books", "BOOKS", ""), ("label_misc", "MISC", "attic?")):

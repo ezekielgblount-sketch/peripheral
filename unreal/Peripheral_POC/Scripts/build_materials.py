@@ -12,16 +12,16 @@ FN = "/Engine/Functions/Engine_MaterialFunctions01/Texturing/"
 # key: (texture set, tint rgb, roughness scale, dirt amount)
 KEYS = {
     "brick": ("brick", (1, 1, 1), 1.0, 0.25), "siding": ("siding", (1, 1, 1), 1.0, 0.3),
-    "liv": ("wood_panel", (0.74, 0.68, 0.64), 1.0, 0.2), "hall": ("wallpaper_hall", (1, 1, 1), 1.0, 0.25),
-    "hall2": ("wallpaper_hall", (0.96, 0.98, 1.0), 1.0, 0.3), "kit": ("wallpaper_kitchen", (1, 1, 1), 1.0, 0.3),
-    "bath": ("paint", (0.72, 0.84, 0.80), 0.8, 0.25), "bed": ("wallpaper_bed", (1, 1, 1), 1.0, 0.2),
+    "liv": ("damask", (1, 1, 1), 1.0, 0.15), "hall": ("damask", (1, 1, 1), 1.0, 0.18),
+    "hall2": ("damask", (1, 0.99, 0.97), 1.0, 0.2), "kit": ("paint", (0.93, 0.82, 0.55), 1.0, 0.25),
+    "bath": ("paint", (0.72, 0.84, 0.80), 0.8, 0.25), "bed": ("paint", (0.92, 0.84, 0.6), 1.0, 0.25),
     "blk": ("paint", (0.42, 0.42, 0.42), 1.0, 0.0), "bsmt": ("concrete", (0.9, 0.9, 0.9), 1.0, 0.4),
     "ceiling": ("popcorn", (1, 1, 1), 1.0, 0.2), "trim": ("paint", (0.90, 0.87, 0.78), 0.75, 0.3),
-    "rail": ("wood_plain", (1, 1, 1), 1.0, 0.2),
-    "f_liv": ("shag", (1, 1, 1), 1.0, 0.35), "f_hall": ("oak_floor", (1, 1, 1), 1.0, 0.3),
-    "f_entry": ("linoleum", (0.9, 0.9, 0.95), 1.0, 0.45), "f_kit": ("linoleum", (1, 1, 1), 1.0, 0.4),
-    "f_stair": ("carpet_worn", (1, 1, 1), 1.0, 0.4), "f_hall2": ("carpet_worn", (1, 1, 1), 1.0, 0.35),
-    "f_bath": ("tile_bath", (1, 1, 1), 1.0, 0.3), "f_bed": ("carpet_worn", (0.62, 0.74, 1.0), 1.0, 0.3),
+    "rail": ("wood_plain", (0.6, 0.38, 0.3), 0.9, 0.2),
+    "f_liv": ("oak_floor", (0.42, 0.3, 0.22), 0.9, 0.25), "f_hall": ("oak_floor", (0.42, 0.3, 0.22), 0.9, 0.25),
+    "f_entry": ("linoleum", (0.9, 0.9, 0.95), 1.0, 0.45), "f_kit": ("tile_bath", (1.0, 0.97, 0.9), 1.4, 0.3),
+    "f_stair": ("carpet_worn", (1.5, 1.36, 1.3), 1.0, 0.35), "f_hall2": ("carpet_worn", (1.5, 1.36, 1.3), 1.0, 0.3),
+    "f_bath": ("tile_bath", (1, 1, 1), 1.0, 0.3), "f_bed": ("carpet_worn", (1.5, 1.36, 1.3), 1.0, 0.3),
     "f_blk": ("concrete", (0.6, 0.6, 0.6), 1.0, 0.0), "f_bsmt": ("concrete", (0.8, 0.8, 0.8), 1.0, 0.5),
     "roof": ("shingles", (1, 1, 1), 1.0, 0.3), "lawn": ("grass", (1, 1, 1), 1.0, 0.3),
     "concrete": ("concrete", (1, 1, 1), 1.0, 0.4), "asphalt": ("asphalt", (1, 1, 1), 1.0, 0.3),
@@ -39,15 +39,22 @@ KEYS = {
     "cardboard": ("cardboard", (1, 1, 1), 1.0, 0.3), "fabric_brown": ("fabric", (0.36, 0.24, 0.15), 1.0, 0.35),
     "fabric_green": ("fabric", (0.25, 0.32, 0.2), 1.0, 0.35), "fabric_cream": ("fabric", (0.85, 0.8, 0.68), 1.0, 0.4),
     "fabric_blue": ("fabric", (0.2, 0.3, 0.5), 1.0, 0.3), "fabric_red": ("fabric", (0.5, 0.1, 0.08), 1.0, 0.3),
-    "enamel": ("paint", (0.95, 0.95, 0.93), 0.35, 0.2), "enamel_gold": ("paint", (0.85, 0.68, 0.3), 0.45, 0.25),
-    "enamel_avocado": ("paint", (0.38, 0.42, 0.18), 0.45, 0.25), "laminate": ("plastic", (0.8, 0.72, 0.5), 1.1, 0.35),
+    "enamel": ("paint", (0.95, 0.95, 0.93), 0.35, 0.2), "enamel_gold": ("paint", (0.93, 0.91, 0.85), 0.4, 0.2),
+    "enamel_avocado": ("paint", (0.38, 0.42, 0.18), 0.45, 0.25), "laminate": ("plastic", (0.86, 0.86, 0.83), 1.1, 0.3),
     "paper": ("paint", (0.9, 0.87, 0.78), 1.1, 0.4), "rubber": ("plastic", (0.05, 0.05, 0.05), 2.0, 0.2),
     "mirror": ("metal", (0.95, 0.95, 0.95), 0.04, 0.0), "steel": ("metal", (0.75, 0.76, 0.78), 0.9, 0.2),
     "plastic_red": ("plastic", (0.6, 0.06, 0.05), 1.0, 0.25), "plastic_blue": ("plastic", (0.08, 0.2, 0.55), 1.0, 0.25),
     "plastic_yellow": ("plastic", (0.8, 0.62, 0.08), 1.0, 0.25), "plastic_green": ("plastic", (0.1, 0.4, 0.15), 1.0, 0.25),
     "fabric_plaid": ("fabric", (0.5, 0.3, 0.16), 1.0, 0.45), "fabric_white": ("fabric", (0.9, 0.9, 0.88), 1.0, 0.3),
     "vinyl": ("plastic", (0.45, 0.1, 0.08), 1.3, 0.35), "skin_grey": ("paint", (0.5, 0.5, 0.5), 1.0, 0.0),
-    "tile_wall": ("tile_bath", (0.8, 0.95, 0.9), 1.0, 0.2), "enamel_pink": ("paint", (0.9, 0.7, 0.68), 0.35, 0.2),
+    "tile_wall": ("tile_bath", (0.8, 0.95, 0.9), 1.0, 0.2),
+    "jazz": ("jazz", (1, 1, 1), 1.0, 0.15), "confetti": ("confetti", (1, 1, 1), 1.0, 0.15),
+    "fabric_hunter": ("fabric", (0.1, 0.24, 0.15), 1.0, 0.35), "fabric_burgundy": ("fabric", (0.38, 0.07, 0.1), 1.0, 0.35),
+    "plastic_teal": ("plastic", (0.05, 0.5, 0.5), 1.0, 0.2), "plastic_purple": ("plastic", (0.35, 0.12, 0.55), 1.0, 0.2),
+    "plastic_pink": ("plastic", (0.85, 0.15, 0.45), 1.0, 0.2), "plastic_lime": ("plastic", (0.45, 0.8, 0.1), 1.0, 0.2),
+    "oak": ("wood_plain", (1.7, 1.2, 0.7), 0.85, 0.2), "fabric_butter": ("fabric", (0.86, 0.78, 0.5), 1.0, 0.3),
+    "quilt": ("quilt", (1, 1, 1), 1.0, 0.2), "floral_red": ("floral_red", (1, 1, 1), 1.0, 0.2), "globe": ("paint", (0.8, 0.72, 0.55), 0.6, 0.4),
+    "pumpkin": ("paint", (0.85, 0.38, 0.08), 0.8, 0.2), "fabric_stripe": ("fabric", (0.5, 0.45, 0.3), 1.0, 0.3), "plastic_black": ("plastic", (0.035, 0.035, 0.04), 1.2, 0.15), "enamel_pink": ("paint", (0.9, 0.7, 0.68), 0.35, 0.2),
 }
 
 
@@ -181,7 +188,7 @@ def build_lamp():
     mel.connect_material_property(col, "", unreal.MaterialProperty.MP_BASE_COLOR)
     mel.recompile_material(m); eal.save_asset(path)
     for name, glow, c in (("lamp_on", 700.0, (1.0, 0.85, 0.6)), ("lamp_off", 0.0, (0.9, 0.88, 0.8)), ("lamp_dim", 30.0, (0.3, 1.0, 0.5)),
-                          ("lamp_shade", 45.0, (0.86, 0.74, 0.52))):
+                          ("lamp_shade", 45.0, (0.86, 0.74, 0.52)), ("lamp_lava", 60.0, (0.9, 0.1, 0.45)), ("lamp_star", 5.0, (0.55, 1.0, 0.45))):
         for pre in ("MI_", "MIL_"):
             p = "%s/%s%s" % (MAT_DIR, pre, name)
             mi = eal.load_asset(p) or at.create_asset(pre + name, MAT_DIR, unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())

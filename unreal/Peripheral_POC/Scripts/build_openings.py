@@ -110,7 +110,7 @@ def base(axis, face, out, a0, a1, z, gaps=(), key="trim"):
 
 
 # ---------------- windows ----------------
-window("x", -20, 0, 700, 940, 60, 210, +1, "picture", "rail")
+window("x", -20, 0, 700, 940, 60, 210, +1, "picture", "trim")
 for a in (1055, 1191):
     window("x", -20, 0, a, a + 25, LND + 20, LND + 203, +1, "plain")
 window("x", -20, 0, 1560, 1660, 90, 220, +1)
@@ -128,7 +128,7 @@ window("y", 1700, 1720, 676, 796, F2 + 90, F2 + 220, -1)
 door("Door_front", "x", -20, 0, 1090, 1181, LND, "lo", +1, key="door_red", keys=("white", "trim"))
 door("Door_kitchen_rear", "x", 900, 920, 1030, 1121, F1, "lo", -1, key="enamel", keys=("trim", "white"))
 door("Door_garage", "y", 580, 600, 655, 746, F1, "lo", +1, locked=True, keys=(None, "trim"))
-door("Door_living", "y", 1019, 1031, 470, 561, F1, "hi", -1, keys=("rail", "trim"), is_open=True)
+door("Door_living", "y", 1019, 1031, 470, 561, F1, "hi", -1, keys=("trim", "trim"), is_open=True)
 door("Door_kitchen", "x", 574, 586, 1300, 1391, F1, "hi", +1, is_open=True)
 door("Door_dining", "y", 1514, 1526, 250, 341, F1, "lo", +1, locked=True, keys=("trim", None))
 door("Door_halfbath", "y", 1544, 1556, 640, 731, F1, "lo", +1, locked=True, keys=("trim", None))
@@ -138,8 +138,8 @@ door("Door_upstairs_a", "y", 1371, 1383, 150, 241, F2, "lo", +1, locked=True, ke
 door("Door_upstairs_b", "y", 1494, 1506, 472, 553, F2, "lo", +1, locked=True, keys=("trim", None))
 
 # ---------------- baseboards ----------------
-base("x", 0, +1, 600, 1019, F1, key="rail"); base("x", 574, -1, 600, 1019, F1, key="rail")            # living room
-base("y", 600, +1, 0, 574, F1, key="rail"); base("y", 1019, -1, 0, 574, F1, [(470, 561)], key="rail")
+base("x", 0, +1, 600, 1019, F1); base("x", 574, -1, 600, 1019, F1)            # living room
+base("y", 600, +1, 0, 574, F1); base("y", 1019, -1, 0, 574, F1, [(470, 561)])
 base("x", 586, +1, 600, 1544, F1, [(1300, 1391)]); base("x", 900, -1, 600, 1544, F1, [(1030, 1121)])    # kitchen
 base("y", 600, +1, 586, 900, F1, [(655, 746)]); base("y", 1544, -1, 586, 900, F1, [(640, 731)])
 base("y", 1514, -1, 112, 574, F1, [(250, 341)]); base("x", 574, -1, 1031, 1514, F1, [(1300, 1391)])     # hall, floor 1

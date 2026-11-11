@@ -42,12 +42,12 @@ def sofa(w, fabric, seats):
 
 @prop
 def couch():
-    return sofa(212, "fabric_plaid", 3)
+    return sofa(212, "fabric_hunter", 3)
 
 
 @prop
 def armchair():
-    return sofa(96, "fabric_green", 1)
+    return sofa(96, "fabric_burgundy", 1)
 
 
 @prop
@@ -293,10 +293,10 @@ def curtain_rod():
 @prop
 def bed_twin():
     k = K.Kit()                                               # headboard at x=0, bed runs out along +X
-    k.box("wood_dark", 0, -50, 0, 4, 50, 95); k.box("wood_dark", 196, -50, 0, 200, 50, 50)
+    k.box("oak", 0, -50, 0, 4, 50, 95); k.box("oak", 196, -50, 0, 200, 50, 50)
     k.box("wood_dark", 4, -50, 22, 196, -47, 34); k.box("wood_dark", 4, 47, 22, 196, 50, 34)
     k.soft("fabric_white", 5, -47, 26, 195, 47, 50, iters=3)                         # mattress
-    k.soft("fabric_blue", 55, -50, 30, 196, 50, 55, iters=4)                         # blanket
+    k.soft("jazz", 55, -50, 30, 196, 50, 55, iters=4)                                # blanket
     k.soft("fabric_white", 10, -32, 48, 48, 32, 62, iters=7)                         # pillow
     return k
 

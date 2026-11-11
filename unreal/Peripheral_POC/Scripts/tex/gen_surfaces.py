@@ -163,6 +163,96 @@ lf = norm01(fnoise(120, 0.9, 9, 70) + 0.5 * fnoise(121, 0.4, 60, 300))
 W.save("foliage", mix((0.006, 0.014, 0.004), (0.085, 0.14, 0.035), smooth(0.25, 0.8, lf)), lf, 0.9, 220, bump=5.0)
 bk = norm01(fnoise(122, 1.0, 6, 200, sy=10) + 0.4 * fnoise(123, 0.6, 30, 300))
 W.save("bark", mix((0.035, 0.028, 0.022), (0.17, 0.14, 0.115), bk), bk, 0.95, 90, bump=4.0)
+
+def pattern(seed, bg, draw_fn, count):
+    """Seamless drawn pattern: every shape is drawn 9 times so it wraps across the tile edges."""
+    from PIL import Image, ImageDraw
+    import random
+    im = Image.new("RGB", (N, N), bg); d = ImageDraw.Draw(im); r = random.Random(seed)
+    for _ in range(count):
+        x, y, k, rot = r.uniform(0, N), r.uniform(0, N), r.random(), r.uniform(0, 6.28)
+        for ox in (-N, 0, N):
+            for oy in (-N, 0, N):
+                draw_fn(d, x + ox, y + oy, k, rot, r)
+    a = (np.asarray(im).astype(np.float64) / 255.0) ** 2.2
+    return a
+
+
+def _jazz(d, x, y, k, rot, r):
+    if k < 0.5:                                   # teal brush swoosh
+        pts = [(x + i * 18, y + 30 * np.sin(i * 0.5 + rot) + j) for j in range(0, 46, 6) for i in range(-9, 10)]
+        for j in range(0, 46, 6):
+            d.line([(x + i * 18, y + 34 * np.sin(i * 0.45 + rot) + j) for i in range(-9, 10)], fill=(20, 160, 170), width=5)
+    else:                                         # purple squiggle
+        d.line([(x + i * 14, y + 16 * np.sin(i * 1.3 + rot)) for i in range(-10, 11)], fill=(120, 50, 160), width=9)
+
+
+def _confetti(d, x, y, k, rot, r):
+    cols = [(20, 190, 190), (240, 60, 140), (250, 210, 40), (140, 70, 200), (90, 220, 90)]
+    c = cols[int(k * 997) % 5]; s = 14 + (k * 53) % 16
+    kind = int(k * 7919) % 4
+    if kind == 0:
+        d.polygon([(x + s * np.cos(rot + t), y + s * np.sin(rot + t)) for t in (0, 2.09, 4.19)], fill=c)
+    elif kind == 1:
+        d.line([(x + i * 9, y + 8 * np.sin(i * 1.5 + rot)) for i in range(-4, 5)], fill=c, width=5)
+    elif kind == 2:
+        d.ellipse([x - s * 0.4, y - s * 0.4, x + s * 0.4, y + s * 0.4], fill=c)
+    else:
+        d.line([(x - s * np.cos(rot), y - s * np.sin(rot)), (x + s * np.cos(rot), y + s * np.sin(rot))], fill=c, width=6)
+
+
+wv = fnoise(130, 0.3, 120, 420)
+W.save("jazz", pattern(1, (236, 236, 228), _jazz, 26) * (0.92 + 0.1 * wv)[..., None], wv, 0.9, 70, bump=1.0)
+W.save("confetti", pattern(2, (16, 18, 40), _confetti, 150) * (0.9 + 0.15 * wv)[..., None], wv, 0.92, 80, bump=1.0)
+
+def _damask():
+    from PIL import Image, ImageDraw
+    im = Image.new("RGB", (N, N), (238, 229, 209)); d = ImageDraw.Draw(im); c = (224, 211, 186); P_ = N // 4
+    for gy in range(-1, 5):
+        for gx in range(-1, 5):
+            x = gx * P_ + (P_ // 2 if gy % 2 else 0); y = gy * P_
+            d.ellipse([x - 46, y - 70, x + 46, y + 70], outline=c, width=7)
+            d.ellipse([x - 20, y - 40, x + 20, y + 40], fill=c)
+            for sx in (-1, 1):
+                d.ellipse([x + sx * 58 - 22, y - 26, x + sx * 58 + 22, y + 26], outline=c, width=6)
+                d.pieslice([x + sx * 30 - 34, y + 50, x + sx * 30 + 34, y + 118], 200 if sx < 0 else 250, 290 if sx < 0 else 340, fill=c)
+            d.polygon([(x, y - 112), (x + 16, y - 80), (x, y - 62), (x - 16, y - 80)], fill=c)
+            d.polygon([(x, y + 112), (x + 16, y + 80), (x, y + 62), (x - 16, y + 80)], fill=c)
+    return (np.asarray(im).astype(np.float64) / 255.0) ** 2.2
+
+
+def _quilt():
+    from PIL import Image, ImageDraw
+    import random
+    r = random.Random(6); im = Image.new("RGB", (N, N), (230, 222, 200)); d = ImageDraw.Draw(im); c = N // 8
+    pal = [(232, 224, 200), (40, 50, 90), (150, 200, 70), (220, 150, 160), (120, 150, 200), (200, 180, 120), (170, 60, 60)]
+    for gy in range(8):
+        for gx in range(8):
+            col = r.choice(pal); d.rectangle([gx * c, gy * c, gx * c + c, gy * c + c], fill=col)
+            for _ in range(5):
+                x, y = gx * c + r.uniform(12, c - 12), gy * c + r.uniform(12, c - 12)
+                d.ellipse([x - 7, y - 7, x + 7, y + 7], fill=tuple(min(255, v + 50) for v in col))
+            d.rectangle([gx * c, gy * c, gx * c + c, gy * c + c], outline=(240, 236, 220), width=3)
+    return (np.asarray(im).astype(np.float64) / 255.0) ** 2.2
+
+
+def _floral(d, x, y, k, rot, r):
+    if k < 0.45:
+        for i in range(6):
+            a = rot + i * 1.047
+            d.ellipse([x + 26 * np.cos(a) - 17, y + 26 * np.sin(a) - 17, x + 26 * np.cos(a) + 17, y + 26 * np.sin(a) + 17], fill=(236, 222, 190))
+        d.ellipse([x - 12, y - 12, x + 12, y + 12], fill=(200, 150, 60))
+    elif k < 0.8:
+        d.ellipse([x - 34, y - 14, x + 34, y + 14], fill=(60, 80, 110)); d.line([(x - 30, y), (x + 30, y)], fill=(200, 200, 190), width=2)
+    else:
+        for i in range(5):
+            a = rot + i * 1.256
+            d.ellipse([x + 9 * np.cos(a) - 6, y + 9 * np.sin(a) - 6, x + 9 * np.cos(a) + 6, y + 9 * np.sin(a) + 6], fill=(240, 232, 210))
+
+
+W.save("damask", _damask() * (0.96 + 0.06 * wv)[..., None], wv * 0.3, 0.8, 120, bump=0.25)
+W.save("quilt", _quilt() * (0.9 + 0.15 * wv)[..., None], wv, 0.92, 80, bump=1.2)
+W.save("floral_red", pattern(3, (150, 42, 36), _floral, 70) * (0.92 + 0.1 * wv)[..., None], wv, 0.9, 60, bump=0.8)
 W.save("grunge", color((1, 1, 1), smooth(0.25, 0.85, fnoise(108, 2.0, 1, 40))), fnoise(109, 1.5, 2, 80), fnoise(110, 1.8, 1, 60), 300, bump=0.0)
 W.finish()
 print("wrote", len(W.manifest), "texture sets to", W.out)

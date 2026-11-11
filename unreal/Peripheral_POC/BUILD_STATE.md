@@ -116,3 +116,14 @@ The reference photo has the garage on the LEFT of the front door (seen from the 
 - Some blotchy indirect light on walls (Lumen on Mac without hardware ray tracing).
 - No parked cars, no street lamps, no basement or garage dressing (blockout by design).
 - The editor screenshot tool needs a long settle after a day/night switch or the first picture keeps the old lighting.
+
+### Look changed to "the home a 90s/2000s kid grew up in" (Nov 10, evening)
+Joel's direction plus ten photos of a real home (kept in `Reference/private/`, not committed). This replaces the earlier 60s/70s dressing and overrides the "80s/90s dressing" line of the era mix; the house bones are unchanged.
+- Living room: cream damask wallpaper, dark hardwood, oriental rug, butter-yellow sofa with quilt and floral pillow, red armchair, brass-and-glass coffee table, upright piano with bench, globe and piano lamp, brick fireplace with white mantel, fall decorations and THANKFUL banner, white built-in shelves with books and framed photos (blank faces), wall mirror, landscape prints, crown moulding.
+- Kitchen: honey-maple cabinets and hutch with glass doors, white appliances, yellow walls, light tile floor, red floral valances, ceiling beams, glass pendant, microwave, cereal box.
+- Hall: damask walls, dark hardwood, slant-front secretary desk, cordless phone.
+- Upstairs: beige carpet, yellow bedroom walls, patchwork quilt, wood desk with glass top, red desk chair, beige CRT computer, cursive-alphabet and fractions charts, glow stars on the ceiling, backpack.
+- Family photo now carries an orange '98 camera date stamp; school portraits have laser backdrops.
+- Call 22: first pass went "90s pop" (teal and purple, lava lamp, bean bag, mini blinds). Joel's photos showed a traditional home instead, so those were removed. The props still exist in `Scripts/props_90s.py`.
+- Call 23: no TV in the living room now (piano took the wall). The family photo anomaly moved to the left of the mirror over the sofa.
+- New prop files: `Scripts/props_90s.py`, `Scripts/props_home.py` (114 props in total). Fit check ALL PASS. All 48 screenshots retaken.
