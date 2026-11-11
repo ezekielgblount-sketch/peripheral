@@ -8,8 +8,12 @@
   (Variables|Default|SetAlpha o))
 
 (event Game|Damage|EventAnyDamage (Damage DamageType InstigatedBy DamageCauser)
-  (if (not (Variables|Default|GetLocked))
-    (Variables|Default|SetOpen (not (Variables|Default|GetOpen)))))
+  (if (Variables|Default|GetLocked)
+    (Audio|PlaySoundatLocation :Sound (Variables|Default|GetSndLocked) :Location (Transformation|GetActorLocation))
+    (else
+      (Variables|Default|SetOpen (not (Variables|Default|GetOpen)))
+      (Audio|PlaySoundatLocation :Sound (Variables|Default|GetSndOpen) :Location (Transformation|GetActorLocation)
+                                 :PitchMultiplier (Math|Random|RandomFloatinRange :Min 0.85 :Max 1.1)))))
 
 (event EventTick (DeltaSeconds)
   (bind a (Math|Interpolation|FInterpTo :Current (Variables|Default|GetAlpha)

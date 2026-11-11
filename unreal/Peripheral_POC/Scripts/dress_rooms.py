@@ -16,13 +16,15 @@ def P(prop, x, y, z, face, room, collide=True, tag=None):
     a = K.place(PF.get(prop), "%s_%s_%d" % (room, prop, count[prop]), x, y, z, face=face, folder="Dress/" + room, tag="dress", collide=collide)
     if tag:
         a.tags = ["dress", tag]
+    if tag == "inspect":
+        a.static_mesh_component.set_mobility(unreal.ComponentMobility.MOVABLE)
     return a
 
 
-def lamp(name, x, y, z, lumens, room, radius=600, color=(255, 214, 160), shadows=True):
+def lamp(name, x, y, z, lumens, room, radius=600, color=(255, 214, 160), shadows=True, always=False):
     """A warm bulb. Lamps are off by day; the day/night switch turns them on (tag 'night_light')."""
     a = eas.spawn_actor_from_class(unreal.PointLight, L.to_ue(x, y, z))
-    a.set_actor_label("Lamp_" + name); a.set_folder_path("Dress/" + room); a.tags = ["dress", "night_light"]
+    a.set_actor_label("Lamp_" + name); a.set_folder_path("Dress/" + room); a.tags = ["dress", "always_light" if always else "night_light"]
     c = a.light_component
     c.set_mobility(unreal.ComponentMobility.MOVABLE)
     c.set_editor_property("intensity_units", unreal.LightUnits.LUMENS)
@@ -31,7 +33,8 @@ def lamp(name, x, y, z, lumens, room, radius=600, color=(255, 214, 160), shadows
     c.set_editor_property("attenuation_radius", radius)
     c.set_editor_property("source_radius", 4.0)
     c.set_editor_property("cast_shadows", shadows)
-    c.set_visibility(False)
+    if not always:
+        a.set_actor_hidden_in_game(True)             # off by day; BP_World un-hides lamps at night
     return a
 
 
@@ -40,7 +43,7 @@ r = "Entry"
 P("doormat", 45, 1136, LND, (1, 0), r, collide=False)
 P("coat_hooks", 95, 1033, LND + 165, (0, 1), r, collide=False)
 P("box_fragile", 158, 1229, LND, (-1, 0.2), r)
-P("light_switch", 2, 1200, LND + 120, (1, 0), r, collide=False)
+P("light_switch", 2, 1200, LND + 120, (1, 0), r, collide=False); lamp("entry", 90, 1140, LND + 215, 700, r, 450, always=True)
 fx = K.Kit()                                                 # handrails and half-wall caps, in world coordinates
 def u(x, y, z): return (x - L.OX, -(y - L.OY), z)
 def rail(p0, p1):
@@ -61,7 +64,7 @@ a.static_mesh_component.set_mobility(unreal.ComponentMobility.STATIC)
 
 # ---------------- hall, floor 1 ----------------
 r = "Hall"
-P("ceiling_light_off", 340, 1380, C1, (1, 0), r, collide=False); lamp("hall", 340, 1380, C1 - 22, 900, r)
+P("ceiling_light_off", 340, 1380, C1, (1, 0), r, collide=False); lamp("hall", 340, 1380, C1 - 22, 900, r, always=True)
 P("side_table", 572, 1460, F1, (-1, 0), r); P("table_lamp", 547, 1460, F1 + 55, (1, 0), r, collide=False)
 lamp("hall_table", 547, 1460, F1 + 88, 350, r, 400)
 P("frame_school", 200, 1512, F1 + 155, (0, -1), r, collide=False); P("frame_school_b", 160, 1512, F1 + 150, (0, -1), r, collide=False)
@@ -78,7 +81,7 @@ P("side_table", 420, 603, F1, (0, 1), r); P("table_lamp", 420, 628, F1 + 55, (1,
 lamp("living_table", 420, 628, F1 + 90, 500, r, 500)
 P("armchair", 62, 668, F1, (0.75, 0.66), r)
 P("tv_console", 250, 1016, F1, (0, -1), r); P("crt_tv", 215, 1014, F1 + 60, (0, -1), r)
-P("vcr", 284, 1010, F1 + 35, (0, -1), r, collide=False); P("vhs_stack", 300, 1004, F1 + 60, (0.3, -1), r, collide=False)
+P("vcr", 284, 1010, F1 + 35, (0, -1), r, collide=False); P("vhs_stack", 300, 1004, F1 + 60, (0.3, -1), r, collide=False); P("vhs_tape", 262, 742, F1 + 42, (0.8, 0.5), r, tag="inspect")
 P("bookshelf", 572, 780, F1, (-1, 0), r)
 P("floor_lamp", 30, 975, F1, (1, 0), r); lamp("living_floor", 45, 975, F1 + 150, 800, r)
 P("curtain_rod", 2, 820, F1 + 224, (1, 0), r, collide=False)
@@ -103,25 +106,25 @@ P("wall_clock", 588, 820, F1 + 185, (1, 0), r, collide=False)
 P("box_kitchen", 868, 715, F1 + 91, (-1, 0.1), r); P("box_kitchen", 612, 905, F1, (1, 0.1), r); P("box_plain", 612, 965, F1, (1, -0.05), r)
 P("box_fragile", 845, 1350, F1 + 76, (-1, 0.3), r)
 for y in (800, 1250):
-    P("ceiling_light_off", 743, y, C1, (1, 0), r, collide=False); lamp("kitchen_%d" % y, 743, y, C1 - 22, 1100, r, 700, (255, 228, 190))
+    P("ceiling_light_off", 743, y, C1, (1, 0), r, collide=False); lamp("kitchen_%d" % y, 743, y, C1 - 22, 1100, r, 700, (255, 228, 190), always=True)
 P("light_switch", 588, 1410, F1 + 120, (1, 0), r, collide=False); P("outlet", 898, 880, F1 + 110, (-1, 0), r, collide=False)
 
 # ---------------- upstairs hall ----------------
 r = "Hall2"
-P("ceiling_light_off", 250, 1310, C2, (1, 0), r, collide=False); lamp("hall2", 250, 1310, C2 - 22, 900, r)
+P("ceiling_light_off", 250, 1310, C2, (1, 0), r, collide=False); lamp("hall2", 250, 1310, C2 - 22, 900, r, always=True)
 P("frame_school_b", 330, 1369, F2 + 152, (0, -1), r, collide=False); P("kid_drawing", 392, 1369, F2 + 140, (0, -1), r, collide=False)
 P("light_switch", 564, 1262, F2 + 120, (-1, 0), r, collide=False); P("vent", -28, 1210, F2 + 12, (1, 0), r, collide=False)
 
 # ---------------- Jack's bedroom ----------------
 r = "Bedroom"
 P("bed_twin", 736, 1698, F2, (0, -1), r)
-P("teddy", 740, 1575, F2 + 55, (0.3, -1), r, collide=False)
-P("dresser", 580, 1600, F2, (1, 0), r); P("boombox", 584, 1626, F2 + 83, (1, 0), r, collide=False)
+P("teddy", 740, 1575, F2 + 55, (0.3, -1), r, tag="inspect")
+P("dresser", 580, 1600, F2, (1, 0), r); P("boombox", 584, 1626, F2 + 83, (1, 0), r, tag="inspect")
 P("desk", 898, 1525, F2, (-1, 0), r); P("chair_wood", 800, 1530, F2, (1, 0.1), r)
 P("table_lamp", 872, 1488, F2 + 75, (1, 0), r, collide=False); lamp("bed_desk", 872, 1488, F2 + 108, 400, r, 450)
 P("toy_chest", 628, 1698, F2, (0, -1), r)
-P("toy_blocks", 700, 1440, F2, (1, 0.3), r, collide=False); P("toy_ball", 826, 1418, F2, (1, 0), r, collide=False)
-P("toy_car", 756, 1462, F2, (0.6, 1), r, collide=False)
+P("toy_blocks", 700, 1440, F2, (1, 0.3), r, collide=False); P("toy_ball", 826, 1418, F2, (1, 0), r, tag="inspect")
+P("toy_car", 756, 1462, F2, (0.6, 1), r, tag="inspect")
 P("poster_space", 579, 1520, F2 + 150, (1, 0), r, collide=False); P("poster_shapes", 800, 1357, F2 + 150, (0, 1), r, collide=False)
 P("shelf_wall", 700, 1357, F2 + 120, (0, 1), r, collide=False)
 P("curtain_bed", 664, 1697, F2 + 78, (0, -1), r, collide=False); P("curtain_bed", 808, 1697, F2 + 78, (0, -1), r, collide=False)
@@ -138,6 +141,6 @@ P("toilet", 770, 1342, F2, (0, -1), r); P("vanity", 782, 1128, F2, (0, 1), r)
 P("medicine_cabinet", 782, 1127, F2 + 150, (0, 1), r, collide=False)
 P("towel_bar", 640, 1342, F2 + 125, (0, -1), r, collide=False)
 P("doormat", 780, 1235, F2, (0, 1), r, collide=False)
-P("ceiling_light_off", 700, 1235, C2, (1, 0), r, collide=False); lamp("bath", 700, 1235, C2 - 22, 900, r, 500, (255, 236, 205))
+P("ceiling_light_off", 700, 1235, C2, (1, 0), r, collide=False); lamp("bath", 700, 1235, C2 - 22, 900, r, 500, (255, 236, 205), always=True)
 P("light_switch", 580, 1262, F2 + 120, (1, 0), r, collide=False)
 print("dressed:", sum(count.values()), "props")

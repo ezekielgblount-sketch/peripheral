@@ -156,25 +156,38 @@ def build_master():
 
 
 def build_lamp():
-    """Glowing lamp-shade / bulb material: MI_lamp_on (warm) and MI_lamp_off."""
+    """Glowing lamp-shade / bulb materials. They only glow at night: the glow is multiplied by MPC_World.Night (0 or 1)."""
+    mpc_path = MAT_DIR + "/MPC_World"
+    mpc = eal.load_asset(mpc_path)
+    if mpc is None:
+        mpc = at.create_asset("MPC_World", MAT_DIR, unreal.MaterialParameterCollection, unreal.MaterialParameterCollectionFactoryNew())
+        sp = unreal.CollectionScalarParameter(); sp.set_editor_property("parameter_name", "Night"); sp.set_editor_property("default_value", 0.0)
+        mpc.set_editor_property("scalar_parameters", [sp])
+        eal.save_asset(mpc_path)
     path = MAT_DIR + "/M_Lamp"
     m = eal.load_asset(path) or at.create_asset("M_Lamp", MAT_DIR, unreal.Material, unreal.MaterialFactoryNew())
     mel.delete_all_material_expressions(m)
-    col = mel.create_material_expression(m, unreal.MaterialExpressionVectorParameter, -500, 0)
+    col = mel.create_material_expression(m, unreal.MaterialExpressionVectorParameter, -700, 0)
     col.set_editor_property("parameter_name", "Color"); col.set_editor_property("default_value", unreal.LinearColor(1.0, 0.82, 0.55, 1))
-    st = mel.create_material_expression(m, unreal.MaterialExpressionScalarParameter, -500, 250)
+    st = mel.create_material_expression(m, unreal.MaterialExpressionScalarParameter, -700, 250)
     st.set_editor_property("parameter_name", "Glow"); st.set_editor_property("default_value", 0.0)
+    night = mel.create_material_expression(m, unreal.MaterialExpressionCollectionParameter, -700, 400)
+    night.set_editor_property("collection", mpc); night.set_editor_property("parameter_name", "Night")
+    g = mel.create_material_expression(m, unreal.MaterialExpressionMultiply, -450, 300)
+    mel.connect_material_expressions(st, "", g, "A"); mel.connect_material_expressions(night, "", g, "B")
     mul = mel.create_material_expression(m, unreal.MaterialExpressionMultiply, -250, 100)
-    mel.connect_material_expressions(col, "", mul, "A"); mel.connect_material_expressions(st, "", mul, "B")
+    mel.connect_material_expressions(col, "", mul, "A"); mel.connect_material_expressions(g, "", mul, "B")
     mel.connect_material_property(mul, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
     mel.connect_material_property(col, "", unreal.MaterialProperty.MP_BASE_COLOR)
     mel.recompile_material(m); eal.save_asset(path)
-    for name, glow in (("lamp_on", 900.0), ("lamp_off", 0.0), ("lamp_dim", 60.0)):
+    for name, glow, c in (("lamp_on", 700.0, (1.0, 0.85, 0.6)), ("lamp_off", 0.0, (0.9, 0.88, 0.8)), ("lamp_dim", 30.0, (0.3, 1.0, 0.5)),
+                          ("lamp_shade", 45.0, (0.86, 0.74, 0.52))):
         for pre in ("MI_", "MIL_"):
             p = "%s/%s%s" % (MAT_DIR, pre, name)
             mi = eal.load_asset(p) or at.create_asset(pre + name, MAT_DIR, unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
             mi.set_editor_property("parent", m)
             mel.set_material_instance_scalar_parameter_value(mi, "Glow", glow)
+            mel.set_material_instance_vector_parameter_value(mi, "Color", unreal.LinearColor(c[0], c[1], c[2], 1))
             mel.update_material_instance(mi); eal.save_asset(p)
 
 

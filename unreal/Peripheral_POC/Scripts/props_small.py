@@ -297,7 +297,7 @@ def ceiling_light():
 @prop
 def ceiling_light_off():
     k = K.Kit()
-    k.cyl("brass", 0, 0, -2.5, 17, 2.5, 24); k.sphere("lamp_off", 0, 0, -3, 15, 6, sz=0.45)
+    k.cyl("brass", 0, 0, -2.5, 17, 2.5, 24); k.sphere("lamp_on", 0, 0, -3, 15, 6, sz=0.45)
     return k
 
 
@@ -348,4 +348,11 @@ def coat_hooks():
     for y in (-28, 0, 28):
         k.tube("brass", (2, y, 0), (7, y, 0), 0.7, 6); k.tube("brass", (7, y, 0), (9, y, 5), 0.7, 6)
     k.soft("fabric_green", 3, -37, -78, 13, -18, 3, 4, 3)                           # a jacket left behind
+    return k
+
+
+@prop
+def vhs_tape():
+    k = K.Kit()
+    k.box("black", -5.2, -9.4, 0, 5.2, 9.4, 2.5); k.quad("p_vhs_xmas", 5.3, -7.5, 0.4, 7.5, 2.1)
     return k

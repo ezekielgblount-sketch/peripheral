@@ -127,7 +127,7 @@ def bookshelf():
 def floor_lamp():
     k = K.Kit()
     k.cyl("brass", 15, 0, 0, 14, 2.5, 20); k.cyl("brass", 15, 0, 2.5, 1.3, 138, 10)
-    k.cone("fabric_cream", 15, 0, 132, 20, 13, 30, 20)
+    k.cone("lamp_shade", 15, 0, 132, 20, 13, 30, 20)
     k.sphere("lamp_off", 15, 0, 146, 4, 5)
     return k
 
@@ -136,7 +136,7 @@ def floor_lamp():
 def table_lamp():
     k = K.Kit()
     k.revolve("enamel_avocado", [(0.1, 0), (8, 0), (9, 3), (5, 10), (7, 20), (3, 30), (1.4, 32)], 16)
-    k.cone("fabric_cream", 0, 0, 30, 15, 10, 22, 18)
+    k.cone("lamp_shade", 0, 0, 30, 15, 10, 22, 18)
     return k
 
 

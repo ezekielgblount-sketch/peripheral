@@ -84,3 +84,35 @@ The reference photo has the garage on the LEFT of the front door (seen from the 
 - Call 15: no parked cars yet. A believable car is a large modelling job; left for after the rooms.
 - Call 16: kit meshes are plain static meshes (Nanite off on them). Nanite stays enabled for the project; these meshes are too small to need it.
 - Fixed the carpet and lawn grid lines (removed the low-frequency part of those textures).
+
+### Rooms, interaction, light and sound (Nov 10, later)
+**Controls:** WASD walk, mouse look, C crouch, F flashlight, E use (doors, kitchen drawer) or pick up and inspect (E again puts it back), B head bob on/off, M camera-motion intensity (full, half, off), N day/night, 1/2/3 graphics quality low/medium/high.
+
+**Built**
+- Windows with frames and dusty glass, 11 doors (4 open at start, 5 locked blockout rooms), casings, baseboards: `Scripts/build_openings.py`.
+- 70 props in `Scripts/props_furniture.py` and `Scripts/props_small.py`; rooms furnished by `Scripts/dress_rooms.py` (101 placed).
+- Printed images made by code (`Scripts/tex/gen_prints.py`): family photos with blank faces, posters, kid's drawing, box labels, rug, clock face.
+- The one mechanic (`BP_Anomaly`, logic in `Scripts/bp/anomaly.dsl`): the family photo over the couch (the child is gone from it) and the tin robot on Jack's dresser (slides and turns). Each must first be seen for 0.6 s, changes only when more than 40 degrees off view centre or hidden, snaps back after 0.12 s within 11 degrees, then rests 60 to 120 s.
+- Day/night, quality keys and room tone: `BP_World`. Lamps and glowing shades come on at night; hall, kitchen, bathroom and entry ceiling lights stay on by day.
+- Bodycam lens (`Scripts/build_bodycam.py`): barrel distortion, soft edges with a sharp centre, colour fringing at edges only, shadow noise. No HUD.
+- Sound, all synthesised (`Scripts/audio/gen_sounds.py`): footsteps for carpet, wood and tile picked from the floor material, room tone, fridge hum, outdoor air and birds, door creak, locked rattle, drawer, flashlight click.
+- Screenshots: `screenshots/<room>/<room>_<1-3>_<day|night>.png` for entry, living_room, kitchen, hallway, upstairs_hall, bedroom, bathroom, exterior. Each has the 178 cm figure. Made by `Scripts/take_room_shots.py`.
+
+**Tested by script in play mode:** player spawns on the porch; front door opens; drawer slides; both anomalies run through all four states; fit check ALL PASS with furniture in place.
+
+**Not tested (needs a person at the keyboard):** real key and mouse input, the N / 1 / 2 / 3 keys, inspect rotation feel, how the sounds actually sound, frame rate.
+
+**More calls I made**
+- 17: Sun set to a real 45,000 lux and bulbs to real lumens, so exposure behaves like a camera. Windows blow out indoors by day, as on a real bodycam.
+- 18: At night the sky light is switched off with the sun; outside is lit only by a dim moon and the windows.
+- 19: Locked doors (dining, half bath, garage, two upstairs rooms) rattle and stay shut. Those rooms are blockout only.
+- 20: Flashlight changed from an arbitrary brightness to 900 lumens. Colour and cone are unchanged.
+- 21: Volumetric fog kept light (dust in sunbeams is faint). Stronger fog showed blocky artefacts indoors.
+
+**Known problems**
+- Printed photos and posters are flat, drawn shapes, not photographic.
+- Cushions and trees look faceted up close.
+- Daytime living-room ceiling picks up a green tint from the lawn.
+- Some blotchy indirect light on walls (Lumen on Mac without hardware ray tracing).
+- No parked cars, no street lamps, no basement or garage dressing (blockout by design).
+- The editor screenshot tool needs a long settle after a day/night switch or the first picture keeps the old lighting.

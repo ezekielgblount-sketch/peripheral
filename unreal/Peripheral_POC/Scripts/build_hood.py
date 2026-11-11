@@ -124,7 +124,7 @@ for y in range(-5000, 7000, 520):                                               
 for x in range(-6000, 6400, 560):
     put_tree(x + rnd.uniform(-200, 200), -5000 + rnd.uniform(-150, 150))
     put_tree(x + rnd.uniform(-200, 200), 6850 + rnd.uniform(-100, 100))
-for i, y in enumerate(list(range(630, 1020, 95)) + list(range(1290, 1700, 95))):       # foundation shrubs along our front wall
+for i, y in enumerate(list(range(630, 940, 95)) + list(range(1320, 1700, 95))):       # foundation shrubs along our front wall
     K.place(shrubs[i % 2], "Shrub_%02d" % i, -62, y, GR, face=(1, 0), folder="Hood/Shrubs", tag="hood", collide=False)
 K.place(swing, "SwingSet", 1750, 1380, GR, face=(0, 1), folder="Hood", tag="hood")
 

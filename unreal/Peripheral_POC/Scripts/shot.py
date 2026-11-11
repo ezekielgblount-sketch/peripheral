@@ -36,6 +36,8 @@ for a in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_
 """
 ue(SPEED % (20.0, 20.0))          # let exposure settle instantly for stills; restored below
 import time
+for _ in range(int(os.environ.get('SHOT_WARMUP', '40'))):      # let sky capture and bounce light settle after a day/night switch
+    ue(REDRAW); time.sleep(0.05)
 for spec in sys.argv[2:]:
     name, p, t = spec.split(":")[:3]
     out = os.path.join(out_dir, name + ".png")
