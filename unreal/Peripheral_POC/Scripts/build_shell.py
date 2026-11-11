@@ -21,7 +21,7 @@ with unreal.ScopedSlowTask(1, "Building shell"):
     box("F_landing", 0, 1031, B - 15, 180, 1251, LND, "f_entry", "Shell/Entry")
     box("F_top_of_up_flight", 0, 1419, B - 15, 100, 1520, F1, "f_hall", "Shell/Hall")
     slab("F_living", 0, 600, 580, 1025, F1, "f_liv", "bsmt", folder="Shell/Living")
-    slab("F_kitchen", 580, 600, 900, 1550, F1, "f_kit", "bsmt", folder="Shell/Kitchen")
+    slab("F_kitchen", 580, 600, 900, 1550, F1, "f_hall", "bsmt", folder="Shell/Kitchen")      # wood floor, same boards as the hall (wood footsteps)
     slab("F_halfbath", 580, 1550, 900, 1700, F1, "f_blk", "bsmt", folder="Shell/Blockout")
     slab("F_dining", 0, 1520, 580, 1700, F1, "f_blk", "bsmt", folder="Shell/Blockout")
     slab("F_hall_main", 100, 1251, 580, 1520, F1, "f_hall", "bsmt", folder="Shell/Hall")
