@@ -434,3 +434,40 @@ print("prints:", len(os.listdir(OUT)))
 # objective wording as Jack's stability drops (montage)
 for i, t_ in enumerate(("unpack.   (did you unpack?)", "there was something you were going to do", "stay"), 1):
     task_note("ui_vague_%d" % i, t_)
+
+
+# ---------------- menu and on-screen text as images (the packaged game has no text font for the HUD to draw with) ----------------
+def panel(name, lines, size, sel=None, head=None, fs=40, foot=None):
+    """Left-aligned light text on a clear background. sel = index of the highlighted line; head = large first line."""
+    im = Image.new("RGBA", size, (0, 0, 0, 0)); d = ImageDraw.Draw(im); y = 8
+    if head:
+        d.text((40, y), head, font=font(int(fs * 1.7), "bold"), fill=(235, 232, 220, 255)); y += int(fs * 2.5)
+    for i, t in enumerate(lines):
+        on = sel is None or i == sel
+        txt = (">  " if sel is not None and i == sel else "    " if sel is not None else "") + t
+        d.text((42, y + 2), txt, font=font(fs, "bold"), fill=(0, 0, 0, 200))
+        d.text((40, y), txt, font=font(fs, "bold"), fill=(240, 236, 222, 255) if on else (150, 147, 138, 255)); y += int(fs * 1.45)
+    if foot:
+        d.text((40, size[1] - int(fs * 0.9) - 8), foot, font=font(int(fs * 0.62), "bold"), fill=(150, 147, 138, 255))
+    im.save(os.path.join(OUT, name + ".png"))
+
+
+MENU = ["Play  -  Day One", "Play  -  The Loop  (test)", "Settings", "How to play", "Quit"]
+for i in range(5):
+    panel("ui_menu_%d" % i, MENU, (900, 360), sel=i, foot="up / down, Enter")
+for i in range(3):
+    panel("ui_pause_%d" % i, ["Resume", "Back to the title", "Quit"], (900, 360), sel=i, head="PAUSED")
+panel("ui_howto", ["W A S D  walk        mouse  look        C  crouch        F  flashlight",
+                   "E  use: lift and set down boxes, open doors and drawers,", "     switch lamps and wall switches, pick up and look at small things",
+                   "Esc  pause        N  day / night        L  jump to the loop",
+                   "F1  unease test bar  (1-9, 0, minus;  up / down = preset)", "",
+                   "Day One: follow the note in the corner. A faint glow sits on the thing it is about.",
+                   "The loop: walk the hall to the piano. If anything in the house is wrong,", "     turn back and go down the stairs instead. Five right calls in a row ends it.",
+                   "     A wrong call only starts the count again. Nothing can hurt you."], (1600, 640), head="HOW TO PLAY", fs=30, foot="Enter or Esc  -  back")
+for c, cn in enumerate(("OFF", "HALF", "FULL")):
+    for q, qn in enumerate(("LOWEST", "LOW", "MEDIUM", "HIGH")):
+        panel("ui_settings_%d_%d" % (c, q), ["Camera motion:    %s        (left / right)" % cn, "Graphics:             %s        (up / down)" % qn], (900, 360), head="SETTINGS", fs=34, foot="Enter or Esc  -  back")
+for i in range(5):
+    panel("ui_loop_%d" % i, ["Something is wrong: turn back, go down the stairs.      Nothing is wrong: go on to the piano.", "right in a row:   %d of 5" % i], (1400, 100), fs=26)
+for i, pn in enumerate(("SUBTLE", "MEDIUM", "HEAVY")):
+    panel("ui_preset_%d" % i, ["UNEASE    1-9 = level 1-9,  0 = level 10,  minus = clean,  left / right adjust", "levels 8-10 preset:   %s      (up / down)" % pn], (1400, 100), fs=26)

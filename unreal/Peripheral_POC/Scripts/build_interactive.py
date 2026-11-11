@@ -104,6 +104,9 @@ bb.static_mesh_component.set_mobility(unreal.ComponentMobility.MOVABLE)
 # game mode uses the director HUD; hand it the task-note images
 hud = eal.load_asset("/Game/Blueprints/BP_HUD")
 unreal.get_default_object(hud.generated_class()).set_editor_property("Notes", [eal.load_asset("/Game/Prints/ui_task_%d" % i) for i in range(1, 11)])
+UI_NAMES = (["ui_menu_%d" % i for i in range(5)] + ["ui_pause_%d" % i for i in range(3)] + ["ui_howto"] + ["ui_settings_%d_%d" % (c, q) for c in range(3) for q in range(4)]
+            + ["ui_loop_%d" % i for i in range(5)] + ["ui_preset_%d" % i for i in range(3)])            # menu and on-screen text, drawn as images
+unreal.get_default_object(hud.generated_class()).set_editor_property("UI", [eal.load_asset("/Game/Prints/" + n) for n in UI_NAMES])
 eal.save_asset("/Game/Blueprints/BP_HUD")
 gm = eal.load_asset("/Game/Blueprints/BP_GameMode")
 unreal.get_default_object(gm.generated_class()).set_editor_property("hud_class", hud.generated_class())
