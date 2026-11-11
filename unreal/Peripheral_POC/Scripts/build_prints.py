@@ -38,4 +38,8 @@ for n in names:
     mel.set_material_instance_texture_parameter_value(mi, "Tex", eal.load_asset("/Game/Prints/" + n))
     mel.set_material_instance_scalar_parameter_value(mi, "Rough", 0.95 if ("rug" in n or "label" in n) else 0.45)
     mel.update_material_instance(mi); eal.save_asset(p)
+for n in names:                                      # on-screen images must not wrap at their edges (a wrapped edge shows as a thin seam)
+    if n.startswith("ui_"):
+        t = eal.load_asset("/Game/Prints/" + n)
+        t.set_editor_property("address_x", unreal.TextureAddress.TA_CLAMP); t.set_editor_property("address_y", unreal.TextureAddress.TA_CLAMP); eal.save_asset("/Game/Prints/" + n)
 print("prints:", len(names))

@@ -454,7 +454,7 @@ def panel(name, lines, size, sel=None, head=None, fs=40, foot=None):
 
 MENU = ["Play  -  Day One", "Play  -  The Loop  (test)", "Settings", "How to play", "Quit"]
 for i in range(5):
-    panel("ui_menu_%d" % i, MENU, (900, 360), sel=i, foot="up / down, Enter")
+    panel("ui_menu_%d" % i, MENU, (900, 360), sel=i, foot="up / down or mouse          Enter or click")
 for i in range(3):
     panel("ui_pause_%d" % i, ["Resume", "Back to the title", "Quit"], (900, 360), sel=i, head="PAUSED")
 panel("ui_howto", ["W A S D  walk        mouse  look        C  crouch        F  flashlight",
@@ -471,3 +471,27 @@ for i in range(5):
     panel("ui_loop_%d" % i, ["Something is wrong: turn back, go down the stairs.      Nothing is wrong: go on to the piano.", "right in a row:   %d of 5" % i], (1400, 100), fs=26)
 for i, pn in enumerate(("SUBTLE", "MEDIUM", "HEAVY")):
     panel("ui_preset_%d" % i, ["UNEASE    1-9 = level 1-9,  0 = level 10,  minus = clean,  left / right adjust", "levels 8-10 preset:   %s      (up / down)" % pn], (1400, 100), fs=26)
+
+
+# title screen art: the logo over the live view of the house, a soft dark band behind the menu, and a pointer
+def logo(name):
+    im = Image.new("RGBA", (1400, 220), (0, 0, 0, 0)); f = font(150, "bold"); text = "PERIPHERAL"
+    for (dx, col) in ((-5, (255, 60, 50, 120)), (5, (40, 220, 255, 120)), (0, (240, 236, 222, 255))):      # red and cyan edges, like the picture splitting
+        layer = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(layer); x = 20
+        for ch in text:
+            d.text((x + dx, 20), ch, font=f, fill=col); x += d.textlength(ch, font=f) + 26
+        im = Image.alpha_composite(im, layer)
+    ImageDraw.Draw(im).text((24, 186), "demo build", font=font(24, "bold"), fill=(190, 186, 174, 255))
+    im.save(os.path.join(OUT, name + ".png"))
+
+
+logo("ui_logo")
+g = Image.new("RGBA", (512, 8), (0, 0, 0, 0))
+for x in range(512):
+    a_ = int(238 * min(1.0, max(0.0, 1.0 - x / 500.0) * 1.9) ** 1.15)       # nearly solid behind the text, clear by the right edge
+    for y in range(8):
+        g.putpixel((x, y), (0, 0, 0, a_))
+g.save(os.path.join(OUT, "ui_grad.png"))
+c = Image.new("RGBA", (48, 48), (0, 0, 0, 0)); dc = ImageDraw.Draw(c)
+dc.polygon([(4, 3), (4, 38), (13, 30), (20, 44), (26, 41), (19, 28), (31, 27)], fill=(245, 242, 232, 255), outline=(0, 0, 0, 255))
+c.save(os.path.join(OUT, "ui_cursor.png"))
