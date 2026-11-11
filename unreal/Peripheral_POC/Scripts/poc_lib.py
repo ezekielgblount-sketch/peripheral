@@ -22,6 +22,8 @@ def mat(key, local=False):
     """Surface material by key. local=True gives the variant whose texture sticks to the object (for props that move)."""
     if key.startswith("p_"):                      # printed image, e.g. p_photo_family_a
         return unreal.EditorAssetLibrary.load_asset(MAT_DIR + "/MP_" + key[2:])
+    if key.startswith("m_"):                      # a purpose-built material, e.g. m_CarPaint
+        return unreal.EditorAssetLibrary.load_asset(MAT_DIR + "/M_" + key[2:])
     if key == "glass":
         return unreal.EditorAssetLibrary.load_asset(MAT_DIR + "/M_Glass")
     name = ("MIL_" if local else "MI_") + key

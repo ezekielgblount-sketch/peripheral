@@ -27,22 +27,35 @@ def P(prop, x, y, z, face, room, collide=True, tag=None):
         a.static_mesh_component.set_mobility(unreal.ComponentMobility.MOVABLE)
     return a
 
-def lamp(name, x, y, z, lumens, room, radius=600, color=(255, 214, 160), shadows=True, always=False):
-    """A warm bulb. Lamps are off by day; the day/night switch turns them on (tag 'night_light')."""
-    a = eas.spawn_actor_from_class(unreal.PointLight, L.to_ue(x, y, z))
-    a.set_actor_label("Lamp_" + name); a.set_folder_path("Dress/" + room); grp = {"entry": 1, "hall": 1, "kitchen_800": 2, "kitchen_1250": 2, "hall2": 3, "bath": 4}.get(name, 4)
+def lamp(name, x, y, z, lumens, room, radius=600, temp=2700, shadows=True, always=False, tint=(255, 255, 255), flicker=False, spot=None):
+    """A bulb with a real colour temperature (incandescent 2700 K unless told otherwise). Lamps are off by day; the day/night
+    switch turns them on (tag 'night_light'). spot=(pitch, cone) makes it a cone of light, for the pools above and below a shade."""
+    a = eas.spawn_actor_from_class(unreal.SpotLight if spot else unreal.PointLight, L.to_ue(x, y, z), unreal.Rotator(roll=0, pitch=spot[0] if spot else 0, yaw=0))
+    a.set_actor_label("Lamp_" + name); a.set_folder_path("Dress/" + room)
+    grp = {"entry": 1, "hall": 1, "kitchen_800": 2, "kitchen_1250": 2, "kitchen_1250_b": 2, "hall2": 3, "bath": 4}.get(name, 4)
     a.tags = ["dress", "power_light", "power_%d" % grp] if always else ["dress", "night_light"]
     c = a.light_component
     c.set_mobility(unreal.ComponentMobility.MOVABLE)
     c.set_editor_property("intensity_units", unreal.LightUnits.LUMENS)
     c.set_editor_property("intensity", lumens)
-    c.set_editor_property("light_color", unreal.Color(r=color[0], g=color[1], b=color[2], a=255))
+    c.set_editor_property("use_temperature", True); c.set_editor_property("temperature", float(temp))
+    c.set_editor_property("light_color", unreal.Color(r=tint[0], g=tint[1], b=tint[2], a=255))
     c.set_editor_property("attenuation_radius", radius)
-    c.set_editor_property("source_radius", 4.0)
+    c.set_editor_property("source_radius", 4.0); c.set_editor_property("soft_source_radius", 6.0)
     c.set_editor_property("cast_shadows", shadows)
+    if spot:
+        c.set_editor_property("outer_cone_angle", spot[1]); c.set_editor_property("inner_cone_angle", spot[1] * 0.45)
+    if flicker:
+        c.set_editor_property("light_function_material", unreal.EditorAssetLibrary.load_asset("/Game/Materials/M_Flicker"))
     if not always:
-        a.set_actor_hidden_in_game(True)             # off by day; BP_World un-hides lamps at night
+        a.set_actor_hidden_in_game(True)             # off by day; the director un-hides lamps at night
     return a
+
+def shaded(name, x, y, z, lumens, room, ceiling, radius=420):
+    """A lamp with a shade: soft glow through the shade, a pool on the table below and a pool on the ceiling above."""
+    lamp(name, x, y, z, lumens * 0.45, room, radius)
+    lamp(name + "_down", x, y, z - 4, lumens * 0.5, room, 150, shadows=False, spot=(-90, 58))
+    lamp(name + "_up", x, y, z + 4, lumens * 0.45, room, ceiling - z + 20, shadows=False, spot=(90, 52))
 
 def border(x0, y0, x1, y1, z, prop, room):
     """Wallpaper border strip around a room, just under the ceiling, in 1 m pieces."""
@@ -84,9 +97,9 @@ a.static_mesh_component.set_mobility(unreal.ComponentMobility.STATIC)
 
 # ---------------- hall, floor 1 ----------------
 r = "Hall"
-P("ceiling_light_off", 340, 1380, C1, (1, 0), r, collide=False); lamp("hall", 340, 1380, C1 - 22, 900, r, always=True)
+P("ceiling_light_off", 340, 1380, C1, (1, 0), r, collide=False); lamp("hall", 340, 1380, C1 - 22, 800, r, always=True, flicker=True)       # the old fixture that flickers
 P("side_table", 572, 1460, F1, (-1, 0), r); P("table_lamp", 547, 1460, F1 + 55, (1, 0), r, collide=False)
-lamp("hall_table", 547, 1460, F1 + 88, 350, r, 400)
+shaded("hall_table", 547, 1460, F1 + 88, 420, r, C1)
 P("frame_school", 200, 1512, F1 + 155, (0, -1), r, collide=False); P("frame_school_b", 160, 1512, F1 + 150, (0, -1), r, collide=False)
 P("secretary", 388, 1513, F1, (0, -1), r); P("frame_school", 372, 1500, F1 + 117, (0.2, -1), r, collide=False); P("jar_candle", 410, 1500, F1 + 110, (0, -1), r, collide=False)
 P("frame_map", 388, 1512.5, F1 + 170, (0, -1), r, collide=False); P("barometer", 470, 1512, F1 + 165, (0, -1), r, collide=False)
@@ -109,7 +122,7 @@ P("sign_faith", 262, 601, F1 + 192, (0, 1), r, collide=False)
 P("coffee_table_glass", 345, 722, F1, (0, 1), r); P("vhs_tape", 372, 742, F1 + 46, (0.8, 0.5), r, tag="inspect")
 P("candy_dish", 318, 748, F1 + 45.4, (1, 0), r, collide=False); P("remote_ziplock", 380, 770, F1 + 45.4, (0.4, 1), r, collide=False)
 P("side_table", 492, 603, F1, (0, 1), r); P("table_lamp_drum", 492, 628, F1 + 55, (1, 0), r, collide=False); P("jar_candle", 478, 640, F1 + 55, (1, 0), r, collide=False)
-lamp("living_table", 492, 628, F1 + 100, 650, r, 550)
+shaded("living_table", 492, 628, F1 + 100, 750, r, C1, 480)
 P("armchair_cream", 5, 930, F1, (1, 0), r); P("chair_sage", 5, 800, F1, (1, 0.12), r); P("fake_plant", 26, 1000, F1, (1, 0), r)
 P("entertainment_center", 250, 1017, F1, (0, -1), r); P("flat_tv", 250, 1012, F1 + 66, (0, -1), r, collide=False)
 P("dvd_player", 250, 1008, F1 + 35.5, (0, -1), r, collide=False); P("console_2010", 302, 1008, F1 + 66, (0, -1), r, collide=False)
@@ -120,7 +133,9 @@ P("bookshelf_white", 573, 868, F1, (-1, 0), r); P("keepsake_box", 566, 845, F1 +
 P("ottoman", 488, 760, F1, (1, 0), r)
 P("curtain_rod", 2, 820, F1 + 224, (1, 0), r, collide=False)
 P("curtain_living", 3, 672, F1 + 32, (1, 0), r, collide=False); P("curtain_living", 3, 966, F1 + 32, (1, 0), r, collide=False)
-P("ceiling_fan", 300, 810, C1, (1, 0), r, collide=False); lamp("living_fan", 300, 810, C1 - 52, 700, r)
+P("ceiling_fan", 300, 810, C1, (1, 0), r, collide=False); lamp("living_fan", 300, 810, C1 - 52, 150, r, 450)
+P("torchiere", 20, 866, F1, (1, 0), r)                                              # halogen floor lamp: light thrown at the ceiling
+lamp("torchiere", 20, 866, F1 + 184, 3800, r, 340, temp=2950, spot=(90, 80)); lamp("torchiere_spill", 20, 866, F1 + 176, 140, r, 220, temp=2950, shadows=False)
 P("thermostat", 1, 985, F1 + 150, (1, 0), r, collide=False)
 P("light_switch", 450, 1017, F1 + 120, (0, -1), r, collide=False); P("outlet", 130, 601, F1 + 30, (0, 1), r, collide=False)
 P("charger", 2, 1000, F1 + 30, (1, 0), r, collide=False); P("vent", 572, 930, F1 + 12, (-1, 0), r, collide=False)
@@ -138,7 +153,8 @@ P("kitchen_table", 845, 1360, F1, (1, 0), r); P("pendant", 845, 1360, C1, (1, 0)
 P("kitchen_chair", 762, 1332, F1, (1, 0), r); P("kitchen_chair", 845, 1470, F1, (0, -1), r)
 P("wall_phone", 588, 1262, F1 + 140, (1, 0), r, collide=False); P("wall_clock", 588, 820, F1 + 185, (1, 0), r, collide=False)
 for y in (800, 1250):
-    P("ceiling_light_off", 743, y, C1, (1, 0), r, collide=False); lamp("kitchen_%d" % y, 743, y, C1 - 22, 1100, r, 700, (255, 228, 190), always=True)
+    P("ceiling_light_off", 743, y, C1, (1, 0), r, collide=False); lamp("kitchen_%d" % y, 743, y, C1 - 22, 1000 if y == 800 else 520, r, 650, always=True)
+lamp("kitchen_1250_b", 751, 1250, C1 - 22, 560, r, 650, temp=4000, shadows=False, always=True)      # one bulb in this fixture was replaced with a cooler one
 P("light_switch", 588, 1410, F1 + 120, (1, 0), r, collide=False); P("outlet", 898, 880, F1 + 110, (-1, 0), r, collide=False)
 
 # ---------------- upstairs hall ----------------
@@ -166,7 +182,7 @@ P("pc_tower", 898, 1598, F2, (-1, 0), r)
 P("glow_stars", 736, 1600, C2 - 2.2, (1, 0), r, collide=False); P("poster_band", 648, 1357, F2 + 165, (0, 1), r, collide=False)
 P("plush_pile", 866, 1658, F2, (-1, -0.3), r, collide=False); P("handheld", 720, 1590, F2 + 52, (0.4, -1), r, tag="inspect"); P("card_binder", 640, 1440, F2, (0.8, 0.5), r, collide=False)
 P("learning_tablet", 800, 1640, F2, (0.3, 1), r, collide=False); P("backpack", 838, 1412, F2, (-0.6, 0.6), r, collide=False)
-P("ceiling_light_off", 740, 1530, C2, (1, 0), r, collide=False); lamp("bedroom", 740, 1530, C2 - 22, 900, r)
+P("ceiling_light_off", 740, 1530, C2, (1, 0), r, collide=False); lamp("bedroom", 740, 1530, C2 - 22, 520, r, 520)
 P("light_switch", 580, 1492, F2 + 120, (1, 0), r, collide=False); P("outlet", 580, 1680, F2 + 30, (1, 0), r, collide=False)
 
 # ---------------- bathroom ----------------
@@ -178,7 +194,7 @@ P("medicine_cabinet", 782, 1127, F2 + 150, (0, 1), r, collide=False)
 P("towels_deco", 640, 1342, F2 + 125, (0, -1), r, collide=False); P("toilet_set", 770, 1342, F2, (0, -1), r, collide=False)
 P("seashell_soap", 765, 1142, F2 + 82, (0, 1), r, collide=False); P("mouthwash", 812, 1140, F2 + 82, (0, 1), r, collide=False)
 P("doormat", 780, 1235, F2, (0, 1), r, collide=False)
-P("ceiling_light_off", 700, 1235, C2, (1, 0), r, collide=False); lamp("bath", 700, 1235, C2 - 22, 900, r, 500, (255, 236, 205), always=True)
+P("ceiling_light_off", 700, 1235, C2, (1, 0), r, collide=False); lamp("bath", 700, 1235, C2 - 22, 850, r, 500, temp=3500, tint=(238, 255, 238), always=True)      # a compact fluorescent: cooler, faintly green
 P("light_switch", 580, 1262, F2 + 120, (1, 0), r, collide=False)
 # ---------------- lived-in clutter: the family left mid-day and never got back to tidy ----------------
 r = "Lived"

@@ -83,54 +83,6 @@ def charger():
 
 
 @prop
-def car():
-    """Jack's car: an invented early-90s compact four-door, base model, faded paint, boot open.
-    Origin on the ground under the middle; nose toward +X. 430 long, 168 wide, 138 tall. Hollow, with a simple interior."""
-    k = K.Kit(); P_ = "car_paint"
-    # lower body (front and middle), bonnet, open boot tub
-    k.soft(P_, -122, -84, 24, 212, 84, 70, 5, 2, 0.25)
-    k.soft(P_, 96, -80, 62, 206, 80, 79, 4, 2, 0.3)                                   # bonnet
-    k.box(P_, -212, -84, 24, -122, 84, 56); k.box("black", -208, -76, 56, -122, 76, 57.5)   # boot floor
-    for y in (-84, 78):
-        k.box(P_, -212, y, 56, -122, y + 6, 78)
-    k.box(P_, -212, -78, 56, -207, 78, 64)                                            # low rear sill
-    k.obox(P_, -136, 0, 119, 84, 150, 3, pitch=110)                                   # boot lid, hinged at the rear window and raised
-    # roof, pillars and glass (thin panels, so the driver can see out)
-    k.box(P_, -86, -73, 131, 54, 73, 137)                                               # roof panel
-    for y in (-72, 68):
-        k.tube(P_, (96, y + 2, 78), (50, y + 2, 133), 3, 6); k.tube(P_, (-120, y + 2, 78), (-82, y + 2, 133), 3.5, 6)
-        k.box(P_, -20, y, 70, -12, y + 4, 133)                                        # B pillar
-        k.box("glass", -80, y + 1.2, 80, 46, y + 2.4, 131)                            # side windows
-        k.box("black", -118, y - 0.2 if y < 0 else y + 3.8, 62, 96, y + 0.2 if y < 0 else y + 4.2, 62.6)   # door seam line
-        for x in (40, -50):
-            k.box("plastic_black", x, y - 1.4 if y < 0 else y + 4, 84, x + 12, y if y < 0 else y + 5.4, 87)   # door handles
-    k.prism_xz("glass", [(96, 78), (98, 78), (52, 133), (50, 133)], -69, 69)         # windscreen
-    k.prism_xz("glass", [(-122, 78), (-120, 78), (-82, 133), (-84, 133)], -69, 69)   # rear window
-    # interior
-    k.box("fabric_tan", -122, -76, 56, 96, 76, 60)                                    # floor
-    k.soft("plastic_black", 58, -74, 70, 98, 74, 94, 4, 2)                            # dashboard
-    k.torus("plastic_black", 48, -36, 97, 17, 1.8, pitch=62); k.tube("plastic_black", (50, -36, 97), (62, -36, 88), 2.2, 6)
-    for y in (-36, 36):
-        k.soft("fabric_tan", -22, y - 24, 60, 30, y + 24, 78, 4, 3); k.soft("fabric_tan", -30, y - 23, 72, -14, y + 23, 124, 4, 3)
-    k.soft("fabric_tan", -108, -68, 60, -62, 68, 78, 4, 3); k.soft("fabric_tan", -118, -68, 72, -104, 68, 118, 4, 3)
-    k.box("plastic_black", 0, -6, 60, 40, 6, 74)                                      # centre console
-    # wheels, arches, bumpers, lights, mirrors, plate, aerial
-    for x in (-132, 138):
-        for sgn in (-1, 1):
-            k.tube("plastic_black", (x, sgn * 66, 29), (x, sgn * 85, 29), 29, 20)       # tyre
-            k.tube("steel", (x, sgn * 84, 29), (x, sgn * 86, 29), 16, 14)              # plain steel wheel
-            k.tube("plastic_black", (x, sgn * 86, 29), (x, sgn * 86.6, 29), 5, 8)
-    k.soft("plastic_grey", 204, -84, 28, 220, 84, 46, 3, 2); k.soft("plastic_grey", -220, -84, 28, -206, 84, 46, 3, 2)
-    for y in (-62, 62):
-        k.box("lamp_off", 211, y - 17, 54, 214, y + 17, 67); k.box("plastic_red", -213.5, y - 17, 58, -211, y + 17, 72)
-        k.box("plastic_black", 60, y - 22 if y < 0 else y + 12, 84, 72, y - 12 if y < 0 else y + 22, 93)                 # mirrors
-    k.box("black", 211, -30, 54, 213, 30, 66)                                         # grille
-    k.box("paper", -221, -15, 34, -220, 15, 44)                                       # blank plate
-    k.tube("steel", (70, 70, 80), (64, 72, 150), 0.3, 4)
-    return k
-
-
-@prop
 def mail_pile():
     k = K.Kit(); r = random.Random(5)
     for i in range(9):
@@ -237,3 +189,6 @@ def box_carry_a():
 def box_carry_b():
     from props_furniture import carton
     return carton(46, 40, 32, "label_misc")
+
+
+import props_car                                  # registers the car (kept in its own file)

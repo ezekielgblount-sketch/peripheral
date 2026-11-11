@@ -15,6 +15,11 @@ def T(x=0, y=0, z=0, roll=0, pitch=0, yaw=0):
     return unreal.Transform(location=unreal.Vector(x, y, z), rotation=unreal.Rotator(roll=roll, pitch=pitch, yaw=yaw))
 
 
+def smooth(m, angle=38.0):
+    so = unreal.GeometryScriptSplitNormalsOptions(); so.split_by_opening_angle = True; so.opening_angle_deg = angle
+    unreal.GeometryScript_Normals.compute_split_normals(m, so, unreal.GeometryScriptCalculateNormalsOptions())
+
+
 class Kit:
     def __init__(self):
         self.m = unreal.DynamicMesh()
@@ -73,8 +78,10 @@ class Kit:
         return self
 
     def torus(self, key, cx, cy, cz, R, r, roll=0, pitch=0, major=20, minor=8):
-        P.append_torus(self.m, self._o(key), T(cx, cy, cz, roll, pitch), unreal.GeometryScriptRevolveOptions(), R, r, major, minor,
-                       unreal.GeometryScriptPrimitiveOriginMode.CENTER)
+        tmp = unreal.DynamicMesh(); o = self._o(key)                       # the torus ignores the material option, so set it after
+        P.append_torus(tmp, o, T(), unreal.GeometryScriptRevolveOptions(), R, r, major, minor, unreal.GeometryScriptPrimitiveOriginMode.CENTER)
+        unreal.GeometryScript_Materials.remap_material_i_ds(tmp, 0, o.material_id)
+        unreal.GeometryScript_MeshEdits.append_mesh(self.m, tmp, T(cx, cy, cz, roll, pitch))
         return self
 
     def cone(self, key, cx, cy, z0, r0, r1, h, steps=16, roll=0, pitch=0):
@@ -114,10 +121,55 @@ class Kit:
                 return self
         raise RuntimeError("prism_xz could not orient")
 
-    def revolve(self, key, path, steps=20, cx=0, cy=0, z0=0):
+    def revolve(self, key, path, steps=20, cx=0, cy=0, z0=0, capped=True):
         """Lathe: path is a list of (radius, z) from bottom to top."""
         ro = unreal.GeometryScriptRevolveOptions()
-        P.append_revolve_path(self.m, self._o(key), T(cx, cy, z0), [unreal.Vector2D(r, z) for r, z in path], ro, steps, True)
+        P.append_revolve_path(self.m, self._o(key), T(cx, cy, z0), [unreal.Vector2D(r, z) for r, z in path], ro, steps, capped)
+        return self
+
+    def mesh(self, key, verts, tris, angle=38.0, flip=False):
+        """Raw triangles (verts: [(x,y,z)], tris: [(a,b,c)]) with smooth normals split at sharp edges."""
+        b = unreal.GeometryScriptSimpleMeshBuffers()
+        b.vertices = [unreal.Vector(*v) for v in verts]
+        b.triangles = [unreal.IntVector(t[0], t[2], t[1]) if flip else unreal.IntVector(*t) for t in tris]
+        tmp = unreal.DynamicMesh()
+        unreal.GeometryScript_MeshEdits.append_buffers_to_mesh(tmp, b, self._o(key).material_id)
+        unreal.GeometryScript_MeshRepair.weld_mesh_edges(tmp, unreal.GeometryScriptWeldEdgesOptions())
+        smooth(tmp, angle)
+        unreal.GeometryScript_MeshEdits.append_mesh(self.m, tmp, T())
+        return self
+
+    def loft(self, key, rings, cap=True, angle=38.0, flip=False):
+        """Closed skin through a list of rings (each a list of (x,y,z), same count). Ends are capped with a fan."""
+        n = len(rings[0]); verts = [p for r in rings for p in r]; tris = []
+        for i in range(len(rings) - 1):
+            for j in range(n):
+                a, b = i * n + j, i * n + (j + 1) % n
+                c, d = a + n, b + n
+                tris += [(a, b, d), (a, d, c)]
+        if cap:
+            for i, rev in ((0, True), (len(rings) - 1, False)):
+                r = rings[i]; c = len(verts)
+                verts.append(tuple(sum(p[k] for p in r) / n for k in range(3)))
+                for j in range(n):
+                    a, b = i * n + j, i * n + (j + 1) % n
+                    tris.append((c, b, a) if rev else (c, a, b))
+        return self.mesh(key, verts, tris, angle, not flip)       # rings listed along +X with points counter-clockwise seen from +X
+
+    def cut(self, tool, angle=38.0):
+        """Subtract another kit's shape from this one (cut faces take the tool's materials)."""
+        for kname in tool.keys:
+            if kname not in self.keys:
+                self.keys.append(kname)
+        tmp = unreal.DynamicMesh(); unreal.GeometryScript_MeshEdits.append_mesh(tmp, tool.m, T())
+        remap = [self.keys.index(kname) for kname in tool.keys]
+        for src in sorted(range(len(remap)), reverse=True):
+            unreal.GeometryScript_Materials.remap_material_i_ds(tmp, src, 1000 + remap[src])
+        for dst in set(remap):
+            unreal.GeometryScript_Materials.remap_material_i_ds(tmp, 1000 + dst, dst)
+        unreal.GeometryScript_MeshBooleans.apply_mesh_boolean(self.m, T(), tmp, T(), unreal.GeometryScriptBooleanOperation.SUBTRACT,
+                                                              unreal.GeometryScriptMeshBooleanOptions())
+        smooth(self.m, angle)
         return self
 
     def add(self, other, t=None):

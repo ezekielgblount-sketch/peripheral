@@ -153,7 +153,7 @@ Open `Builds/Peripheral_Demo.app` (double-click; the first launch pauses about 1
 
 **Time-skip montage** follows on its own: living room at level 5, kitchen at 7.5, Jack's room at 10, about 45 seconds each and walkable, then an end card (Enter returns to the title).
 
-**Debug keys:** 1-9 = unease level 1-9, 0 = level 10, minus = clean. F1 shows the unease bar; hold left/right to set any value 0-100. N = day/night.
+**Debug keys:** 1-9 = unease level 1-9, 0 = level 10, minus = clean. F1 shows the unease bar; hold left/right to set any value 0-100. N = day/night. With the F1 bar open, up/down switches the preset for levels 8-10: Subtle, Medium (default), Heavy.
 
 ## Tonight's design session (Nov 10-11): what changed
 - **Story:** Jack arrives with two boxes in his car. The house was lived in until weeks ago: mail at the door, dishes, notes on the fridge.
@@ -195,3 +195,38 @@ Open `Builds/Peripheral_Demo.app` (double-click; the first launch pauses about 1
 - Call 39: play-mode capture returns the editor camera, not the game view, so there are no true in-game frames of the drive or the note; the stills are editor views and the overlay sheet is a mockup.
 - Call 40: packaged build verified by launching it in the background and reading its log (map loads, no errors). Not played by hand.
 - Known: the car is blocky; wall mirror is a plain grey panel (real reflections were streaky); the room room-by-room `screenshots/<room>/` set from earlier is now out of date.
+
+## First-look feedback pass (Nov 11)
+**Car.** Rebuilt from scratch in `Scripts/props_car.py`. The body is a lofted skin with real curvature (crowned bonnet and boot, tumblehome, rolled shoulders, rounded corners in plan); wheel arches, cabin, boot and loading lip are cut out of it, and door, bonnet and fuel-flap shut lines are cut in as grooves. Glasshouse is a thin shell with glass between black rubber seals and a trimmed interior. 13-inch steel wheels with tyres that have a sidewall profile, wrap-round grey bumpers, flap door handles, mirrors, wipers, lamps, exhaust, aerial. Size: 426 long, 167 wide, 137 tall, 243 wheelbase.
+- Wear is a purpose-built paint material (`Scripts/build_car_materials.py`): top panels sun-faded with patches of lost clear coat, road dirt low down and behind each wheel, light rust on the arch lips and sills, stone chips on the nose, and a parking dent in the left rear quarter scraped to primer.
+- Checked against period photos of a 1990-91 Toyota Corolla sedan on Wikimedia Commons and its published size (2430 wheelbase, about 1655 wide, 1365 tall). Changes made after the check: silver steel wheels instead of dark, bumpers wrapped back to the wheel arches, rub strip carried onto the wings. The design stays invented: no badge, own lamp and grille shapes.
+- Screenshots: `screenshots/car/`.
+
+**Unease at high levels.** Shader rewritten (`Scripts/build_bodycam.py`).
+- Edge blur cut from 2.6 to 1.1 and it no longer grows with unease. Nothing in the unease look blurs. Pixelated patches and colour-swapped blocks are gone.
+- Intensity now comes from: tracking bands and a rolling bar, line tears, colour bleed (colour smears sideways, brightness detail stays sharp), red/blue splitting, a short frame hop with line doubling, picture wobble, a drifting colour cast, crushed shadows, heavier grain with colour noise, head-switching noise on the bottom lines.
+- The strong effects arrive in bursts of 0.5 to 2 seconds every few seconds and pass; short stutters fall between them.
+- Three presets for levels 8-10: Subtle, Medium, Heavy (F1, then up/down). Stills of all three at levels 8, 9, 10, between bursts and at the peak of one: `screenshots/unease_stages/presets/`.
+
+**Interior lighting.** Every bulb now has a real colour temperature (`Scripts/dress_rooms.py`).
+- Incandescent 2700 K throughout. Halogen torchiere in the living room (2950 K, thrown at the ceiling), standing between the two armchairs.
+- Newer bulbs: a compact fluorescent in the bathroom (3500 K, faintly green) and one cooler replacement bulb (4000 K) in the kitchen fixture by the table.
+- Shaded lamps (living room table, hall table) glow through the shade and throw a pool down onto the table and up onto the ceiling. The living room fan light and the bedroom ceiling light are dimmer, so rooms fall off into darker corners.
+- The downstairs hall ceiling fixture flickers slightly (a faint shimmer with an occasional short dip).
+- Day and night stills: `screenshots/lighting_pass/`.
+
+### Judgment calls
+41. Car body colour kept faded green; the tint was darkened in the new material so the faded top panels still read pale.
+42. Boot stays open with a high loading lip between the tail lamps; the boxes sit where they did, so the drive-in and task 1 are unchanged.
+43. A true frozen frame is not possible in this post-process step, so "frame stutter" is a two-frame hop with line doubling and a brightness dip.
+44. Tracking bands are allowed to cross the centre of the view at reduced strength; every other burst effect is held back in the centre.
+45. Colour-swapped blocks were removed after the first test stills: they read as stickers on the screen, which breaks the "this is what Jack sees" rule.
+46. The flicker is on the light only; the glass globe of that fixture glows steadily.
+47. The torchiere first stood by the hall door and failed the fit check, so it moved between the armchairs.
+
+### Memory guard
+The editor grew to 30 GB after nine hours of scripted rebuilds on a 36 GB Mac. `Scripts/mem_check.sh` prints its footprint and exits 1 above 12 GB; run it before screenshot batches, rebuilds and packaging, and restart the editor when it trips. Close the editor before packaging.
+
+### Not verified
+- Script reads of shader values during play return 0 for everything, so the preset switch is confirmed in the HUD (default Medium) but its effect on screen in the running game has not been seen. The "live bursts" state is the zero state, so bursts run even if a value is never written.
+- All stills are editor views with the burst held; nobody has watched the bursts in motion or played with real keys.

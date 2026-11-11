@@ -251,3 +251,13 @@ def desk_wood():
         k.cyl("glass", 60, y, 65, 2.4, 1.6, 10, pitch=90)
     k.box("brass", 58, 32, 20, 60.5, 50, 26)
     return k
+
+
+@prop
+def torchiere():
+    """Black halogen floor lamp: weighted base, thin pole, shallow bowl that throws its light at the ceiling."""
+    k = K.Kit()
+    k.cyl("plastic_black", 0, 0, 0, 13, 2.2, 24); k.cyl("plastic_black", 0, 0, 2.2, 1.2, 170, 10)
+    k.cone("plastic_black", 0, 0, 171, 3.5, 17, 9, 24); k.cyl("lamp_on", 0, 0, 179.6, 15.5, 0.5, 24)
+    k.cyl("plastic_black", 1.6, 0, 120, 1.5, 3, 8)                          # dimmer knob on the pole
+    return k
