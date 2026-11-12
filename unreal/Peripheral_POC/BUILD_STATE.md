@@ -459,3 +459,46 @@ Joel's answer on MetaHuman: go without it first, he was not at the computer to s
 84. Face detail was kept low on purpose ("face hard to read").
 85. The living-room mirror hangs over the sofa, so from the floor it mostly shows the room behind him; the parents' room mirror is the one that shows him head to hips.
 
+
+## Second anomaly pass, pictures, home video, hint fix (Nov 12)
+
+Joel, away from the computer: get as close to final production as possible without him; do not stop when blocked, move to the next thing.
+
+### MetaHuman sign-in: started, waiting on Joel
+- The Epic Games Launcher and Brave both remember Joel's Epic account. The MetaHuman tools keep their own sign-in and had never been signed in on this Mac.
+- I turned the MetaHuman Creator plugin on, made a test character and asked for cloud rigging by script (Epic ships Python examples for all of it: create, sculpt, skin, hair, clothes, rig, assemble). That opened Epic's page in Brave. It asks Joel to accept a licence agreement; only he can. The request timed out unanswered.
+- Also found: the plugin's optional content (hair and clothing presets) is not installed; it comes from the Epic Launcher.
+- The plugin is switched off again in `Peripheral_POC.uproject` (it is not needed until he signs in). To resume: add `{ "Name": "MetaHumanCharacter", "Enabled": true, "TargetAllowList": [ "Editor" ] }` back, start the editor, run the request again, and Joel approves in Brave or from his phone with the code shown in the page address.
+
+### Anomalies added (from Joel's older lists: the handoff's 12, the master brief's sections 21 and 24)
+All placed by `Scripts/build_anoms.py` (tag `anom`; run after `build_story.py`, before `build_day.py`). Props in `props_anom.py`.
+- **False positives (always there, never change):** ten ordinary things the height and width of a person in dim corners. Boxes under a dust sheet (basement, sewing room), a mop stood in its bucket (kitchen, utility room), a coat over a chair (den), a leggy plant (front hall), tall box stacks (sibling's room, workshop), a bunched curtain with shoes under it (basement storage, dining room). Each goes on the first clear stretch of wall the script finds, away from doorways.
+- **Edge of the eye (`BP_Anomaly`, the existing rule):** a floor lamp in the den that leans (day 2 on); the matching-outfits portrait in the front hall with every head turned away (day 3 on); someone standing at the window end of the upstairs hall (day 4 on).
+- **Through glass (`BP_Glimpse`, new):** a dark head and shoulders at Jack's bedroom window, seen from the back yard (day 3 on, the day he mows and waters); someone standing outside the living room window, seen from indoors (day 4 on). Shown while Jack is at a distance and not looking; 0.16 s of direct look and it is gone for 90 to 170 seconds. No wall test, because window glass blocks the test the other anomalies use.
+- **Only in the mirror (`BP_OnlyMirror`, new):** a standing figure behind Jack in the living room mirror (day 3 on) and the parents' room mirror (day 4 on). It is drawn by the mirror's camera and never by Jack's own eyes, so turning round shows an empty room.
+- **Changed while he was out of the room (`BP_Day`, now 21 instead of 15):** a fifth door on the upstairs hall wall; the SOLD sign in the front yard (new prop, "Hale & Voss Realty") loses the agent's smile; the wedding photo on the mantel lies face-down; a kitchen cabinet door stands open; the kitchen tap runs; the half-bath door stands wide open. `BP_Day` now takes its count from the list it is given.
+- **Sounds from elsewhere (`BP_Paranoia`, new; sounds from `Scripts/audio/gen_sounds3.py`):** while an anomaly day runs, every 45 to 110 seconds one of: doorbell, a knock at the front door, the phone, the answering machine's beep, a burst from the television, pipes, a floorboard, footsteps overhead. Always at least 6 m from Jack, heard from its direction with distance falloff (`ATT_House`). Each has a caption. An eleventh event has no sound: the lit lamps within 7 m go dark for a third of a second.
+- Not added, with reasons: "coat hung as if worn" (the entity's coat stand already is this); "kitchen chair pulled out" and "door ajar" (already in as the dining chair and the parents' door); "lamp off" (the reverse, a light back on, is in); "yard sign name blank" (the house has no name sign; the SOLD sign carries that idea); "movement in a doorway" (no moving figure yet); "hot water" is the running tap without steam.
+
+### Pictures
+- Eight more family snapshots drawn by code (`Scripts/tex/gen_prints2.py`): birthday, bike, Christmas, fishing dock, beach, the car in the drive, a baby in a blanket, the sprinkler. Same paper-cut style as the earlier ones, everyone seen from behind or far away, date-stamped. Twelve framed copies hang on clear wall space in the dining room, both halls, living room, den, upstairs hall, parents' room, sewing room, back hall, Jack's room and kitchen.
+- These are stand-ins. Real snapshots from Joel (no faces), shrunk and aged, would look better; the frames take any image dropped into `SourceArt/Prints` under the same names.
+
+### Home video (was: one line of text)
+- When Jack plays the tape on day 5, the old television in the parents' room now comes on with a click of static and plays a four-second loop at four frames a second: a boy running through the sprinkler while a hand waves into frame, then a birthday where the candles go out. Sixteen frames drawn by code (`Scripts/tex/gen_video.py`), played by `M_HomeVideo`, switched by `BP_Video`. It keeps playing to the end.
+
+### Day One hint glow
+- The warm glow that marks the current task used the first house's coordinates for four tasks (carry to the door, the fridge, where to sleep, lie down). `BP_Hint` now owns the light: it follows the director's marker for the other tasks and goes to the real front door, fridge, parents' door and bed for those four. The director is still not rewritten.
+
+### Other
+- The editor message "Multiple directional lights are competing" (sun and moon) is silenced by giving the sun priority.
+- Mirror pictures are dimmer (tint 0.31 / 0.275 / 0.22, was 0.50 / 0.45 / 0.37) to sit closer to the room.
+- `editor.sh stop` waits up to three minutes for the old editor to exit (a restart that was too quick left the new one without its tool port).
+
+### Judgment calls
+86. All of the missing anomalies went in rather than waiting for Joel to pick, on his "get as close as you can to final production without me".
+87. False positives never change. Their job is to make the real figures harder to trust.
+88. The window figure is a flat black cut-out just outside the pane: the glass reflects the sky from outside, so a figure standing inside the room cannot be seen from the yard.
+89. The figures in the mirrors do not move or react. They are there from their day onward whenever the mirror is.
+90. Family pictures with faces are still held back for MetaHuman characters (no real faces, and the mannequin body would look like a mannequin in a frame).
+91. `DESIGN_BIBLE.md` was not changed: it is updated only when Joel approves a change.

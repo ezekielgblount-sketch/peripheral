@@ -37,7 +37,7 @@ def material():
     t = E(unreal.MaterialExpressionTextureSampleParameter2D, -500, 100); t.set_editor_property("parameter_name", "View")
     t.set_editor_property("texture", target(0)); t.set_editor_property("sampler_type", unreal.MaterialSamplerType.SAMPLERTYPE_LINEAR_COLOR)
     C(ad, "", t, "UVs")
-    tint = E(unreal.MaterialExpressionConstant3Vector, -500, 400); tint.set_editor_property("constant", unreal.LinearColor(0.50, 0.45, 0.37, 1))   # old glass, dimmed and warmed to sit in the room
+    tint = E(unreal.MaterialExpressionConstant3Vector, -500, 400); tint.set_editor_property("constant", unreal.LinearColor(0.31, 0.275, 0.22, 1))   # old glass, dimmed and warmed to sit in the room
     out = E(unreal.MaterialExpressionMultiply, -250, 200); C(t, "RGB", out, "A"); C(tint, "", out, "B")
     mel.connect_material_property(out, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
     m.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_UNLIT)

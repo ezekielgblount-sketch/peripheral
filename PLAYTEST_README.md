@@ -60,6 +60,14 @@ Nothing can hurt Jack. A wrong call in a corridor only resets the count.
 - Chores: is any one fiddly or unclear?
 - Did you notice the changes on Days 2 to 4 without being told?
 - Jack now has a body: look down, watch his shadow in sunlight or lamplight, pick something up to see his hands, and stand at the big mirror in the living room or the parents' room. Does he read as a person? What looks wrong first?
+- New this round, from your older anomaly lists. Tell me which land and which are too much:
+  - Things shaped like a person in dim corners (a dust sheet over boxes, a mop, a coat on a chair). These never change.
+  - From Day 3, in the back yard: someone at Jack's bedroom window, only when you are not looking at it. From Day 4: someone outside the living room window.
+  - From Day 3, the big living room mirror, and from Day 4 the parents' room mirror: someone standing behind Jack who is not in the room.
+  - Six more things that change while you are out of the room: an extra door upstairs, the SOLD sign's smile, the wedding photo, a kitchen cabinet, the kitchen tap, the half-bath door.
+  - Sounds from somewhere else in the house every minute or so (doorbell, phone, a knock, pipes, footsteps overhead), and now and then the lights dip.
+- Family snapshots now hang around the house. They are drawn stand-ins; your own photos (no faces) would replace them.
+- Day 5: the tape now plays on the old television in the parents' room.
 - The six music tracks were written by code and have not been heard by a person. They are in `unreal/Peripheral_POC/Music/` if you want to listen outside the game.
 
 See `unreal/Peripheral_POC/BUILD_STATE.md` for what was tested by script, what was not tested at all, and every judgment call.

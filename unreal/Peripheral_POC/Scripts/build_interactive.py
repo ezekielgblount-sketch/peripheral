@@ -71,9 +71,11 @@ def mover(label, mesh, x, y, z, face, tags, yaw=0.0, slide=(0, 0, 0), speed=4.0,
     return m
 
 static("car", "Car", CAR[0], CAR[1], GR, (1, 0), ["s_car"])
-hint = eas.spawn_actor_from_class(unreal.PointLight, L.to_ue(CAR[0] - 180, CAR[1] - 30, GR + 90))            # objective hint glow, moved by the director
-hint.set_actor_label("Objective_hint"); hint.set_folder_path("Interactive/Story"); hint.tags = ["interactive", "s_hint"]
-hc = hint.light_component
+hm = eas.spawn_actor_from_class(unreal.StaticMeshActor, L.to_ue(CAR[0] - 180, CAR[1] - 30, GR + 90))          # the marker the director moves; BP_Hint follows or corrects it
+hm.set_actor_label("Objective_hint_marker"); hm.set_folder_path("Interactive/Story"); hm.tags = ["interactive", "s_hint"]; hm.static_mesh_component.set_mobility(unreal.ComponentMobility.MOVABLE)
+hint = eas.spawn_actor_from_class(unreal.EditorAssetLibrary.load_blueprint_class("/Game/Blueprints/BP_Hint"), L.to_ue(CAR[0] - 180, CAR[1] - 30, GR + 90))     # objective hint glow
+hint.set_actor_label("Objective_hint"); hint.set_folder_path("Interactive/Story"); hint.tags = ["interactive"]
+hc = hint.get_component_by_class(unreal.PointLightComponent)
 hc.set_mobility(unreal.ComponentMobility.MOVABLE); hc.set_editor_property("intensity_units", unreal.LightUnits.LUMENS)
 hc.set_editor_property("intensity", 55.0); hc.set_editor_property("attenuation_radius", 150.0); hc.set_editor_property("cast_shadows", False)
 hc.set_editor_property("light_color", unreal.Color(r=255, g=214, b=150, a=255))

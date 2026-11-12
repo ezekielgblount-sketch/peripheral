@@ -411,7 +411,7 @@ def task_note(name, text):
 dog("photo_dog"); band_poster("poster_band"); height_marks("height_marks")
 card("ui_title", ["PERIPHERAL", "Enter  -  Play          S  -  Settings          Q  -  Quit"])
 card("ui_title_card", ["PERIPHERAL"])
-card("ui_end", ["PERIPHERAL", "end of demo   -   Enter to return to the title"])
+card("ui_end", ["PERIPHERAL", "Enter to return to the title"])
 card("ui_notyet", ["Not yet."], (512, 128), (0, 0, 0, 0), (240, 236, 220, 255), (64, 30), "hand")
 for i, t in enumerate(("Get the first box from the trunk.  (E to lift, E to set down)", "Carry it to the front door.", "Unlock the door with my old key.", "Bring both boxes inside.",
                        "Pick up the mail. Put it on the kitchen counter.", "Find the breaker. Basement stairs.", "Open a living room window.",

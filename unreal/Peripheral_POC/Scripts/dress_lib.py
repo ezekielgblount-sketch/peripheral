@@ -2,7 +2,7 @@
 import sys, math, importlib, unreal
 sys.path.insert(0, unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir()) + "Scripts")
 import poc_lib as L, meshkit as K, props_furniture as PF, house_plan as HP
-import props_small, props_90s, props_home, props_lived, props_story, props_pool, props_loop, props_r1, props_yard
+import props_small, props_90s, props_home, props_lived, props_story, props_pool, props_loop, props_r1, props_yard, props_anom
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
 SWITCH = unreal.EditorAssetLibrary.load_blueprint_class("/Game/Blueprints/BP_Switch")
 TAG = "dress"

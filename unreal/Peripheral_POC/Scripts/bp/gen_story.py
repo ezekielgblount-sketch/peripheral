@@ -230,7 +230,7 @@ dsl = f"""(event EventBeginPlay
         {S("U2", "true")} {HIDE(V("Photo"), "false")} {SND("click", 0.5)} {NOTE("")} {S("T", "0.0")}))
     (if (and {V("U2")} (> t 5.0)) {HUD("FadeSpeed", "FadeSpeed", "0.4")} {HUD("FadeTarget", "FadeTarget", "1.0")})
     (if (and {V("U2")} (> t 9.0))
-      {HUD("Mode", "Mode", "4")} {HUD("FadeTarget", "FadeTarget", "0.0")} {S("Phase", "9")}
+      {HUD("Mode", "Mode", "4")} {HUD("FadeTarget", "FadeTarget", "1.0")} {S("Phase", "9")}      ; stay black behind the end card (it is not as tall as the screen)
       (Class|BPSaveSettings|SetDay :self sv :Day 1)
       (SaveGame|SaveGametoSlot :SaveGameObject sv :SlotName "progress" :UserIndex 0)))
   {S("CardT", "(- " + V("CardT") + " DeltaSeconds)")}

@@ -31,6 +31,16 @@ P("keepsake_box", 190, 770, F2 + 61, (0, 1), r, collide=False, tags=["st_keepsak
 P("albums", 120, 720, F2 + 61, (0.3, 1), r, collide=False, tags=["st_albums"])
 P("vhs_tape", 358, 880, F2 + 83, (-1, 0.2), r, collide=False, tags=["st_tape"])
 P("crt_tv", 372, 920, F2 + 83, (-1, 0), r, collide=False)
+# the home video: a picture on that television's tube and its glow, switched on by BP_Video once the tape has been played
+import math
+v = eas.spawn_actor_from_class(eal.load_blueprint_class("/Game/Blueprints/BP_Video"), L.to_ue(372, 920, F2 + 83), unreal.Rotator(roll=0, pitch=0, yaw=180))
+v.set_actor_label("Home_video_screen"); v.set_folder_path("Story"); v.tags = ["story", "st_video"]
+vc = v.static_mesh_component; vc.set_mobility(unreal.ComponentMobility.MOVABLE); vc.set_static_mesh(PF.get("tv_video_screen")); vc.set_collision_profile_name("NoCollision"); vc.set_cast_shadow(False)
+g = eas.spawn_actor_from_class(unreal.PointLight, L.to_ue(372 - 75, 912, F2 + 110))
+g.set_actor_label("Home_video_glow"); g.set_folder_path("Story"); g.tags = ["story", "st_video_glow"]; g.set_actor_hidden_in_game(True)
+gc = g.light_component; gc.set_mobility(unreal.ComponentMobility.MOVABLE); gc.set_editor_property("intensity_units", unreal.LightUnits.LUMENS)
+gc.set_editor_property("intensity", 190.0); gc.set_editor_property("light_color", unreal.Color(r=170, g=190, b=255, a=255)); gc.set_editor_property("attenuation_radius", 420.0)
+gc.set_editor_property("cast_shadows", False)
 c = hidden(P("entity_figure", 50, 1118, F2, (0, -1), r, collide=False, tags=["st_climax"], movable=True))
 # ---- the ending: the two boxes, opened; one photo of his own beside theirs on the mantel ----
 for t in ("st_open_a", "st_open_b"):

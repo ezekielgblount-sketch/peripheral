@@ -42,7 +42,7 @@
     ; ---------------- try to fire one anomaly: only somewhere the player cannot see ----------------
     (if (and (and (not (Variables|Default|GetOver)) (> t (Variables|Default|GetNextT))) (> (- t (Variables|Default|GetTryT)) 1.0))
       (Variables|Default|SetTryT t)
-      (Variables|Default|SetR (Math|Random|RandomIntegerinRange :Min 0 :Max 14))
+      (Variables|Default|SetR (Math|Random|RandomIntegerinRange :Min 0 :Max (- (Utilities|Array|Length :TargetArray (Variables|Default|GetShowTags)) 1)))
       (bind r (Variables|Default|GetR))
       (Variables|Default|SetLightOK false)
       (if (== r 9)
@@ -70,7 +70,7 @@
         (Utilities|Array|Add :TargetArray (Variables|Default|GetFiredTime) :NewItem t)
         (Variables|Default|SetMask (+ (Variables|Default|GetMask) (Math|Float|Power :Base 2.0 :Exp (Math|Conversions|ToFloat(Integer) r))))
         (Variables|Default|SetNextT (+ t (Math|Random|RandomFloatinRange :Min (Variables|Default|GetGapMin) :Max (Variables|Default|GetGapMax))))
-        (switch int (select (== r 4) 0 (select (== r 5) 1 (select (== r 6) 2 (select (== r 9) 3 (select (== r 10) 4 5)))))
+        (switch int (select (== r 4) 0 (select (== r 5) 1 (select (== r 6) 2 (select (== r 9) 3 (select (== r 10) 4 (select (== r 20) 5 6))))))
           (:0 (bind doors (Actor|GetAllActorsOfClasswithTag :ActorClass "/Game/Blueprints/BP_Mover.BP_Mover_C" :Tag "s_pdoor"))
               (for d doors
                 (bind cr (Class|BPMover|GetClosedRot :self d))
@@ -80,6 +80,10 @@
           (:3 (Class|BPSwitch|SetOn :self (Variables|Default|GetLightCand) :On true))
           (:4 (bind caps (Actor|GetAllActorswithTag :Tag "dy_hallcap"))
                (for cp caps (Transformation|SetActorLocation :self cp :NewLocation (+ (Transformation|GetActorLocation :self cp) (Math|Vector|MakeVector :X 0.0 :Y 80.0 :Z 0.0)))))
+          (:5 (bind bdoors (Actor|GetAllActorsOfClasswithTag :ActorClass "/Game/Blueprints/BP_Mover.BP_Mover_C" :Tag "dy_bdoor"))
+              (for bd bdoors
+                (bind br (Class|BPMover|GetClosedRot :self bd))
+                (Class|BPMover|SetClosedRot :self bd :ClosedRot (Math|Rotator|MakeRotator :Roll (.roll br) :Pitch (.pitch br) :Yaw (+ (.yaw br) (* 0.92 (Class|BPMover|GetOpenYaw :self bd)))))))
           (:Default
             (bind show (Actor|GetAllActorswithTag :Tag (Utilities|Array|Get(acopy) :Array (Variables|Default|GetShowTags) :"Dimension 1" r)))
             (for a show (Rendering|SetActorHiddenInGame :self a :bNewHidden false))

@@ -4,7 +4,9 @@ One in-game day: a clock, the sun crossing the sky, and anomalies fired at rando
 player's view (outside the field of view, or behind a wall). Every one that fires is logged with its time; a later look at it is logged too.
 Anomaly numbers: 0 family photo, 1 THANKFUL banner, 2 fridge magnet and drawing, 3 clocks, 4 parents' door ajar, 5 dishes back,
 6 lawn strip long again, 7 television on, 8 dining chair pulled out, 9 a light back on, 10 hallway longer, 11 two coats,
-12 answering machine, 13 height mark, 14 shoes by the door."""
+12 answering machine, 13 height mark, 14 shoes by the door, 15 a fifth door upstairs, 16 the SOLD sign lost its smile,
+17 wedding photo face-down, 18 a kitchen cabinet open, 19 a tap running, 20 the half-bath door wide open.
+The list is as long as ShowTags: build_day.py decides how many there are."""
 import sys, os, json
 here = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.dirname(here))
 V = lambda n: "(Variables|Default|Get%s)" % n
@@ -64,7 +66,7 @@ dsl = f"""(event EventBeginPlay
     ; ---------------- try to fire one anomaly: only somewhere the player cannot see ----------------
     (if (and (and (not {V("Over")}) (> t {V("NextT")})) (> (- t {V("TryT")}) 1.0))
       {S("TryT", "t")}
-      {S("R", "(Math|Random|RandomIntegerinRange :Min 0 :Max 14)")}
+      {S("R", "(Math|Random|RandomIntegerinRange :Min 0 :Max (- (Utilities|Array|Length :TargetArray " + V("ShowTags") + ") 1))")}
       (bind r {V("R")})
       {S("LightOK", "false")}
       (if (== r 9)
@@ -86,7 +88,7 @@ dsl = f"""(event EventBeginPlay
         (Utilities|Array|Add :TargetArray {V("FiredTime")} :NewItem t)
         {S("Mask", "(+ " + V("Mask") + " (Math|Float|Power :Base 2.0 :Exp (Math|Conversions|ToFloat(Integer) r)))")}
         {S("NextT", "(+ t (Math|Random|RandomFloatinRange :Min " + V("GapMin") + " :Max " + V("GapMax") + "))")}
-        (switch int (select (== r 4) 0 (select (== r 5) 1 (select (== r 6) 2 (select (== r 9) 3 (select (== r 10) 4 5)))))
+        (switch int (select (== r 4) 0 (select (== r 5) 1 (select (== r 6) 2 (select (== r 9) 3 (select (== r 10) 4 (select (== r 20) 5 6))))))
           (:0 (bind doors (Actor|GetAllActorsOfClasswithTag :ActorClass "/Game/Blueprints/BP_Mover.BP_Mover_C" :Tag "s_pdoor"))
               (for d doors
                 (bind cr (Class|BPMover|GetClosedRot :self d))
@@ -96,6 +98,10 @@ dsl = f"""(event EventBeginPlay
           (:3 (Class|BPSwitch|SetOn :self {V("LightCand")} :On true))
           (:4 (bind caps (Actor|GetAllActorswithTag :Tag "dy_hallcap"))
                (for cp caps (Transformation|SetActorLocation :self cp :NewLocation (+ {LOC("cp")} {VEC("0.0", "80.0", "0.0")}))))
+          (:5 (bind bdoors (Actor|GetAllActorsOfClasswithTag :ActorClass "/Game/Blueprints/BP_Mover.BP_Mover_C" :Tag "dy_bdoor"))
+              (for bd bdoors
+                (bind br (Class|BPMover|GetClosedRot :self bd))
+                (Class|BPMover|SetClosedRot :self bd :ClosedRot (Math|Rotator|MakeRotator :Roll (.roll br) :Pitch (.pitch br) :Yaw (+ (.yaw br) (* 0.92 (Class|BPMover|GetOpenYaw :self bd)))))))
           (:Default
             (bind show (Actor|GetAllActorswithTag :Tag {GET(V("ShowTags"), "r")}))
             (for a show (Rendering|SetActorHiddenInGame :self a :bNewHidden false))

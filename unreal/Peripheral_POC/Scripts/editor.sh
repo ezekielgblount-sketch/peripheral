@@ -3,7 +3,7 @@
 # Usage: Scripts/editor.sh start|stop|restart     Save the level before stop/restart.
 P="$(cd "$(dirname "$0")/.." && pwd)"
 PAT="UnrealEditor.app/Contents/MacOS/UnrealEditor.*Peripheral_POC.uproject"
-stop() { pkill -f "$PAT"; for i in $(seq 1 30); do pgrep -f "$PAT" >/dev/null || break; /bin/sleep 2; done; }
+stop() { pkill -f "$PAT"; for i in $(seq 1 90); do pgrep -f "$PAT" >/dev/null || break; /bin/sleep 2; done; }
 start() {
   R="$P/Saved/Autosaves/PackageRestoreData.json"      # a leftover restore file makes the editor wait on a hidden prompt
   [ -f "$R" ] && mv "$R" "${TMPDIR:-/tmp}/PackageRestoreData_$(date +%s).json"

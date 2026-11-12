@@ -186,7 +186,7 @@
         (Variables|Default|SetU2 true) (Rendering|SetActorHiddenInGame :self (Variables|Default|GetPhoto) :bNewHidden false) (Audio|PlaySound2D :Sound "/Game/Audio/click.click" :VolumeMultiplier 0.5) (Variables|Default|SetNote "") (Variables|Default|SetT 0.0)))
     (if (and (Variables|Default|GetU2) (> t 5.0)) (Class|BPHUD|SetFadeSpeed :self hud :FadeSpeed 0.4) (Class|BPHUD|SetFadeTarget :self hud :FadeTarget 1.0))
     (if (and (Variables|Default|GetU2) (> t 9.0))
-      (Class|BPHUD|SetMode :self hud :Mode 4) (Class|BPHUD|SetFadeTarget :self hud :FadeTarget 0.0) (Variables|Default|SetPhase 9)
+      (Class|BPHUD|SetMode :self hud :Mode 4) (Class|BPHUD|SetFadeTarget :self hud :FadeTarget 1.0) (Variables|Default|SetPhase 9)      ; stay black behind the end card (it is not as tall as the screen)
       (Class|BPSaveSettings|SetDay :self sv :Day 1)
       (SaveGame|SaveGametoSlot :SaveGameObject sv :SlotName "progress" :UserIndex 0)))
   (Variables|Default|SetCardT (- (Variables|Default|GetCardT) DeltaSeconds))
