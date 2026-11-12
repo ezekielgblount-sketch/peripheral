@@ -12,7 +12,8 @@ S = lambda n, v: "(Variables|Default|Set%s %s)" % (n, v)
 GET = lambda arr, i: '(Utilities|Array|Get(acopy) :Array %s :"Dimension 1" %s)' % (arr, i)
 # sound, volume, caption number (see ui_overlay.CAPTIONS), fixed place (index into Fixed) or None for a roaming spot
 EVENTS = [("doorbell", 0.9, 8, 0), ("door_knock", 0.9, 9, 0), ("phone_ring", 0.8, 10, 1), ("machine_beep", 0.7, 11, 1), ("tv_burst", 0.7, 12, 2),
-          ("pipe_knock", 0.9, 13, None), ("floor_creak", 0.9, 14, None), ("steps_above", 1.0, 15, None), ("floor_creak", 0.7, 14, None), ("pipe_knock", 0.7, 13, None)]
+          ("pipe_knock", 0.9, 13, None), ("floor_creak", 0.9, 14, None), ("steps_above", 1.0, 15, None), ("floor_creak", 0.7, 14, None), ("pipe_knock", 0.7, 13, None),
+          ("gravel_steps", 1.0, 16, 3), ("porch_creak", 0.9, 17, 0), ("door_close", 1.0, 18, None), ("water_drip", 0.8, 19, None)]
 
 
 def case(i, e):

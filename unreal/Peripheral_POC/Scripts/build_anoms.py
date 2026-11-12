@@ -149,7 +149,8 @@ if __name__ == "__main__":
     pc.set_actor_label("Paranoia_controller"); pc.set_folder_path("Anom"); pc.tags = ["anom"]
     acts = eas.get_all_level_actors()
     first = lambda tag, d: next((a.get_actor_location() for a in acts if a.actor_has_tag(tag)), d)
-    pc.set_editor_property("Fixed", [L.to_ue(-10, 1180, HP.LND + 110), first("dy12n", L.to_ue(300, 1400, F1 + 90)), first("dy7n", L.to_ue(673, 1880, F1 + 96))])
+    pc.set_editor_property("Fixed", [L.to_ue(-10, 1180, HP.LND + 110), first("dy12n", L.to_ue(300, 1400, F1 + 90)), first("dy7n", L.to_ue(673, 1880, F1 + 96)),
+                                  L.to_ue(-420, 1000, GR + 20)])          # 3: the gravel by the front walk
     pc.set_editor_property("Spots", [L.to_ue(*p) for p in ((800, 1300, B + 200), (300, 800, B + 200), (300, 1350, F2 + 20), (120, 1480, F2 + 120), (180, 880, F2 + 20),
                                                            (900, 880, F2 + 20), (900, 1380, F2 + 20), (830, 1150, F1 + 20), (300, 1750, F1 + 20), (720, 720, F1 + 20))])
     pc.set_editor_property("GapMin", 45.0); pc.set_editor_property("GapMax", 110.0)

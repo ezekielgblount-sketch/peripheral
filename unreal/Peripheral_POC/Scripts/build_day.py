@@ -2,7 +2,7 @@
 Run after dress_rooms.py, build_chores.py and build_interactive.py. Safe to re-run."""
 import sys, importlib, unreal
 sys.path.insert(0, unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir()) + "Scripts")
-import poc_lib as L, house_plan as HP, props_furniture as PF, build_anoms
+import poc_lib as L, house_plan as HP, props_furniture as PF, build_anoms, build_anoms2
 importlib.reload(HP)
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
 eal = unreal.EditorAssetLibrary
@@ -10,7 +10,7 @@ L.clear("day")
 NAMES = ["Family photo: everyone faces away", "THANKFUL banner lost a letter", "Fridge magnet moved, drawing gained a figure", "Every clock shows 3:17",
          "Parents' door is ajar", "Washed dishes are back in the sink", "A strip of lawn is long again", "Television is on (static)",
          "Dining chair pulled out", "A light is back on", "Upstairs hall is longer", "Two coats on the rail", "Answering machine: 1 new message",
-         "New height mark above Jack's", "Shoes by the door"] + build_anoms.MORE_NAMES      # 15 onward: the second anomaly pass (build_anoms.py)
+         "New height mark above Jack's", "Shoes by the door"] + build_anoms.MORE_NAMES + build_anoms2.MORE_NAMES      # 15 onward: the second anomaly pass (build_anoms.py)
 N = len(NAMES)
 acts = eas.get_all_level_actors()
 def first(tag):

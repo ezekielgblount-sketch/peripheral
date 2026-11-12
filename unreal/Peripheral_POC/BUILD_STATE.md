@@ -510,3 +510,28 @@ All placed by `Scripts/build_anoms.py` (tag `anom`; run after `build_story.py`, 
 - Package: built with no errors; a windowless run loaded the map and ticked (its only warnings were from running with sound switched off).
 - Not tested: the packaged app on screen; anything by ear (the eight new sounds, like the music, were made by number and nobody has heard them); the light dip (it is one random event in eleven and did not come up); how often the figures are actually noticed at walking pace; the mirror figures in the packaged build.
 - Still not done: room expansion beyond the corridor; unease and colour re-tune; animation blending for Jack; family pictures with faces.
+
+
+## Third anomaly pass (Nov 12, later)
+
+Joel asked why the anomalies were not all built. The second pass had left out a handful as "already covered". They are in now (`Scripts/build_anoms2.py`, tag `anom2`, props in `props_anom2.py`; run after `build_anoms.py`, before `build_day.py`).
+
+### Added
+- **The rest of the handoff's twelve:**
+  - #3 the coat that hangs as if worn: the mud room jacket fills out with a chest, shoulders and arms (out-of-sight change 21).
+  - #4 the kitchen chair pulled out and turned to face the hall door (change 22). The dining chair version stays as well.
+  - #12 the sign's name line: a "WELCOME HOME" rider board now hangs under the SOLD sign and goes blank (change 23).
+  - #7 someone in the bathroom mirror: a black head and shoulders on the glass of the upstairs bathroom cabinet (day 3 on) and the half-bath cabinet (day 4 on). Edge-of-eye rule: there after he looks away, gone when looked at.
+  - #8 someone standing in the trees: behind the house, seen from Jack's bedroom window or the yard (day 2 on, his first glimpse). Gone after 0.16 s of direct look, back in 90 to 170 s.
+- **More person-shaped things (master brief 24):** a dress form with a hat in the sewing room, a hooded bathrobe on a hook in both upstairs bathrooms, coveralls on a nail with boots under them in the basement (two), an ironing board stood on end with a shirt over it (upstairs back hall, basement).
+- **More sounds from elsewhere (master brief 25):** footsteps on gravel outside, the porch boards, a door closing somewhere, a drip. Fourteen sound events now, each with a caption (`gen_sounds4.py`, `gen_paranoia.py`, `ui_overlay.py`).
+- `BP_Day` now has 24 out-of-sight changes.
+
+### Tested (editor play mode, by script) and not tested
+- Five-day story from Day 2 to the end card: passes, no Blueprint runtime errors.
+- Bathroom mirror figure: absent, appears once he has seen the mirror and looked away, gone on a direct look. Tree-line figure: up while he faces away, hidden on a direct look with a 135 s wait.
+- The new props were photographed; the robe and coveralls were reshaped after the first pictures (they read as a blob and as loose pieces).
+- Not tested: changes 21 to 23 firing in play (they use the same path as 15 to 19, and their actors were found by the day controller); the four new sounds by ear; the packaged app on screen.
+
+### Judgment call
+92. The sign had no buyer's name to blank, so a rider board carries the line that disappears.

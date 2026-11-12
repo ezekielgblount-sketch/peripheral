@@ -10,7 +10,8 @@ CHORES = ["Mow the back lawn", "Take out the trash, bin to the curb", "Get the m
           "Water the garden bed", "Sweep the garage", "Change the hall light bulb", "Make the bed in Jack's room"]
 CAPTIONS = ["", "[lawn mower running]", "[washing machine running]", "[buzzer]", "[water pouring]", "[dishes clink in the sink]", "[the house groans]", "[a breaker clunks; the power hums]",
             "[doorbell]", "[knocking at the front door]", "[a phone rings]", "[answering machine beeps]", "[television static]", "[pipes knock]",
-            "[a floorboard creaks]", "[footsteps overhead]"]
+            "[a floorboard creaks]", "[footsteps overhead]",
+            "[footsteps on gravel outside]", "[the porch boards creak]", "[a door closes somewhere]", "[water dripping]"]
 N_LOG = 15
 CHORE_DAY = {0: 3, 1: 4, 2: 2, 3: 2, 4: 2, 5: 3, 6: 4, 7: 3, 8: 2}           # as in bp/gen_story.py
 BUILD = "layout" in sys.argv
