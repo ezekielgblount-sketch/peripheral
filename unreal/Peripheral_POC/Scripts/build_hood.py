@@ -98,7 +98,7 @@ shrubs = [shrub("shrub_a", 11), shrub("shrub_b", 12)]
 swing = swing_set()
 H = dict(folder="Hood/Houses", tag="hood", collide=False)
 n = 0
-for i, y in enumerate((3230, 5530, -1370, -3670)):                                   # our side of the street
+for i, y in enumerate((4100, 6500, -2400, -4700)):                                   # our side of the street
     K.place(houses[i % 4], "NB_same_%d" % i, -20 + rnd.uniform(-80, 80), y, GR, face=(-1, 0), **H)
 for i, y in enumerate((-4800, -2500, -200, 2100, 4400, 6700)):                        # across the street
     K.place(houses[(i + 1) % 4], "NB_across_%d" % i, -3270 + rnd.uniform(-80, 80), y, GR, face=(1, 0), **H)
@@ -112,13 +112,13 @@ def put_tree(x, y, collide=False):
     a = K.place(rnd.choice(trees), "Tree_%02d" % n, x, y, GR, face=(math.cos(n * 2.4), math.sin(n * 2.4)), collide=collide,
                 scale=rnd.uniform(0.85, 1.2), **Tk)
 for y in range(-4700, 6800, 1150):                                                    # street trees on both verges
-    if not (500 < y + 380 < 1500):                                                    # keep the low sun on our front windows
+    if not (500 < y + 380 < 2050):                                                    # keep the low sun on our front windows
         ty = y + rnd.uniform(-150, 150) + 380
-        if 130 < ty < 590:                                                            # never in the mouth of our driveway (215..505): stand it on the grass beside it
-            ty = 20.0
+        if -80 < ty < 620:                                                            # never in the mouth of our driveway (0..545): stand it on the grass beside it
+            ty = -220.0
         put_tree(-1095 + rnd.uniform(-20, 20), ty)
     put_tree(-2175 + rnd.uniform(-20, 20), y + rnd.uniform(-150, 150) + 900)
-for (x, y) in ((-560, 1900), (1900, 520), (2250, 1650), (-450, -500), (-520, 2900), (1800, 3300), (2000, -1300)):
+for (x, y) in ((-560, 1750), (2390, 1830), (-450, -750), (-520, 3000), (1800, 3400), (2000, -1500)):
     put_tree(x, y, collide=True)
 for y in range(-5000, 7000, 520):                                                     # tree lines that close the horizon
     put_tree(3100 + rnd.uniform(-250, 250), y + rnd.uniform(-200, 200))
@@ -127,9 +127,9 @@ for y in range(-5000, 7000, 520):                                               
 for x in range(-6000, 6400, 560):
     put_tree(x + rnd.uniform(-200, 200), -5000 + rnd.uniform(-150, 150))
     put_tree(x + rnd.uniform(-200, 200), 6850 + rnd.uniform(-100, 100))
-for i, y in enumerate(list(range(630, 940, 95)) + list(range(1320, 1700, 95))):       # foundation shrubs along our front wall
+for i, y in enumerate(list(range(630, 1060, 95)) + list(range(1330, 1950, 95))):       # foundation shrubs along our front wall
     K.place(shrubs[i % 2], "Shrub_%02d" % i, -62, y, GR, face=(1, 0), folder="Hood/Shrubs", tag="hood", collide=False)
-K.place(swing, "SwingSet", 1750, 1380, GR, face=(0, 1), folder="Hood", tag="hood")
+K.place(swing, "SwingSet", 2250, 1560, GR, face=(0, 1), folder="Hood", tag="hood")
 
 # fences and utility poles: one mesh in world coordinates
 f = K.Kit()
@@ -146,8 +146,11 @@ def fence_y(x, y0, y1):
     for y in range(int(y0), int(y1) + 1, 240):
         B("fence", x - 5, y - 5, GR, x + 5, y + 5, GR + 180)
 fence_y(2600, -4820, 6700)
-for y in range(-4820, 6701, 2300):
+for y in (-4820, -2600, 4600, 6700):                                                  # the neighbours' side fences
     fence_x(y, 500, 2600)
+fence_x(-300, 790, 2600); fence_y(790, -300, -190)                                    # our back yard: wood privacy fence, with a gap by the garage for the gate
+fence_x(2300, 1100, 2600); fence_y(1100, 1980, 2300)
+for y in range(-4820, 6701, 2300):
     B("bark", 2630, y - 12, GR, 2654, y + 12, GR + 900)                               # utility pole and crossarm
     B("bark", 2636, y - 110, GR + 820, 2648, y + 110, GR + 832)
 for dy in (-95, 0, 95):

@@ -1,10 +1,9 @@
-"""Windows (frames, sashes, glass), door frames, working doors, casings and baseboards.
+"""Windows (frames, sashes, glass), door frames, working doors, casings and baseboards, all taken from house_plan.py.
 Safe to re-run: rebuilds everything tagged 'opening'. Numbers are blueprint cm."""
 import sys, importlib, unreal
 sys.path.insert(0, unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir()) + "Scripts")
-import poc_lib as L, meshkit as K
-importlib.reload(L); importlib.reload(K)
-LND, F1, F2 = -126, 0, 259
+import poc_lib as L, meshkit as K, house_plan as HP
+importlib.reload(L); importlib.reload(K); importlib.reload(HP)
 L.clear("opening")
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
 frames, glass = K.Kit(), K.Kit()
@@ -109,47 +108,58 @@ def base(axis, face, out, a0, a1, z, gaps=(), key="trim"):
         bx(frames, key, axis, face, face + out * 1.3, cur, a1, z, z + 9)
 
 
-# ---------------- windows ----------------
-window("x", -20, 0, 700, 940, 60, 210, +1, "picture", "trim")
-for a in (1055, 1191):
-    window("x", -20, 0, a, a + 25, LND + 20, LND + 203, +1, "plain")
-window("x", -20, 0, 1560, 1660, 90, 220, +1)
-window("x", 900, 920, 760, 880, 107, 207, -1)
-window("x", 900, 920, 1300, 1420, 90, 220, -1)
-window("y", 1700, 1720, 300, 420, 90, 220, -1)
-for (a0, a1) in ((800, 920), (1265, 1355), (1480, 1600)):
-    window("x", -50, -30, a0, a1, F2 + 90, F2 + 220, +1)
-window("x", 900, 920, 800, 920, F2 + 90, F2 + 220, -1)
-window("x", 900, 920, 1200, 1280, F2 + 120, F2 + 200, -1, "plain")
-window("x", 900, 920, 1465, 1585, F2 + 90, F2 + 220, -1)
-window("y", 1700, 1720, 676, 796, F2 + 90, F2 + 220, -1)
+def room_at(storey, x, y):
+    return next((r for r in HP.rooms(storey, ghosts=True) if r["rect"][0] < x < r["rect"][2] and r["rect"][1] < y < r["rect"][3]), None)
 
-# ---------------- doors ----------------
-door("Door_front", "x", -20, 0, 1090, 1181, LND, "lo", +1, key="door_red", keys=("white", "trim"))
-door("Door_kitchen_rear", "x", 900, 920, 1030, 1121, F1, "lo", -1, key="enamel", keys=("trim", "white"))
-door("Door_garage", "y", 580, 600, 655, 746, F1, "lo", +1, locked=True, keys=(None, "trim"))
-door("Door_living", "y", 1019, 1031, 470, 561, F1, "hi", -1, keys=("trim", "trim"), is_open=True)
-door("Door_kitchen", "x", 574, 586, 1300, 1391, F1, "hi", +1, is_open=True)
-door("Door_dining", "y", 1514, 1526, 250, 341, F1, "lo", +1, locked=True, keys=("trim", None))
-door("Door_halfbath", "y", 1544, 1556, 640, 731, F1, "lo", +1, locked=True, keys=("trim", None))
-door("Door_bath", "x", 566, 578, 1150, 1241, F2, "lo", +1, is_open=True)
-door("Door_bedroom", "x", 566, 578, 1385, 1476, F2, "lo", +1, is_open=True)
-door("Door_upstairs_a", "y", 1371, 1383, 150, 241, F2, "lo", +1, locked=True, keys=("trim", None))
-door("Door_upstairs_b", "y", 1494, 1506, 472, 553, F2, "lo", +1, locked=True, keys=("trim", None))
 
-# ---------------- baseboards ----------------
-base("x", 0, +1, 600, 1019, F1); base("x", 574, -1, 600, 1019, F1)            # living room
-base("y", 600, +1, 0, 574, F1); base("y", 1019, -1, 0, 574, F1, [(470, 561)])
-base("x", 586, +1, 600, 1544, F1, [(1300, 1391)]); base("x", 900, -1, 600, 1544, F1, [(1030, 1121)])    # kitchen
-base("y", 600, +1, 586, 900, F1, [(655, 746)]); base("y", 1544, -1, 586, 900, F1, [(640, 731)])
-base("y", 1514, -1, 112, 574, F1, [(250, 341)]); base("x", 574, -1, 1031, 1514, F1, [(1300, 1391)])     # hall, floor 1
-base("y", 1251, +1, 112, 470, F1); base("y", 1031, +1, 388, 574, F1, [(470, 561)])
-base("x", -30, +1, 1141, 1371, F2); base("y", 1371, -1, -30, 446, F2, [(150, 241)])                     # hall, floor 2
-base("y", 1251, +1, 100, 470, F2); base("y", 1141, +1, -30, 106, F2); base("y", 1141, +1, 482, 566, F2)
-base("x", 566, -1, 1141, 1494, F2, [(1150, 1241), (1385, 1476)]); base("x", 458, +1, 1383, 1494, F2)
-base("y", 1494, -1, 458, 566, F2, [(472, 553)])
-base("x", 578, +1, 1356, 1700, F2, [(1385, 1476)]); base("x", 900, -1, 1356, 1700, F2)                  # bedroom
-base("y", 1356, +1, 578, 900, F2); base("y", 1700, -1, 578, 900, F2)
+def side_trims(o):
+    """Casing finish on the low-t face and the high-t face of an opening: each takes the trim of the room it faces."""
+    am = (o["a0"] + o["a1"]) / 2.0
+    pts = [(o["t0"] - 5, am), (o["t1"] + 5, am)] if o["axis"] == "x" else [(am, o["t0"] - 5), (am, o["t1"] + 5)]
+    rs = [room_at(o["storey"], *p) for p in pts]
+    return tuple(HP.trim_mat(r) if r and not r["ghost"] else "white" for r in rs)
+
+
+n_doors = 0
+for o in HP.OPENINGS:
+    lo, hi = side_trims(o)
+    if o["kind"] == "window":
+        window(o["axis"], o["t0"], o["t1"], o["a0"], o["a1"], o["z0"], o["z1"], o["inside"], o["style"], hi if o["inside"] > 0 else lo)
+    elif o["kind"] == "door":
+        d = door(o["name"], o["axis"], o["t0"], o["t1"], o["a0"], o["a1"], o["z0"], o["hinge"], o["swing"], key=o["key"], locked=o["locked"],
+                 keys=(lo, hi), is_open=o["is_open"])
+        d.tags = ["opening", "door"] + o["tags"]; n_doors += 1
+    else:                                                    # a cased opening with no door
+        z, top = o["z0"], o["z1"] - o["z0"]
+        for (b0, b1, c0, c1) in ((o["a0"], o["a0"] + 2, z, z + top), (o["a1"] - 2, o["a1"], z, z + top), (o["a0"], o["a1"], z + top - 2, z + top)):
+            bx(frames, lo, o["axis"], o["t0"], o["t1"], b0, b1, c0, c1)
+        casing(o["axis"], o["t0"], -1, o["a0"], o["a1"], z, z + top, lo, False); casing(o["axis"], o["t1"], +1, o["a0"], o["a1"], z, z + top, hi, False)
+
+# ---------------- baseboards: along every wall of every room, broken at doorways ----------------
+n_base = 0
+for r in HP.rooms():
+    key = HP.FIN[r["fin"]][2]
+    if not r["base"] or key is None:
+        continue
+    s, (x0, y0, x1, y1) = r["storey"], r["rect"]
+    gaps = [o for o in HP.OPENINGS if o["storey"] == s and o["kind"] != "window" and abs(o["z0"] - r["floor"]) < 1]
+    others = HP.rooms(s, ghosts=True)
+    for (axis, face, outd, a0, a1) in (("x", x0, +1, y0, y1), ("x", x1, -1, y0, y1), ("y", y0, +1, x0, x1), ("y", y1, -1, x0, x1)):
+        cuts = {a0, a1}
+        for q in others:
+            cuts |= {v for v in ((q["rect"][1], q["rect"][3]) if axis == "x" else (q["rect"][0], q["rect"][2])) if a0 < v < a1}
+        for o in gaps:
+            if o["axis"] == axis:
+                cuts |= {v for v in (o["a0"] - 6.5, o["a1"] + 6.5) if a0 < v < a1}
+        cuts = sorted(cuts)
+        for (c0, c1) in zip(cuts[:-1], cuts[1:]):
+            m, t = (c0 + c1) / 2.0, face - outd * 3.0                      # a point just behind this stretch of wall face
+            p = (t, m) if axis == "x" else (m, t)
+            if room_at(s, *p):
+                continue                                                   # open to another part of the same space
+            if any(o["axis"] == axis and o["t0"] - 1 <= t <= o["t1"] + 1 and o["a0"] - 6.6 < m < o["a1"] + 6.6 for o in gaps):
+                continue
+            bx(frames, key, axis, face, face + outd * 1.3, c0, c1, r["floor"], r["floor"] + 9); n_base += 1
 
 for (kit, name, shadow) in ((frames, "openings_frames", True), (glass, "openings_glass", False)):
     sm = kit.save(name, local=False)
@@ -157,4 +167,4 @@ for (kit, name, shadow) in ((frames, "openings_frames", True), (glass, "openings
     a.set_actor_label(name); a.set_folder_path("Openings"); a.tags = ["opening"]
     a.static_mesh_component.set_mobility(unreal.ComponentMobility.STATIC)
     a.static_mesh_component.set_cast_shadow(shadow)
-print("openings built")
+print("openings built: doors", n_doors, "baseboard runs", n_base)

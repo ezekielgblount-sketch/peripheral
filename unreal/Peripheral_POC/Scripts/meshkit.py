@@ -246,18 +246,20 @@ def place(sm, name, x, y, z, face=(1, 0), folder="Props", tag="prop", collide=Tr
 PITCH = math.degrees(math.atan(5.0 / 12.0))
 
 
-def gable_roof(k, x0, x1, y0, y1, z_eave, ov=45, ov_gable=30, t=12, roof="roof", gable="siding", gable_t=20):
-    """Gable roof with the ridge along Y, in the kit's own coordinates. x0..x1 is the span, y0..y1 the ridge length."""
+def gable_roof(k, x0, x1, y0, y1, z_eave, ov=45, ov_gable=30, t=12, roof="roof", gable="siding", gable_t=20, pitch=5.0 / 12.0):
+    """Gable roof with the ridge along Y, in the kit's own coordinates. x0..x1 is the span, y0..y1 the ridge length.
+    pitch is rise over run (5/12 by default)."""
     half = (x1 - x0) / 2.0
-    rise = half * 5.0 / 12.0
+    rise = half * pitch
+    deg = math.degrees(math.atan(pitch))
     xr, zr = (x0 + x1) / 2.0, z_eave + rise
     run = half + ov
-    slope = run / math.cos(math.radians(PITCH))
-    drop = ov * 5.0 / 12.0
+    slope = run / math.cos(math.radians(deg))
+    drop = ov * pitch
     for sgn in (-1, 1):
         ex = xr + sgn * run
         cx, cz = (xr + ex) / 2.0, (zr + z_eave - drop) / 2.0 + t * 0.6
-        k.obox(roof, cx, (y0 + y1) / 2.0, cz, slope, (y1 - y0) + 2 * ov_gable, t, pitch=(PITCH if sgn < 0 else -PITCH))
+        k.obox(roof, cx, (y0 + y1) / 2.0, cz, slope, (y1 - y0) + 2 * ov_gable, t, pitch=(deg if sgn < 0 else -deg))
         k.box("white", min(ex, ex - sgn * 4), y0 - ov_gable, z_eave - drop - 12, max(ex, ex - sgn * 4), y1 + ov_gable, z_eave - drop + 8)
     k.box(roof, xr - 12, y0 - ov_gable, zr + t * 0.6 - 2, xr + 12, y1 + ov_gable, zr + t * 0.6 + 8)      # ridge cap
     if gable:

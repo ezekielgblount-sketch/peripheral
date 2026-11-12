@@ -32,27 +32,50 @@ def walk(name, pts, step=10.0, lift=LIFT):
     return not bad
 
 
-LND, F1, F2, B = -126, 0, 259, -252
-up = [(50, 1251 + 28 * i + 14, LND + 18 * (i + 1)) for i in range(6)]
-down = [(180 + 28 * i + 14, 1080, LND - 18 * (i + 1)) for i in range(6)]
-upper = [(470 - 28 * i - 14, 1190, 18.5 * (i + 1)) for i in range(13)]
-
-ok = all([
-    walk("front door", [(-70, 1136, LND), (60, 1136, LND)]),
-    walk("entry landing", [(60, 1136, LND), (130, 1080, LND), (60, 1136, LND), (50, 1200, LND)]),
-    walk("up flight", up, lift=STAIR),
-    walk("up flight top", [(50, 1460, F1), (160, 1460, F1)]),
-    walk("basement flight", down, lift=STAIR),
-    walk("basement foot", [(390, 1088, B), (450, 1088, B)]),
-    walk("hall floor 1", [(160, 1460, F1), (300, 1365, F1), (525, 1365, F1), (525, 1085, F1), (425, 1080, F1)]),
-    walk("kitchen door", [(525, 1345, F1), (650, 1345, F1)]),
-    walk("kitchen length", [(716, 1500, F1), (716, 650, F1)]),
-    walk("living room door", [(515, 1090, F1), (515, 990, F1), (490, 940, F1), (490, 880, F1), (180, 880, F1)]),
-    walk("stair to floor 2", upper, lift=STAIR),
-    walk("stair to floor 2 ends", [(525, 1300, F1), (525, 1190, F1)]),
-    walk("upstairs arrival", [(60, 1190, F2), (40, 1310, F2)]),
-    walk("upstairs hall", [(60, 1190, F2), (40, 1310, F2), (520, 1310, F2), (520, 1195, F2), (510, 1440, F2)]),
-    walk("bathroom door", [(520, 1195, F2), (640, 1195, F2), (740, 1235, F2)]),
-    walk("bedroom door", [(510, 1430, F2), (640, 1430, F2), (780, 1440, F2)]),
-])
-print("FIT CHECK:", "ALL PASS" if ok else "FAILURES ABOVE")
+import house_plan as HP
+importlib.reload(HP)
+LND, F1, F2, F3, B, GR = HP.LND, HP.F1, HP.F2, HP.F3, HP.B, HP.GR
+S = HP.STAIRS
+flight = lambda k, mid: [((S[k]["start"] + S[k]["sign"] * (S[k]["tread"] * i + 14), mid) if S[k]["axis"] == "x" else (mid, S[k]["start"] + S[k]["sign"] * (S[k]["tread"] * i + 14)))
+                         + (S[k]["first_top"] + S[k]["rise"] * i,) for i in range(S[k]["n"])]
+res = []
+for o in HP.OPENINGS:                                        # every doorway, walked straight through
+    if o["kind"] == "window":
+        continue
+    am, z = (o["a0"] + o["a1"]) / 2.0, o["z0"]
+    pts = [(o["t0"] - 55, am, z), (o["t1"] + 55, am, z)] if o["axis"] == "x" else [(am, o["t0"] - 55, z), (am, o["t1"] + 55, z)]
+    if o.get("name") == "Door_garage":
+        pts = [(am, o["t0"] - 40, z), (am, o["t1"] + 55, z)]
+    res.append(walk(o.get("name", "opening s%d %s %d" % (o["storey"], o["axis"], o["a0"])), pts))
+res += [
+    walk("entry landing", [(60, 1181, LND), (130, 1125, LND), (60, 1181, LND), (50, 1245, LND)]),
+    walk("up flight", flight("up", 50), lift=STAIR),
+    walk("up flight top", [(50, 1512, F1), (160, 1512, F1)]),
+    walk("basement flight", flight("down", 1125), lift=STAIR),
+    walk("basement foot", [(390, 1125, B), (520, 1125, B), (520, 1240, B)]),
+    walk("hall floor 1", [(160, 1512, F1), (300, 1420, F1), (525, 1420, F1), (525, 1130, F1), (425, 1125, F1)]),
+    walk("stair to floor 2", flight("upper", 1235), lift=STAIR),
+    walk("stair to floor 2 ends", [(525, 1340, F1), (525, 1235, F1)]),
+    walk("upstairs arrival", [(60, 1235, F2), (40, 1356, F2)]),
+    walk("upstairs gallery", [(40, 1356, F2), (640, 1356, F2), (640, 1235, F2)]),
+    walk("back hall", [(639, 800, F2), (639, 1720, F2), (515, 1720, F2), (515, 1580, F2)]),
+    walk("attic stair landing", [(105, 1478, F2), (135, 1478, F2)]),
+    walk("attic flight", flight("attic", 1478), lift=STAIR),
+    walk("loft", [(575, 1478, F3), (640, 1478, F3), (640, 1900, F3), (330, 1900, F3), (330, 1600, F3), (330, 1900, F3), (640, 1900, F3), (640, 1250, F3), (330, 1250, F3)]),
+    walk("living room", [(515, 1010, F1), (300, 830, F1), (60, 640, F1)]),
+    walk("dining room", [(295, 1630, F1), (300, 1900, F1), (60, 1750, F1), (500, 1765, F1)]),
+    walk("kitchen", [(650, 1390, F1), (830, 1150, F1), (685, 920, F1), (1020, 1295, F1)]),
+    walk("den", [(860, 1520, F1), (830, 1900, F1), (640, 1765, F1)]),
+    walk("mudroom and half bath", [(685, 800, F1), (700, 660, F1), (800, 745, F1), (960, 745, F1)]),
+    walk("parents' suite", [(50, 1120, F2), (200, 800, F2), (330, 745, F2), (480, 745, F2), (330, 745, F2), (330, 1045, F2), (480, 1045, F2)]),
+    walk("sibling's room", [(760, 845, F2), (1000, 700, F2), (1000, 1040, F2)]),
+    walk("Jack's room", [(760, 1345, F2), (1000, 1180, F2), (1000, 1590, F2)]),
+    walk("hall bath", [(760, 1717, F2), (1000, 1900, F2)]),
+    walk("guest room", [(390, 1695, F2), (100, 1600, F2), (100, 1900, F2)]),
+    walk("basement", [(520, 1125, B), (640, 1125, B), (830, 700, B), (830, 1900, B), (640, 1745, B), (345, 1745, B), (345, 1340, B), (525, 1340, B), (525, 1235, B)]),
+]
+if "GARAGE" in globals().get("EXTRA", "GARAGE"):
+    g = HP.GARAGE
+    res += [walk("garage steps", [(695, 540, F1)] + [(630 - 28 * i - 14, 525, F1 - 17.5 * (i + 1)) for i in range(7)], lift=STAIR),
+            walk("garage floor", [(405, 525, g["floor"]), (405, 300, g["floor"]), (380, 100, g["floor"]), (700, 165, g["floor"]), (880, 165, GR + 2)])]
+print("FIT CHECK:", "ALL PASS" if all(res) else "FAILURES ABOVE", "(%d routes)" % len(res))
