@@ -78,22 +78,24 @@ dsl = f"""(event EventBeginPlay
   ; ---------------- chapter select / continue: the menu leaves a day number on the request board ----------------
   (bind qbl {LOC(V("QB"))})
   (if (> (.x qbl) 0.5)
+    ; (a value read from a board is read again each time it is used, so keep it before the board is cleared)
+    {S("ReqN", "(select (> (.x qbl) 8.5) (Math|Integer|Max(Integer) :A 1 :B (Class|BPSaveSettings|GetDay :self sv)) (Math|Float|Round :A (.x qbl)))")}
     {SETLOC(V("QB"), VEC("0.0", "0.0", "0.0"))}
-    (if (== mode 0)
-      {S("StartReq", "(select (> (.x qbl) 8.5) (Math|Integer|Max(Integer) :A 1 :B (Class|BPSaveSettings|GetDay :self sv)) (Math|Float|Round :A (.x qbl)))")}
+    (if (== mode 9)
+      {S("StartReq", V("ReqN"))}
       (else
         ; a day picked in the middle of a game: remember it, and start the level again from clean
-        (Class|BPSaveSettings|SetStartDay :self sv :StartDay (Math|Float|Round :A (.x qbl)))
+        (Class|BPSaveSettings|SetStartDay :self sv :StartDay {V("ReqN")})
         (SaveGame|SaveGametoSlot :SaveGameObject sv :SlotName "progress" :UserIndex 0)
         (Game|OpenLevel(byName) :LevelName "POC_VisualSlice"))))
-  (bind req {V("StartReq")})
-  (if (and (> req 0) (> (Utilities|Time|GetGameTimeinSeconds) 0.5))
+  (if (and (> {V("StartReq")} 0) (> (Utilities|Time|GetGameTimeinSeconds) 0.5))
+    {S("ReqN", V("StartReq"))}
     {S("StartReq", "0")}
-    (if (== req 1)
+    (if (== {V("ReqN")} 1)
       {SETLOC(V("UB"), VEC("1.0", "1.0", "1.0"))}
       (else
         (Class|BPFront|SetChoreStart :self {V("FrontRef")} :ChoreStart true)
-        {S("Day", "(- req 1)")} {S("Phase", "10")} {S("T", "0.0")} {S("Woke", "false")}
+        {S("Day", "(- " + V("ReqN") + " 1)")} {S("Phase", "10")} {S("T", "0.0")} {S("Woke", "false")}
         {HUD("Fade", "Fade", "1.0")} {HUD("FadeTarget", "FadeTarget", "1.0")})))
   ; ---------------- day 1 is the director's own Day One; it becomes ours when he lies down ----------------
   (if (and (== day 0) (or (== mode 5) (== mode 1))) {S("Day", "1")} {S("Phase", "1")})
@@ -115,6 +117,7 @@ dsl = f"""(event EventBeginPlay
     (Class|BPDay|SetOver :self dc :Over false))
   ; ---------------- night: fade, the day card, autosave, wake beside the bed ----------------
   (if (== p0 10)
+    (if (<= t 7.0) {HUD("FadeTarget", "FadeTarget", "1.0")})
     (if (and (> t 2.5) (not {V("Woke")}))
       {S("Woke", "true")}
       {S("Day", "(+ day 1)")}
@@ -222,7 +225,7 @@ dsl = f"""(event EventBeginPlay
       {S("U1", "true")} {SETLOC(V("OpenB"), LOC(V("BoxB")))} {HIDE(V("OpenB"), "false")} {HIDE(V("BoxB"), "true")}
       (Collision|SetActorEnableCollision :self {V("BoxB")} :bNewActorEnableCollision false) {SND("box_thump", 0.6)})
     (if (and {V("U0")} (and {V("U1")} (not {V("U2")})))
-      {NOTE("one more thing. the shelf in the living room, next to theirs.")}
+      {NOTE("one more thing. the mantel in the living room, next to theirs.")}
       (if (and use (< {D2("ploc", LOC(V("Shelf")))} 190.0))
         {S("U2", "true")} {HIDE(V("Photo"), "false")} {SND("click", 0.5)} {NOTE("")} {S("T", "0.0")}))
     (if (and {V("U2")} (> t 5.0)) {HUD("FadeSpeed", "FadeSpeed", "0.4")} {HUD("FadeTarget", "FadeTarget", "1.0")})
@@ -246,7 +249,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "apply":
         B.add_obj_var(N, k, "/Script/Engine.Actor")
     for k, c in (("FrontRef", "BP_Front"), ("HudRef", "BP_HUD"), ("LoopRef", "BP_Loop"), ("DayRef", "BP_Day"), ("ChoreRef", "BP_Chores"), ("PlayerRef", "BP_Player"), ("Save", "BP_SaveSettings")):
         B.add_obj_var(N, k, "/Game/Blueprints/%s.%s_C" % (c, c))
-    for k in ("Day", "Phase", "P0", "Need", "Count", "StartReq"):
+    for k in ("Day", "Phase", "P0", "Need", "Count", "StartReq", "ReqN"):
         B.add_var(N, k, "int")
     for k in ("T", "DayT", "CardT", "Look"):
         B.add_var(N, k, "float")

@@ -34,22 +34,24 @@
   ; ---------------- chapter select / continue: the menu leaves a day number on the request board ----------------
   (bind qbl (Transformation|GetActorLocation :self (Variables|Default|GetQB)))
   (if (> (.x qbl) 0.5)
+    ; (a value read from a board is read again each time it is used, so keep it before the board is cleared)
+    (Variables|Default|SetReqN (select (> (.x qbl) 8.5) (Math|Integer|Max(Integer) :A 1 :B (Class|BPSaveSettings|GetDay :self sv)) (Math|Float|Round :A (.x qbl))))
     (Transformation|SetActorLocation :self (Variables|Default|GetQB) :NewLocation (Math|Vector|MakeVector :X 0.0 :Y 0.0 :Z 0.0))
-    (if (== mode 0)
-      (Variables|Default|SetStartReq (select (> (.x qbl) 8.5) (Math|Integer|Max(Integer) :A 1 :B (Class|BPSaveSettings|GetDay :self sv)) (Math|Float|Round :A (.x qbl))))
+    (if (== mode 9)
+      (Variables|Default|SetStartReq (Variables|Default|GetReqN))
       (else
         ; a day picked in the middle of a game: remember it, and start the level again from clean
-        (Class|BPSaveSettings|SetStartDay :self sv :StartDay (Math|Float|Round :A (.x qbl)))
+        (Class|BPSaveSettings|SetStartDay :self sv :StartDay (Variables|Default|GetReqN))
         (SaveGame|SaveGametoSlot :SaveGameObject sv :SlotName "progress" :UserIndex 0)
         (Game|OpenLevel(byName) :LevelName "POC_VisualSlice"))))
-  (bind req (Variables|Default|GetStartReq))
-  (if (and (> req 0) (> (Utilities|Time|GetGameTimeinSeconds) 0.5))
+  (if (and (> (Variables|Default|GetStartReq) 0) (> (Utilities|Time|GetGameTimeinSeconds) 0.5))
+    (Variables|Default|SetReqN (Variables|Default|GetStartReq))
     (Variables|Default|SetStartReq 0)
-    (if (== req 1)
+    (if (== (Variables|Default|GetReqN) 1)
       (Transformation|SetActorLocation :self (Variables|Default|GetUB) :NewLocation (Math|Vector|MakeVector :X 1.0 :Y 1.0 :Z 1.0))
       (else
         (Class|BPFront|SetChoreStart :self (Variables|Default|GetFrontRef) :ChoreStart true)
-        (Variables|Default|SetDay (- req 1)) (Variables|Default|SetPhase 10) (Variables|Default|SetT 0.0) (Variables|Default|SetWoke false)
+        (Variables|Default|SetDay (- (Variables|Default|GetReqN) 1)) (Variables|Default|SetPhase 10) (Variables|Default|SetT 0.0) (Variables|Default|SetWoke false)
         (Class|BPHUD|SetFade :self hud :Fade 1.0) (Class|BPHUD|SetFadeTarget :self hud :FadeTarget 1.0))))
   ; ---------------- day 1 is the director's own Day One; it becomes ours when he lies down ----------------
   (if (and (== day 0) (or (== mode 5) (== mode 1))) (Variables|Default|SetDay 1) (Variables|Default|SetPhase 1))
@@ -71,6 +73,7 @@
     (Class|BPDay|SetOver :self dc :Over false))
   ; ---------------- night: fade, the day card, autosave, wake beside the bed ----------------
   (if (== p0 10)
+    (if (<= t 7.0) (Class|BPHUD|SetFadeTarget :self hud :FadeTarget 1.0))
     (if (and (> t 2.5) (not (Variables|Default|GetWoke)))
       (Variables|Default|SetWoke true)
       (Variables|Default|SetDay (+ day 1))
@@ -178,7 +181,7 @@
       (Variables|Default|SetU1 true) (Transformation|SetActorLocation :self (Variables|Default|GetOpenB) :NewLocation (Transformation|GetActorLocation :self (Variables|Default|GetBoxB))) (Rendering|SetActorHiddenInGame :self (Variables|Default|GetOpenB) :bNewHidden false) (Rendering|SetActorHiddenInGame :self (Variables|Default|GetBoxB) :bNewHidden true)
       (Collision|SetActorEnableCollision :self (Variables|Default|GetBoxB) :bNewActorEnableCollision false) (Audio|PlaySound2D :Sound "/Game/Audio/box_thump.box_thump" :VolumeMultiplier 0.6))
     (if (and (Variables|Default|GetU0) (and (Variables|Default|GetU1) (not (Variables|Default|GetU2))))
-      (Variables|Default|SetNote "one more thing. the shelf in the living room, next to theirs.")
+      (Variables|Default|SetNote "one more thing. the mantel in the living room, next to theirs.")
       (if (and use (< (Math|Vector|Distance2D(Vector) :V1 ploc :V2 (Transformation|GetActorLocation :self (Variables|Default|GetShelf))) 190.0))
         (Variables|Default|SetU2 true) (Rendering|SetActorHiddenInGame :self (Variables|Default|GetPhoto) :bNewHidden false) (Audio|PlaySound2D :Sound "/Game/Audio/click.click" :VolumeMultiplier 0.5) (Variables|Default|SetNote "") (Variables|Default|SetT 0.0)))
     (if (and (Variables|Default|GetU2) (> t 5.0)) (Class|BPHUD|SetFadeSpeed :self hud :FadeSpeed 0.4) (Class|BPHUD|SetFadeTarget :self hud :FadeTarget 1.0))

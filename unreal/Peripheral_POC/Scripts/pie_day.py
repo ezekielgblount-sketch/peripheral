@@ -12,13 +12,8 @@ tag = lambda t: [a for a in acts if a.actor_has_tag(t)]
 step = globals().get("STEP", "info")
 cb = tag("cb")[0]; ch = by("Chore_controller"); day = by("Day_controller")
 if step == "start":
-    hud = GS.get_all_actors_of_class(w, unreal.HUD)[0]
-    for k, v in (("Mode", 1), ("Fade", 0.0), ("FadeTarget", 0.0)):
-        try: hud.set_editor_property(k, v)
-        except Exception as e: print("hud", k, e)
-    pc.reset_ignore_move_input(); pc.reset_ignore_look_input()
-    cb.set_actor_location(unreal.Vector(0, 1, 0), False, False)
-if step in ("go", "use", "hold") and globals().get("GO"):
+    pass
+if step in ("go", "use", "hold", "suse") and globals().get("GO"):
     x, y, z = [float(v) for v in GO.split(",")]
     pawn.set_actor_location(L.to_ue(x, y, z + 92), False, True)
     if globals().get("LOOK"):
@@ -31,6 +26,20 @@ if step == "drop":
     pawn.set_editor_property("Carrying", False); pawn.set_editor_property("Pushing", False)
 if step == "use":
     ch.set_editor_property("TestUse", True)
+hud = GS.get_all_actors_of_class(w, unreal.HUD)[0]; st = by("Story_controller"); fr = by("Front_controller")
+if step == "req":
+    st.set_editor_property("StartReq", int(REQ))
+if step == "chorestart":
+    fr.set_editor_property("ChoreStart", True)
+if step == "suse":
+    st.set_editor_property("TestUse", True)
+if step == "ub":
+    x, y, z = [float(v) for v in UBV.split(",")]; tag("ub")[0].set_actor_location(unreal.Vector(x, y, z), False, False)
+SG = st.get_editor_property
+print("   hud mode", hud.get_editor_property("Mode"), "unease", round(hud.get_editor_property("Unease")), "fade", round(hud.get_editor_property("Fade"), 2),
+      "| ub", [round(v, 1) for v in tag("ub")[0].get_actor_location().to_tuple()], "| story day", SG("Day"), "phase", SG("Phase"), "loop", SG("LoopOn"), SG("Count"), "/", SG("Need"),
+      "note:", SG("Note"), "| card:", SG("Card"), "| lb", [round(v, 1) for v in tag("lb")[0].get_actor_location().to_tuple()],
+      "| loopK", by("Loop_controller").get_editor_property("K"), "| music vols", [round(fr.get_editor_property("Vol%d" % i), 2) for i in range(6)])
 G = ch.get_editor_property
 uncut = sum(1 for a in tag("grass") if a.get_actor_scale3d().z > 0.5)
 dust = sum(1 for a in tag("ch_dust") if a.get_actor_scale3d().z > 0.5)
