@@ -376,3 +376,50 @@ All use E. A list of them shows in the corner during the chore day.
 68. Subtitles caption sound cues, since the game has no speech.
 69. The parents' room is open during the chore day and the loop; on Day One it still shows "Not yet."
 70. The loop corridor now leaves by the two closets at the far end of the upstairs back hall and runs out through the side wall behind them.
+
+## "Finish the full game" pass (Nov 11 to 12): design bible, music, front controller, five-day story
+`DESIGN_BIBLE.md` at the repo root now holds every instruction from this session, by topic; it is the source of truth. `PLAYTEST_README.md` is the short how-to-play.
+
+### What changed in how the game is put together
+- **The director (`BP_HUD`) is no longer rewritten.** Its graph is very large, and writing it again through the editor's tools drove the editor to 65 GB of memory (it had also quit once earlier the same way). I stopped the editor both times; nothing of Joel's was lost. The director's asset was restored to its last good version and is now steered from outside by two small controllers. Section 7's list above ("menus are now real widgets") still holds; only where the logic lives changed.
+- **`BP_Front`** (`Scripts/bp/gen_front.py`): the menu board and the mouse (any menu shows the pointer unlocked; play captures it), the title (a look round the new house), New game, the chore-day test, pause, quit, the six music slots crossfaded by unease, and the Accessibility cap. It switches the director's old keyboard title menu, old pause menu and old music off.
+- **`BP_Story`** (`Scripts/bp/gen_story.py`, placed by `build_story.py`): the five days. It uses the director for fades and unease, `BP_Chores` for chores, `BP_Day` for out-of-sight anomalies and `BP_Loop` for the corridor.
+
+### The five days as built
+- Day 1 is the existing Day One, started from New game with the drive in. When Jack lies down, the story takes over: fade, a card ("Day 2 - Settling in"), autosave, and he wakes standing by his bed.
+- Day 2: bed, dishes, mail, laundry. Day 3: mow, water, hall bulb; then the closet at the end of the upstairs hall opens onto the corridor that stretches (one pass); afterwards the parents' door stands open. Day 4: trash, sweep; then the corridor loop twice, three right calls each. Day 5: no chores; the corridor loop with five right calls; then the parents' room.
+- Unease rises through each day (10 to 30, 30 to 50, 50 to 80, 80 to 100) and out-of-sight anomalies fire faster each day (every 70 to 120 seconds on day 2, down to 25 to 45 on day 5).
+- The entity: six coat stands around the house (front hall from day 2; upstairs alcove and kitchen nook from day 3; Jack's room, dining room and the back hall from day 4). Each uses the peripheral rule: once it has been seen, it is a dark standing figure whenever it is off to the side or out of view, and a coat stand again the moment it is looked at directly.
+- Day 5 ending: E at the keepsake box, the albums and the tape in the parents' room (each gives one line). Then, when Jack is facing away, the figure stands inside the bedroom door, and this once it does not turn into a coat when looked at. After about two seconds of being looked at it is gone, unease falls to zero and the colour comes back. Then: E at each of the two boxes (they open where they stand), E at the living room mantel (his photo appears beside theirs), fade, end card.
+- Each day's start is saved (`progress` slot). Title: New game, Continue, Chapter select. Pause: Resume, Settings, Chapter select, How to play, Back to the title, Quit. Picking a day mid-game reloads the level and starts that day clean.
+- The inner-voice note (bottom left) and the day card are drawn by the overlay widget. During a corridor loop the note also shows the rule and the count.
+
+### Music
+- Six original tracks composed in code (`Scripts/audio/compose_music.py`), 2 min 24 s to 2 min 56 s each, seamless loops: one piano melody treated six ways (alone with tape hiss; sparse with pads and long silences; flat and warbling; breaking up over a drone with a far music box; almost gone over a deep hum, kept quiet; a hypnotic eight-note cell with one note that changes every few passes). Listenable copies: `Music/*.m4a`.
+- Nobody has listened to them. I can check length, loudness and loop seams by number, not whether they are good.
+
+### Tested by script in editor play mode
+- Title state; New game through the drive in to Day One; the hand-over when he lies down; Day 2 start by chapter select; every chore; days 2 to 5 with their loops; the three memories; the climax appearing and releasing; unpacking; the photo; the end card. No Blueprint runtime errors in the log.
+- Fit check: ALL PASS, 52 routes, with furniture.
+
+### Not done or not verified
+- **Jack as a visible character is not built.** MetaHuman needs an Epic sign-in inside the editor to assemble a character, which I do not have; the only other human mesh on this Mac is Epic's test mannequin, which the brief rules out. The plain shadow figure from before is still what casts his shadow. No hands, no legs when looking down, no mirror reflection, no `screenshots/player_character`.
+- Nothing in this pass has been played by a person or run as the packaged app: not the widgets on screen, mouse clicks on buttons, key rebinding, resolution changes, the save file, or how the days feel at walking pace. Script tests press "use" through a test hook and place the test pawn.
+- Room expansion exists only as the stretching corridor (day 3 onward). No ceiling that rises, no other room that stretches.
+- "Home videos" on day 5 is one tape and one line of text; nothing plays on a screen.
+- Day One still uses the director's old spots: the warm hint glow for the fridge task and the last two tasks sits in the wrong place (the tasks themselves complete correctly in the new house).
+- Day 1's own on-screen task notes are the earlier pre-made images; days 2 to 5 use the new text note.
+- Unease levels and presets were not re-tuned in this pass (milestone 3 is the earlier lighting and preset work, unchanged).
+- Daylight through the afternoon sun plus warm bulbs still pushes the greige halls toward yellow in the stills.
+- Captions exist for the chore sounds only.
+
+### Judgment calls
+71. The director is steered from outside instead of rewritten (see above).
+72. Chores are split by day so no chore repeats: 4, 3 and 2 across days 2 to 4, none on day 5.
+73. "At least two loops on day 4" is the same corridor walked as two separate loops; day 5's "harder" loop needs five right calls instead of three.
+74. The entity is a coat stand / standing figure pair using the existing peripheral rule, rather than a new system.
+75. The one scare is the figure not resolving when looked at, held for about two seconds with a low groan, no loud sound.
+76. The photo goes on the living room mantel beside a small family photo, not on a bookshelf.
+77. Waking beside the bed each morning is the only time the story places the player.
+78. The entity's coat stands are in the house from the start as ordinary furniture.
+79. Jack's character is left out rather than built from the test mannequin.
