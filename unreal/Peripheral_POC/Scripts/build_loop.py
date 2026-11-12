@@ -4,7 +4,7 @@ an<N>n. BP_Loop swaps them while Jack is in the corridor and cannot see the hall
 build_interactive.py (they rebuild the actors this script tags), then build_annex.py. Safe to re-run."""
 import sys, importlib, unreal
 sys.path.insert(0, unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir()) + "Scripts")
-import poc_lib as L, meshkit as K, props_furniture as PF, props_story, props_loop, props_small, props_90s, props_home, props_lived, props_pool
+import poc_lib as L, meshkit as K, props_furniture as PF, props_story, props_loop, props_small, props_90s, props_home, props_lived, props_pool, props_r1
 importlib.reload(props_loop)
 F2 = 259
 L.clear("loop")
@@ -32,21 +32,22 @@ def normal(label, tag):
     raise RuntimeError("missing " + label)
 
 
-WALL = 1370.7                    # the hall wall that has the parents' door in it (its face looks toward -Y)
-# 0: a door that should not be there, between the front window and the parents' door
-put("false_door", "Loop_false_door", 62, WALL, F2, (0, -1), ["an0"])
-# 1: the family photo in the hall leg: the child is gone from the picture
-put("frame_family_a", "Loop_family_photo_ok", 458.3, 1440, F2 + 150, (1, 0), ["an1n"]); put("frame_family_b", "Loop_family_photo", 458.3, 1440, F2 + 150, (1, 0), ["an1"])
+WALL = 1415.7                    # the upstairs gallery wall that has the attic door in it (its face looks toward -Y)
+# 0: a door that should not be there, on the gallery wall
+put("false_door", "Loop_false_door", 430, WALL, F2, (0, -1), ["an0"])
+# 1: the family photo in the back hall: the child is gone from the picture
+put("frame_family_a", "Loop_family_photo_ok", 578.3, 1500, F2 + 150, (1, 0), ["an1n"]); put("frame_family_b", "Loop_family_photo", 578.3, 1500, F2 + 150, (1, 0), ["an1"])
 # 2: the school photo hangs upside down
-up = put("frame_school_b", "Loop_school_photo", 330, 1369, F2 + 152, (0, -1), ["an2"]); normal("Hall2_frame_school_b_2", "an2n")
+school = next(a_.get_actor_label() for a_ in eas.get_all_level_actors() if a_.get_actor_label().startswith("Hall2_frame_school_b"))
+up = put("frame_school_b", "Loop_school_photo", 300, WALL, F2 + 152, (0, -1), ["an2"]); normal(school, "an2n")
 r = up.get_actor_rotation(); up.set_actor_rotation(unreal.Rotator(roll=180.0, pitch=r.pitch, yaw=r.yaw), False)
 # 3: the hall clock runs backward (always there; only its second hand changes direction)
-put("wall_clock", "Loop_clock", 284, WALL, F2 + 186, (0, -1), [])
-put("clock_hand", "Loop_clock_hand", 284, WALL - 3.1, F2 + 186, (0, -1), ["an_clockhand"], movable=True)
+put("wall_clock", "Loop_clock", 500, WALL, F2 + 186, (0, -1), [])
+put("clock_hand", "Loop_clock_hand", 500, WALL - 3.1, F2 + 186, (0, -1), ["an_clockhand"], movable=True)
 # 4: a chair stands at the front end of the hall, turned to face the wall
-put("spindle_chair", "Loop_chair", 22, 1318, F2, (-1, 0), ["an4"])
+put("spindle_chair", "Loop_chair", -8, 1340, F2, (-1, 0), ["an4"])
 # 5: a television is on in Jack's room: cold light spills out of his doorway
-g = eas.spawn_actor_from_class(unreal.PointLight, L.to_ue(640, 1432, F2 + 95))
+g = eas.spawn_actor_from_class(unreal.PointLight, L.to_ue(770, 1345, F2 + 95))
 g.set_actor_label("Loop_tv_glow"); g.set_folder_path("Loop"); g.tags = ["loop", "an5"]; g.set_actor_hidden_in_game(True); g.set_is_temporarily_hidden_in_editor(True)
 c = g.light_component; c.set_mobility(unreal.ComponentMobility.MOVABLE); c.set_editor_property("intensity_units", unreal.LightUnits.LUMENS)
 c.set_editor_property("intensity", 260.0); c.set_editor_property("attenuation_radius", 520.0); c.set_editor_property("cast_shadows", True)

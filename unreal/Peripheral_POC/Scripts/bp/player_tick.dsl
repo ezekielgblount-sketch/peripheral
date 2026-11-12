@@ -1,7 +1,10 @@
 (event EventBeginPlay
   (bind found (Actor|GetAllActorswithTag :Tag "bb"))
   (for a found
-    (Variables|Default|SetBB a)))
+    (Variables|Default|SetBB a))
+  (bind found2 (Actor|GetAllActorswithTag :Tag "sb"))
+  (for a2 found2
+    (Variables|Default|SetSB a2)))
 
 (event EventTick (DeltaSeconds)
   (bind pc (Game|GetPlayerController :PlayerIndex 0))
@@ -10,20 +13,22 @@
   (bind frozen (Input|IsMoveInputIgnored :self pc))
   (bind free (select (or inspecting frozen) 0.0 1.0))
   ; ---------------- walk ----------------
-  (bind fwd (- (select (Game|Player|IsInputKeyDown :self pc :Key "W") 1.0 0.0)
-               (select (Game|Player|IsInputKeyDown :self pc :Key "S") 1.0 0.0)))
-  (bind side (- (select (Game|Player|IsInputKeyDown :self pc :Key "D") 1.0 0.0)
-                (select (Game|Player|IsInputKeyDown :self pc :Key "A") 1.0 0.0)))
+  (bind fwd (- (select (Game|Player|IsInputKeyDown :self pc :Key (Variables|Default|GetKFwd)) 1.0 0.0)
+               (select (Game|Player|IsInputKeyDown :self pc :Key (Variables|Default|GetKBack)) 1.0 0.0)))
+  (bind side (- (select (Game|Player|IsInputKeyDown :self pc :Key (Variables|Default|GetKRight)) 1.0 0.0)
+                (select (Game|Player|IsInputKeyDown :self pc :Key (Variables|Default|GetKLeft)) 1.0 0.0)))
   (Pawn|Input|AddMovementInput :WorldDirection (Transformation|GetActorForwardVector) :ScaleValue (* fwd free))
   (Pawn|Input|AddMovementInput :WorldDirection (Transformation|GetActorRightVector) :ScaleValue (* side free))
   ; ---------------- look (or rotate the held object) ----------------
   (bind (dx dy) (Game|Player|GetInputMouseDelta :self pc))
   (Pawn|Input|AddControllerYawInput :Val (* (* dx (.y (Transformation|GetActorLocation :self (Variables|Default|GetBB)))) free))
-  (Pawn|Input|AddControllerPitchInput :Val (* (* (* dy -1.0) (.y (Transformation|GetActorLocation :self (Variables|Default|GetBB)))) free))
+  (bind sbv (Transformation|GetActorLocation :self (Variables|Default|GetSB)))
+  (Pawn|Input|AddControllerPitchInput :Val (* (* (* dy (* -1.0 (.y sbv))) (.y (Transformation|GetActorLocation :self (Variables|Default|GetBB)))) free))
+  (Camera|SetFieldOfView :self cam :InFieldOfView (.x sbv))
   (bind camLoc (Transformation|GetWorldLocation :self cam))
   (bind camFwd (Transformation|GetForwardVector :self cam))
   ; ---------------- use / carry / inspect (E) ----------------
-  (if (and (Game|Player|WasInputKeyJustPressed :self pc :Key "E") (not frozen))
+  (if (and (Game|Player|WasInputKeyJustPressed :self pc :Key (Variables|Default|GetKUse)) (not frozen))
     (if inspecting
       (bind held0 (Variables|Default|GetHeld))
       (Transformation|SetActorTransform :self held0 :NewTransform (Variables|Default|GetHeldHome))
@@ -40,6 +45,10 @@
         (Collision|SetActorEnableCollision :self held1 :bNewActorEnableCollision true)
         (Variables|Default|SetCarrying false)
         (Audio|PlaySound2D :Sound "/Game/Audio/box_thump.box_thump" :VolumeMultiplier 0.7)
+        (elif (Variables|Default|GetPushing)
+          ; let go of the mower, bin or broom: it stays where it stands
+          (Collision|SetActorEnableCollision :self (Variables|Default|GetHeld) :bNewActorEnableCollision true)
+          (Variables|Default|SetPushing false)
         (else
           (bind (hit ok) (Collision|LineTraceByChannel :Start camLoc :End (+ camLoc (* camFwd 210.0))))
           (if ok
@@ -48,6 +57,10 @@
               (Variables|Default|SetHeld hitActor)
               (Collision|SetActorEnableCollision :self hitActor :bNewActorEnableCollision false)
               (Variables|Default|SetCarrying true)
+              (elif (Actor|ActorHasTag :self hitActor :Tag "push")
+                (Variables|Default|SetHeld hitActor)
+                (Collision|SetActorEnableCollision :self hitActor :bNewActorEnableCollision false)
+                (Variables|Default|SetPushing true)
               (elif (Actor|ActorHasTag :self hitActor :Tag "inspect")
                 (Variables|Default|SetHeld hitActor)
                 (Variables|Default|SetHeldHome (Transformation|GetActorTransform :self hitActor))
@@ -55,10 +68,17 @@
                 (Collision|SetActorEnableCollision :self hitActor :bNewActorEnableCollision false)
                 (Variables|Default|SetInspecting true)
                 (else
-                  (Game|Damage|ApplyDamage :DamagedActor hitActor :BaseDamage 1.0)))))))))
+                  (Game|Damage|ApplyDamage :DamagedActor hitActor :BaseDamage 1.0)))))))))))
   (if (Variables|Default|GetCarrying)
     (Transformation|SetActorLocationAndRotation :self (Variables|Default|GetHeld)
       :NewLocation (+ (+ camLoc (* camFwd 62.0)) (Math|Vector|MakeVector :X 0.0 :Y 0.0 :Z -46.0))
+      :NewRotation (Math|Rotator|MakeRotator :Roll 0.0 :Pitch 0.0 :Yaw (.yaw (Transformation|GetActorRotation)))))
+  (if (Variables|Default|GetPushing)
+    ; a pushed thing rolls along the ground an arm's length ahead, turned the way Jack faces
+    (bind pf (Transformation|GetActorLocation))
+    (bind pfw (Transformation|GetActorForwardVector))
+    (Transformation|SetActorLocationAndRotation :self (Variables|Default|GetHeld)
+      :NewLocation (Math|Vector|MakeVector :X (+ (.x pf) (* (.x pfw) 98.0)) :Y (+ (.y pf) (* (.y pfw) 98.0)) :Z (- (.z pf) 90.0))
       :NewRotation (Math|Rotator|MakeRotator :Roll 0.0 :Pitch 0.0 :Yaw (.yaw (Transformation|GetActorRotation)))))
   (if (Variables|Default|GetInspecting)
     (bind hr (Math|Rotator|CombineRotators :A (Variables|Default|GetHeldRot)
@@ -67,7 +87,7 @@
     (Transformation|SetActorLocationAndRotation :self (Variables|Default|GetHeld)
       :NewLocation (+ camLoc (* camFwd 45.0)) :NewRotation hr))
   ; ---------------- toggles ----------------
-  (if (Game|Player|WasInputKeyJustPressed :self pc :Key "F")
+  (if (Game|Player|WasInputKeyJustPressed :self pc :Key (Variables|Default|GetKLight))
     (Rendering|ToggleVisibility :self (Variables|Default|GetFlashlight))
     (Audio|PlaySound2D :Sound (Variables|Default|GetSndClick) :VolumeMultiplier 0.7))
   (if (Game|Player|WasInputKeyJustPressed :self pc :Key "B")
@@ -75,8 +95,8 @@
   (bind bb (Variables|Default|GetBB))
   (bind mi (.x (Transformation|GetActorLocation :self bb)))                 ; camera-motion intensity lives on the shared settings actor
   (if (Game|Player|WasInputKeyJustPressed :self pc :Key "M")
-    (Transformation|SetActorLocation :self bb :NewLocation (Math|Vector|MakeVector :X (select (> mi 0.75) 0.5 (select (> mi 0.25) 0.0 1.0)) :Y 0.0 :Z 0.0)))
-  (if (Game|Player|WasInputKeyJustPressed :self pc :Key "C")
+    (Transformation|SetActorLocation :self bb :NewLocation (Math|Vector|MakeVector :X (select (> mi 0.75) 0.5 (select (> mi 0.25) 0.0 1.0)) :Y (.y (Transformation|GetActorLocation :self bb)) :Z (.z (Transformation|GetActorLocation :self bb)))))
+  (if (Game|Player|WasInputKeyJustPressed :self pc :Key (Variables|Default|GetKCrouch))
     (if (Variables|Character|GetIsCrouched)
       (Character|UnCrouch)
       (else (Character|Crouch))))
@@ -88,24 +108,22 @@
   (Variables|Default|SetCamRot lagged)
   ; walk amount eases in and out, which gives the settle when you stop
   (bind speed (Math|Vector|VectorLengthXY (Transformation|GetVelocity)))
-  (bind walk (Math|Interpolation|FInterpTo :Current (Variables|Default|GetWalkAmt) :Target (/ speed 260.0)
+  (bind walk (Math|Interpolation|FInterpTo :Current (Variables|Default|GetWalkAmt) :Target (/ speed 135.0)
                                            :DeltaTime DeltaSeconds :InterpSpeed 5.0))
   (Variables|Default|SetWalkAmt walk)
-  (bind phase (+ (Variables|Default|GetBobPhase) (* DeltaSeconds (* (/ speed 260.0) 10.5))))
+  (bind phase (+ (Variables|Default|GetBobPhase) (* DeltaSeconds (* (/ speed 135.0) 5.8))))
   (Variables|Default|SetBobPhase phase)
   ; ---------------- footsteps: one per half bob cycle, sound picked from the floor material ----------------
   (bind stepIdx (Math|Float|Truncate :A (/ phase 3.14159)))
-  (if (and (!= stepIdx (Variables|Default|GetStepIdx)) (> speed 60.0))
+  (if (and (!= stepIdx (Variables|Default|GetStepIdx)) (> speed 40.0))
     (Variables|Default|SetStepIdx stepIdx)
     (bind feet (Transformation|GetActorLocation))
     (bind (fhit fok) (Collision|LineTraceByChannel :Start feet :End (- feet (Math|Vector|MakeVector :X 0.0 :Y 0.0 :Z 130.0))))
     (if fok
       (bind (f1 f2 f3 f4 f5 f6 f7 f8 f9 fActor fComp fBone) (Collision|BreakHitResult :Hit fhit))
       (bind mname (Utilities|GetObjectName :Object (Rendering|Material|GetMaterial :self fComp :ElementIndex 0)))
-      (bind soft (or (or (Utilities|String|Contains :SearchIn mname :Substring "f_liv") (Utilities|String|Contains :SearchIn mname :Substring "f_stair"))
-                     (or (or (Utilities|String|Contains :SearchIn mname :Substring "f_hall2") (Utilities|String|Contains :SearchIn mname :Substring "f_bed"))
-                         (Utilities|String|Contains :SearchIn mname :Substring "lawn"))))
-      (bind woody (or (Utilities|String|Contains :SearchIn mname :Substring "f_hall") (Utilities|String|Contains :SearchIn mname :Substring "fence")))
+      (bind soft (or (Utilities|String|Contains :SearchIn mname :Substring "f_c_") (or (Utilities|String|Contains :SearchIn mname :Substring "f_stair") (Utilities|String|Contains :SearchIn mname :Substring "lawn"))))
+      (bind woody (or (Utilities|String|Contains :SearchIn mname :Substring "f_oak") (Utilities|String|Contains :SearchIn mname :Substring "fence")))
       (Audio|PlaySound2D :Sound (select soft (Variables|Default|GetStepCarpet) (select woody (Variables|Default|GetStepWood) (Variables|Default|GetStepTile)))
                          :VolumeMultiplier (select (Variables|Character|GetIsCrouched) 0.25 0.55)
                          :PitchMultiplier (Math|Random|RandomFloatinRange :Min 0.88 :Max 1.12))))

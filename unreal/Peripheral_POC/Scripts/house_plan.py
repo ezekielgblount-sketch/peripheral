@@ -154,7 +154,7 @@ STAIRS = dict(
 GARAGE = dict(x0=0, y0=-40, x1=760, y1=580, floor=GR + 2, ceil=C1, door=(25, 515, 213))        # clear inside; door opening along Y and its height
 LOFT = dict(x0=170, y0=1192, x1=880, y1=1960, ridge_x=525.0, pitch=8.0 / 12.0, well=(203, 1428, 539, 1528))
 HALL_CAP = dict(x0=578, x1=700, y=754, travel=80)          # the far end wall of the upstairs back hall: an anomaly moves it back
-ANNEX = dict(door_y=1776, cap0=1960, yend=2900, leg1=(596, 705), leg2=(458, 564))   # the loop corridor behind the two hall closets
+ANNEX = dict(leg1=(586, 700), leg2=(452, 574), wall_y=1960, cap0=2100, turn=120, yend=3020)   # the loop corridor: the two hall closets are its first stretch; it runs on out through the side wall
 
 
 def rooms(storey=None, ghosts=False):

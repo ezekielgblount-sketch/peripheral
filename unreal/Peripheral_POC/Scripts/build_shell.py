@@ -73,8 +73,10 @@ def storey(s):
                     z0, z1, m = r["floor"] - SLAB, r["ceil"], HP.wall_mat(r, side)
                 else:
                     continue
+                ax = HP.ANNEX
+                loopwall = s == 2 and b0 >= ax["wall_y"] - 0.01 and a0 >= ax["leg2"][0] - 0.01 and a1 <= ax["leg1"][1] + 0.01
                 for (za, zb) in cut(z0, z1, holes):
-                    out.append((a0, b0, za, a1, b1, zb, m, fol + "/Walls"))
+                    out.append((a0, b0, za, a1, b1, zb, m, fol + ("/LoopWall" if loopwall else "/Walls")))
     for r in HP.rooms(s):
         x0, y0, x1, y1 = r["rect"]
         if r["floor_mat"]:
@@ -114,7 +116,9 @@ with unreal.ScopedSlowTask(1, "Building shell"):
     for s in (0, 1, 2):
         storey(s)
     for n, (x0, y0, z0, x1, y1, z1, m, fol) in enumerate(merged(out)):
-        box("%s_%03d" % (fol.split("/")[-1][:1] + fol.split("/")[1], n), x0, y0, z0, x1, y1, z1, m, fol)
+        a_ = box("%s_%03d" % (fol.split("/")[-1][:1] + fol.split("/")[1], n), x0, y0, z0, x1, y1, z1, m, fol)
+        if a_ and fol.endswith("LoopWall"):
+            a_.tags = ["shell", "annex_hide"]
 
     # ---------------- the sunken entry and the two flights off its landing ----------------
     e, st = "Shell/Entry", HP.STAIRS

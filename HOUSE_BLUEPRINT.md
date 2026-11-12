@@ -1,194 +1,164 @@
-# Peripheral / Isolation — Blind-Buildable House Blueprint
+# Peripheral: house blueprint (playtest round 1)
 
-From Ezekiel (via ChatGPT, cross-checked by Fable 5). **This is the new
-definitive house layout, approved by the creator.** It supersedes the
-interior geometry already built tonight — not a refinement of it, a
-replacement. That's intentional and approved, not an oversight.
+This file is generated from `unreal/Peripheral_POC/Scripts/house_plan.py` by `Scripts/plan_doc.py`. Edit the plan, not this file.
+It replaces the earlier v12 layout. The layout change was approved in the playtest round 1 notes.
 
-**Coordinates in this document are already Unreal-native** (stated in its own
-header: "Unreal scale | 1 Unreal Unit = 1 centimeter," axes labeled to match
-Unreal's X/Y/Z directly). **Do not run these through `CLAUDE.md`'s spec-to-
-Unreal axis conversion table** — that table exists to convert the *old*
-Three.js-convention handoff spec (`PERIPHERAL_UNREAL_HANDOFF.md`), and does
-not apply here. This document defines its own convention (+X front-to-back,
-+Y left-to-right, +Z up) and should be built exactly as numbered, no
-conversion step.
+## Coordinates
 
----
+Centimetres. 1 Unreal unit = 1 cm. +X runs front to back, +Y runs away from the garage, +Z up.
+Origin: the inside face of the front wall, 600 cm in from the garage side. In Unreal the house is mirrored left to right
+(`poc_lib.to_ue`), so that walking in the front door the up flight turns left and the garage is on the right.
 
-## Coordinate system
+## Levels
 
-| Field | Value |
+| Level | Z |
 |---|---|
-| Units | centimeters |
-| Unreal scale | 1 Unreal Unit = 1 centimeter |
-| Origin | (0,0,0) = outside front-left corner of the complete house footprint at ground/main-floor datum |
-| +X | front to back |
-| +Y | left to right |
-| +Z | up |
-| Rotation convention | degrees; yaw only unless geometry inherently defines slope |
-| Position rule | all stated world positions are absolute from origin |
-| Wall thickness convention | all wall thickness is centered on the Start→End line |
+| Grade (lawn, driveway) | -140 |
+| Garage floor | -138 |
+| Basement floor | -252 |
+| Entry landing | -126 |
+| Floor 1 | 0 |
+| Floor 1 ceiling | 244 |
+| Floor 2 | 259 |
+| Floor 2 ceiling | 503 |
+| Attic loft floor | 518 |
 
-## Global constants
+## Size
 
-| Constant | Value |
-|---|---|
-| Main-floor ceiling height | 250 |
-| Exterior wall thickness | 30 |
-| Interior wall thickness | 15 |
-| Standard door opening width | 90 |
-| Standard door opening height | 205 |
-| Default window opening width | 120 |
-| Default window opening height | 130 |
-| Default window sill height | 90 |
-| Minimum hallway clear width | 120 |
-| Actual hallway clear width | 135 |
-| Stair tread depth | 28 |
-| Stair riser height | 18 |
-| Stair width | 90 |
-| Basement ceiling height | 210 |
-| Basement floor Z | -240 |
-| Attic floor Z | 280 |
-| Roof representation | stepped axis-aligned graybox slabs |
+Floors 1 and 2, outside wall to outside wall: 3421 sq ft. Clear floor inside the rooms on those two floors: 3069 sq ft.
+Basement, attic loft and the two-car garage are extra. Walking speed is 135 cm/s.
 
-## Table 1 — Floors/ceilings/slabs
+## Floor 1 rooms
 
-| ID | Name | Min corner (X,Y,Z) | Max corner (X,Y,Z) |
-|---|---|---|---|
-| F01 | Main floor slab A | (0,600,-15) | (1200,1290,0) |
-| F02 | Main floor slab B | (0,1290,-15) | (485,1800,0) |
-| F03 | Main floor slab C | (575,1290,-15) | (1200,1800,0) |
-| F04 | Main floor slab D | (485,1654,-15) | (575,1800,0) |
-| F05 | Garage slab | (0,0,-15) | (670,600,0) |
-| F06 | Front porch slab | (-180,930,-15) | (0,1500,0) |
-| F07 | Front step 1 | (-264,1035,-54) | (-236,1395,-36) |
-| F08 | Front step 2 | (-236,1035,-36) | (-208,1395,-18) |
-| F09 | Front step 3 | (-208,1035,-18) | (-180,1395,0) |
-| F10 | Basement floor slab | (0,600,-255) | (1200,1800,-240) |
-| F11 | Basement stair bottom landing | (485,1654,-240) | (575,1744,-234) |
-| F12 | Basement ceiling slab A | (0,600,-30) | (1200,1290,-15) |
-| F13 | Basement ceiling slab B | (0,1290,-30) | (485,1800,-15) |
-| F14 | Basement ceiling slab C | (575,1290,-30) | (1200,1800,-15) |
-| F15 | Basement ceiling slab D | (485,1654,-30) | (575,1800,-15) |
-| F16 | Main ceiling/attic floor A | (0,600,250) | (1200,1290,280) |
-| F17 | Main ceiling/attic floor B | (0,1290,250) | (365,1800,280) |
-| F18 | Main ceiling/attic floor C | (455,1290,250) | (1200,1710,280) |
-| F19 | Main ceiling/attic floor D | (600,1710,250) | (1200,1800,280) |
-| F20 | Attic stair top landing | (365,1710,270) | (600,1800,280) |
-| F21 | Front porch roof slab | (-200,900,250) | (0,1530,265) |
-| F22 | Main roof step front 1 | (-30,570,350) | (75,1830,370) |
-| F23 | Main roof step front 2 | (75,570,370) | (180,1830,400) |
-| F24 | Main roof step front 3 | (180,570,400) | (285,1830,430) |
-| F25 | Main roof step front 4 | (285,570,430) | (390,1830,460) |
-| F26 | Main roof step front 5 | (390,570,460) | (495,1830,490) |
-| F27 | Main roof step front 6 | (495,570,490) | (600,1830,520) |
-| F28 | Main roof step rear 1 | (600,570,490) | (705,1830,520) |
-| F29 | Main roof step rear 2 | (705,570,460) | (810,1830,490) |
-| F30 | Main roof step rear 3 | (810,570,430) | (915,1830,460) |
-| F31 | Main roof step rear 4 | (915,570,400) | (1020,1830,430) |
-| F32 | Main roof step rear 5 | (1020,570,370) | (1125,1830,400) |
-| F33 | Main roof step rear 6 | (1125,570,350) | (1230,1830,370) |
-| F34 | Garage roof step front 1 | (-30,-30,250) | (61,585,270) |
-| F35 | Garage roof step front 2 | (61,-30,270) | (152,585,295) |
-| F36 | Garage roof step front 3 | (152,-30,295) | (243,585,320) |
-| F37 | Garage roof step front 4 | (243,-30,320) | (335,585,345) |
-| F38 | Garage roof step rear 1 | (335,-30,320) | (427,585,345) |
-| F39 | Garage roof step rear 2 | (427,-30,295) | (518,585,320) |
-| F40 | Garage roof step rear 3 | (518,-30,270) | (609,585,295) |
-| F41 | Garage roof step rear 4 | (609,-30,250) | (700,585,270) |
-
-## Table 2 — Walls
-
-| ID | Name | Start (X,Y) | End (X,Y) | Base Z | Height | Thickness |
-|---|---|---|---|---|---|---|
-| W01 | Garage front | (0,0) | (0,600) | 0 | 250 | 30 |
-| W02 | Main house front | (0,600) | (0,1800) | 0 | 250 | 30 |
-| W03 | Garage left side | (0,0) | (670,0) | 0 | 250 | 30 |
-| W04 | Garage rear | (670,0) | (670,600) | 0 | 250 | 30 |
-| W05 | Garage/house shared wall | (0,600) | (670,600) | 0 | 250 | 30 |
-| W06 | Main house left exposed wall | (670,600) | (1200,600) | 0 | 250 | 30 |
-| W07 | Main house rear | (1200,600) | (1200,1800) | 0 | 250 | 30 |
-| W08 | Main house right | (1200,1800) | (0,1800) | 0 | 250 | 30 |
-| W09 | Hall left boundary | (0,1140) | (1200,1140) | 0 | 250 | 15 |
-| W10 | Hall right boundary | (0,1290) | (1200,1290) | 0 | 250 | 15 |
-| W11 | Living/kitchen divider | (560,600) | (560,1140) | 0 | 250 | 15 |
-| W12 | Spare/stair-hall divider | (350,1290) | (350,1800) | 0 | 250 | 15 |
-| W13 | Stair-hall/bathroom divider | (590,1290) | (590,1800) | 0 | 250 | 15 |
-| W14 | Bathroom/bedroom divider | (900,1290) | (900,1800) | 0 | 250 | 15 |
-| W15 | Front-entry/hall divider | (180,1140) | (180,1290) | 0 | 250 | 15 |
-| W16 | Basement front | (0,600) | (0,1800) | -240 | 210 | 30 |
-| W17 | Basement left | (0,600) | (1200,600) | -240 | 210 | 30 |
-| W18 | Basement rear | (1200,600) | (1200,1800) | -240 | 210 | 30 |
-| W19 | Basement right | (1200,1800) | (0,1800) | -240 | 210 | 30 |
-| W20 | Basement stair door wall | (590,1654) | (590,1774) | -240 | 210 | 15 |
-| W21 | Attic front | (0,600) | (0,1800) | 280 | 70 | 30 |
-| W22 | Attic left | (0,600) | (1200,600) | 280 | 70 | 30 |
-| W23 | Attic rear | (1200,600) | (1200,1800) | 280 | 70 | 30 |
-| W24 | Attic right | (1200,1800) | (0,1800) | 280 | 70 | 30 |
-| W25 | Attic stair door wall | (600,1680) | (600,1800) | 280 | 205 | 15 |
-| W26 | Front porch post left | (-180,975) | (-180,990) | 0 | 250 | 15 |
-| W27 | Front porch post right | (-180,1440) | (-180,1455) | 0 | 250 | 15 |
-
-## Table 3 — Openings (doors and windows)
-
-| ID | Type | Host wall | Distance along wall (Start→left edge) | Width | Height | Sill |
-|---|---|---|---|---|---|---|
-| O01 | door | W01 | 55 | 490 | 215 | 0 |
-| O02 | door | W02 | 570 | 90 | 205 | 0 |
-| O03 | door | W15 | 30 | 90 | 205 | 0 |
-| O04 | door | W07 | 570 | 90 | 205 | 0 |
-| O05 | window | W02 | 120 | 120 | 130 | 90 |
-| O06 | window | W02 | 850 | 120 | 130 | 90 |
-| O07 | door | W05 | 220 | 90 | 205 | 0 |
-| O08 | window | W03 | 400 | 120 | 130 | 90 |
-| O09 | window | W06 | 140 | 120 | 130 | 90 |
-| O10 | door | W09 | 250 | 90 | 205 | 0 |
-| O11 | door | W09 | 800 | 90 | 205 | 0 |
-| O12 | door | W10 | 130 | 90 | 205 | 0 |
-| O13a | door | W10 | 365 | 90 | 205 | 0 |
-| O13b | door | W10 | 485 | 90 | 205 | 0 |
-| O14 | door | W10 | 700 | 90 | 205 | 0 |
-| O15 | door | W10 | 1000 | 90 | 205 | 0 |
-| O16 | window | W07 | 80 | 120 | 130 | 90 |
-| O17 | window | W07 | 800 | 120 | 130 | 90 |
-| O18 | window | W08 | 330 | 120 | 130 | 90 |
-| O19 | window | W08 | 900 | 120 | 130 | 90 |
-| O20 | door | W20 | 0 | 90 | 205 | 0 |
-| O21 | door | W25 | 30 | 90 | 205 | 0 |
-
-## Table 4 — Stairs
-
-| ID | Name | Bottom-start (X,Y,Z) | Direction | Steps | Width |
+| Room | Clear space (x0, y0) to (x1, y1) | Size | Floor Z | Wall finish | Floor finish |
 |---|---|---|---|---|---|
-| S01 | Attic stair | (365,1290,0) | +Y | 15 | 90 |
-| S02 | Basement stair | (485,1654,-234) | -Y | 13 | 90 |
+| Living room | (0, 600) to (574, 1064) | 574 x 464 | 0 | w_liv | f_oak |
+| Entry | (0, 1076) to (180, 1186) | 180 x 110 | -126 | w_hall | built by hand |
+| entry_c | (0, 1186) to (106, 1284) | 106 x 98 | -126 | w_hall | built by hand |
+| entry_d | (106, 1186) to (180, 1284) | 74 x 98 | -126 | w_hall | built by hand |
+| entry_b | (0, 1284) to (100, 1296) | 100 x 12 | -126 | w_hall | built by hand |
+| stair_down | (180, 1076) to (376, 1174) | 196 x 98 | -252 | w_hall | built by hand |
+| hall_pocket | (376, 1076) to (470, 1174) | 94 x 98 | 0 | w_hall | f_oak |
+| Hall | (470, 1076) to (574, 1296) | 104 x 220 | 0 | w_hall | f_oak |
+| stair_up2 | (180, 1186) to (470, 1284) | 290 x 98 | 0 | w_hall | built by hand |
+| up_flight | (0, 1296) to (100, 1559) | 100 x 263 | -126 | w_hall | built by hand |
+| Hall | (100, 1296) to (574, 1559) | 474 x 263 | 0 | w_hall | f_oak |
+| Dining room | (0, 1571) to (574, 1960) | 574 x 389 | 0 | w_din | f_oak |
+| Laundry / mudroom | (586, 600) to (850, 850) | 264 x 250 | 0 | w_mud | f_vinyl |
+| Half bath | (862, 600) to (1080, 850) | 218 x 250 | 0 | w_bath_blue | f_sq |
+| Kitchen and nook | (586, 862) to (1080, 1450) | 494 x 588 | 0 | w_kit | f_vinyl |
+| Family room / den | (586, 1462) to (1080, 1960) | 494 x 498 | 0 | w_den | f_c_den |
 
-## Table 5 — Room registry
+## Floor 2 rooms
 
-| Room | Floor | Min (X,Y) | Max (X,Y) | Connects to |
-|---|---|---|---|---|
-| Garage | Main | (0,0) | (670,600) | O01,O07 |
-| Living room | Main | (0,600) | (560,1140) | O07,O10 |
-| Kitchen | Main | (560,600) | (1200,1140) | O11 |
-| Front entry | Main | (0,1140) | (180,1290) | O02,O03 |
-| Hallway | Main | (180,1140) | (1200,1290) | O03,O04,O10,O11,O12,O13a,O13b,O14,O15 |
-| Spare room | Main | (0,1290) | (350,1800) | O12 |
-| Stair hall | Main | (350,1290) | (590,1800) | O13a,O13b,O20,O21 |
-| Bathroom | Main | (590,1290) | (900,1800) | O14 |
-| Jack's bedroom | Main | (900,1290) | (1200,1800) | O15 |
-| Basement | Basement | (0,600) | (1200,1800) | O20 |
-| Attic | Attic | (0,600) | (1200,1800) | O21 |
+| Room | Clear space (x0, y0) to (x1, y1) | Size | Floor Z | Wall finish | Floor finish |
+|---|---|---|---|---|---|
+| Parents' bedroom | (-30, 600) to (380, 1174) | 410 x 574 | 259 | w_par | f_c_par |
+| Parents' bath | (392, 600) to (566, 920) | 174 x 320 | 259 | w_bath_sea | f_hex |
+| Closet | (392, 932) to (566, 1174) | 174 x 242 | 259 | w_par | f_c_par |
+| arrival | (-30, 1186) to (106, 1284) | 136 x 98 | 259 | w_hall | f_c_hall |
+| well | (106, 1186) to (470, 1284) | 364 x 98 | 259 | w_hall | built by hand |
+| hall_wide | (470, 1186) to (700, 1284) | 230 x 98 | 259 | w_hall | f_c_hall |
+| Upstairs hall | (-30, 1284) to (700, 1416) | 730 x 132 | 259 | w_hall | f_c_hall |
+| Back hall | (578, 600) to (700, 1186) | 122 x 586 | 259 | w_hall | f_c_hall |
+| back_hall_n | (578, 1416) to (700, 1770) | 122 x 354 | 259 | w_hall | f_c_hall |
+| alcove | (452, 1540) to (578, 1770) | 126 x 230 | 259 | w_hall | f_c_hall |
+| Attic stair | (-30, 1428) to (203, 1528) | 233 x 100 | 259 | w_hall | f_c_hall |
+| attic_flight | (203, 1428) to (566, 1528) | 363 x 100 | 259 | w_hall | built by hand |
+| Guest / sewing room | (-30, 1540) to (440, 1960) | 470 x 420 | 259 | w_guest | f_c_guest |
+| Linen | (452, 1782) to (574, 1960) | 122 x 178 | 259 | w_hall | f_c_hall |
+| Storage | (586, 1782) to (700, 1960) | 114 x 178 | 259 | w_hall | f_c_hall |
+| Sibling's room | (712, 600) to (1080, 1100) | 368 x 500 | 259 | w_sib | f_c_sib |
+| Jack's room | (712, 1112) to (1080, 1650) | 368 x 538 | 259 | w_jack | f_c_jack |
+| Hall bath | (712, 1662) to (1080, 1960) | 368 x 298 | 259 | w_bath_mauve | f_hex |
 
-## Mandatory self-check (as delivered — re-verify independently, don't just trust it)
+## Basement rooms
+
+| Room | Clear space (x0, y0) to (x1, y1) | Size | Floor Z | Wall finish | Floor finish |
+|---|---|---|---|---|---|
+| Storage | (0, 600) to (574, 1064) | 574 x 464 | -252 | bsmt | f_bsmt |
+| b_foot | (376, 1076) to (574, 1174) | 198 x 98 | -252 | bsmt | f_bsmt |
+| b_link | (470, 1174) to (574, 1186) | 104 x 12 | -252 | bsmt | f_bsmt |
+| b_under | (192, 1186) to (574, 1284) | 382 x 98 | -252 | bsmt | f_bsmt |
+| Utility | (112, 1296) to (574, 1559) | 462 x 263 | -252 | bsmt | f_bsmt |
+| Workshop | (0, 1571) to (574, 1960) | 574 x 389 | -252 | bsmt | f_bsmt |
+| Basement | (586, 600) to (1080, 1960) | 494 x 1360 | -252 | bsmt | f_bsmt |
+
+Rooms listed more than once (hall, entry) are one space made of several rectangles.
+
+## Doors and openings
+
+| Name | Floor | Wall runs along | Wall thickness span | Opening span | Bottom Z | Kind |
+|---|---|---|---|---|---|---|
+| Door_front | Floor 1 | Y | -20 to 0 | 1135 to 1226 | -126 | door |
+| Door_living | Floor 1 | X | 1064 to 1076 | 470 to 561 | 0 | door |
+| Door_kitchen | Floor 1 | Y | 574 to 586 | 1345 to 1436 | 0 | door |
+| Door_dining | Floor 1 | X | 1559 to 1571 | 250 to 341 | 0 | door |
+| Door_dining_den | Floor 1 | Y | 574 to 586 | 1720 to 1811 | 0 | door |
+| Door_mud | Floor 1 | X | 850 to 862 | 640 to 731 | 0 | door |
+| Door_halfbath | Floor 1 | Y | 850 to 862 | 700 to 791 | 0 | door |
+| Door_garage | Floor 1 | X | 580 to 600 | 650 to 741 | 0 | door |
+| Door_kitchen_rear | Floor 1 | Y | 1080 to 1100 | 1250 to 1341 | 0 | door |
+| (cased opening) | Floor 1 | X | 1450 to 1462 | 760 to 960 | 0 | open |
+| Door_parents | Floor 2 | X | 1174 to 1186 | 5 to 96 | 259 | door |
+| Door_pbath | Floor 2 | Y | 380 to 392 | 700 to 791 | 259 | door |
+| Door_pcloset | Floor 2 | Y | 380 to 392 | 1000 to 1091 | 259 | door |
+| Door_sibling | Floor 2 | Y | 700 to 712 | 800 to 891 | 259 | door |
+| Door_jack | Floor 2 | Y | 700 to 712 | 1300 to 1391 | 259 | door |
+| Door_bath | Floor 2 | Y | 700 to 712 | 1672 to 1763 | 259 | door |
+| Door_guest | Floor 2 | Y | 440 to 452 | 1650 to 1741 | 259 | door |
+| Door_attic | Floor 2 | X | 1416 to 1428 | 60 to 151 | 259 | door |
+| Door_closet_a | Floor 2 | X | 1770 to 1782 | 468 to 559 | 259 | door, locked |
+| Door_closet_b | Floor 2 | X | 1770 to 1782 | 598 to 689 | 259 | door, locked |
+| (cased opening) | Basement | Y | 574 to 586 | 800 to 891 | -252 | open |
+| (cased opening) | Basement | Y | 574 to 586 | 1081 to 1172 | -252 | open |
+| (cased opening) | Basement | X | 1284 to 1296 | 480 to 571 | -252 | open |
+| (cased opening) | Basement | X | 1559 to 1571 | 300 to 391 | -252 | open |
+| (cased opening) | Basement | Y | 574 to 586 | 1700 to 1791 | -252 | open |
+
+## Windows
+
+| Floor | Wall runs along | Wall thickness span | Opening span | Z | Style |
+|---|---|---|---|---|---|
+| Floor 1 | Y | -20 to 0 | 720 to 960 | 60 to 210 | picture |
+| Floor 1 | Y | -20 to 0 | 1100 to 1125 | -106 to 77 | plain |
+| Floor 1 | Y | -20 to 0 | 1236 to 1261 | -106 to 77 | plain |
+| Floor 1 | Y | -20 to 0 | 1700 to 1840 | 80 to 215 | double |
+| Floor 1 | X | 1960 to 1980 | 220 to 360 | 90 to 220 | double |
+| Floor 1 | Y | 1080 to 1100 | 1620 to 1800 | 80 to 215 | picture |
+| Floor 1 | X | 1960 to 1980 | 760 to 900 | 90 to 220 | double |
+| Floor 1 | Y | 1080 to 1100 | 960 to 1100 | 107 to 207 | double |
+| Floor 1 | Y | 1080 to 1100 | 700 to 760 | 130 to 200 | plain |
+| Floor 2 | Y | -50 to -30 | 700 to 840 | 349 to 479 | double |
+| Floor 2 | Y | -50 to -30 | 940 to 1080 | 349 to 479 | double |
+| Floor 2 | Y | -50 to -30 | 1305 to 1395 | 349 to 479 | double |
+| Floor 2 | Y | -50 to -30 | 1448 to 1508 | 379 to 459 | plain |
+| Floor 2 | Y | -50 to -30 | 1700 to 1840 | 349 to 479 | double |
+| Floor 2 | X | 1960 to 1980 | 150 to 290 | 349 to 479 | double |
+| Floor 2 | Y | 1080 to 1100 | 780 to 920 | 349 to 479 | double |
+| Floor 2 | Y | 1080 to 1100 | 1300 to 1440 | 349 to 479 | double |
+| Floor 2 | Y | 1080 to 1100 | 1780 to 1860 | 379 to 459 | plain |
+
+## Stairs (the stair rules are unchanged from the earlier layout)
+
+| Flight | Travel | Start | Lane | Treads | Rise | Tread | First tread top Z |
+|---|---|---|---|---|---|---|---|
+| Entry landing up to floor 1 (turns left off the landing) | +Y | 1296 | 0 to 100 | 6 | 18 | 28 | -108 |
+| Entry landing down to the basement (straight ahead) | +X | 180 | 1076 to 1174 | 6 | 18 | 28 | -144 |
+| Floor 1 to floor 2 | -X | 470 | 1186 to 1284 | 13 | 18.5 | 28 | 18.5 |
+| Floor 2 to the attic loft | +X | 175 | 1428 to 1528 | 13 | 18.5 | 28 | 277.5 |
+
+## Garage and attic loft
+
+Garage (two cars), clear inside: (0, -40) to (760, 580), floor Z -138, ceiling Z 244. Door opening Y 25 to 515, 213 high. A doorway in its back wall leads to the yard; steps climb to the mudroom door.
+Attic loft: (170, 1192) to (880, 1960) under an 8-in-12 roof, ridge at X 525; knee walls at the sides; stair well at (203, 1428) to (539, 1528).
+
+## Self-check (run by plan_doc.py every time this file is written)
 
 | Check | Result | Detail |
 |---|---|---|
-| Closure | PASS | 11/11 rooms enclosed by exact matching wall coordinates |
-| Opening sanity | PASS | 22/22 openings fit host-wall length/height, 0 orphaned connections |
-| Overlap | PASS | 0 collinear wall overlaps, 0 wall/slab intersections |
-| Circulation | PASS | Full path traced front door → hallway → every room → back door, both stairs |
-| Stair access geometry | PASS | O13a/O13b align exactly with S01/S02 widths, 30cm pier between them |
-| Sightline | PASS | front-door centre (0,1215,170) to back-door centre (1200,1215,170), no solid wall in between |
-| Constant compliance | PASS | doors 90×205, hallway clear 135, main ceiling 250, basement ceiling 210, attic floor Z=280, stair tread 28/riser 18/width 90 |
-| Deliberate exception | — | O01 (garage door): width 490, height 215, sill 0 |
+| Overlap | PASS | 0 room rectangles overlap |
+| Opening sanity | PASS | 25 doors and openings, 0 join nothing |
+| Circulation | PASS | 23 of 23 spaces reached from the front door |
+| Constants | PASS | doors 91 x 203 clear opening, ceilings 244, floor-to-floor 259, stair risers 18 / 18.5 on 28 treads, halls at least 120 clear |
+| Fit | see BUILD_STATE.md | `Scripts/fit_check.py` walks a 178 cm, 35 cm radius capsule through every doorway, stair and room in the built level |

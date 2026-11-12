@@ -1,12 +1,12 @@
-; The loop sequence. Jack is never moved: a corridor leaves the upstairs hall by the door at the end of the hall leg, turns
-; twice and comes back out of the parents' door, so walking on brings him back to where he started. While he is in the
+; The loop sequence. Jack is never moved: a corridor leaves the upstairs hall by one of the two closet doors at its far end, turns
+; round the end of a thin wall and comes back out of the other closet door, so walking on brings him back to where he started. While he is in the
 ; corridor (the hall out of sight) the hall is changed; while he is in the hall looking away the corridor is put back.
 ; On some passes the corridor's far wall retreats in front of him as he walks, and the corridor grows.
 ; The loop blackboard actor carries X = running (set by the director), Y = right calls in a row, Z = finished.
 (event EventBeginPlay
   (bind f_LB (Actor|GetAllActorswithTag :Tag "lb"))
   (for a_LB f_LB (Variables|Default|SetLB a_LB))
-  (bind f_DA (Actor|GetAllActorswithTag :Tag "s_pdoor"))
+  (bind f_DA (Actor|GetAllActorswithTag :Tag "s_adoor"))
   (for a_DA f_DA (Variables|Default|SetDoorA a_DA))
   (bind f_DB (Actor|GetAllActorswithTag :Tag "s_bdoor"))
   (for a_DB f_DB (Variables|Default|SetDoorB a_DB))
@@ -62,9 +62,9 @@
     (bind py (.y p))
     (bind up (> (.z p) 300.0))
     (bind fwdY (.y (Math|Vector|GetForwardVector :InRot (Camera|GetCameraRotation :self (Game|GetPlayerCameraManager :PlayerIndex 0)))))
-    (bind in1 (and up (and (< py -356.0) (> px 5.0))))
-    (bind in2 (and up (and (< py -233.0) (< px -196.0))))
-    (bind inX (and up (and (< py -356.0) (and (<= px 5.0) (>= px -196.0)))))
+    (bind in1 (and up (and (< py -626.0) (> px 150.0))))
+    (bind in2 (and up (and (< py -626.0) (< px 110.0))))
+    (bind inX (and up (and (< py -626.0) (and (<= px 150.0) (>= px 110.0)))))
     (bind hall (not (or in1 (or in2 inX))))
     (if (and hall (!= (Variables|Default|GetEntry) 0)) (Variables|Default|SetEntry 0))
     (if (and in1 (== (Variables|Default|GetEntry) 0)) (Variables|Default|SetEntry 1))
@@ -74,7 +74,7 @@
     (if (and (Variables|Default|GetStretch) (and in1 (== (Variables|Default|GetEntry) 1)))
       (bind smax (Variables|Default|GetSMax))
       (bind gap (- 430.0 (* 330.0 (/ (Variables|Default|GetS) smax))))
-      (bind want (Math|Float|Clamp(Float) :Value (+ (- (- 1150.0 py) 1690.0) gap) :Min 0.0 :Max smax))
+      (bind want (Math|Float|Clamp(Float) :Value (+ (- (- 1150.0 py) 2100.0) gap) :Min 0.0 :Max smax))
       (Variables|Default|SetMoving (> (- want (Variables|Default|GetS)) 6.0))
       (Variables|Default|SetS (Math|Float|Max(Float) :A (Variables|Default|GetS) :B (Math|Interpolation|FInterpTo :Current (Variables|Default|GetS) :Target want :DeltaTime DeltaSeconds :InterpSpeed 4.0))))
     (Audio|Components|Audio|SetPaused :self (Variables|Default|GetGroan) :bPause (not (Variables|Default|GetMoving)))
@@ -82,7 +82,7 @@
     ; back in the hall and looking away: the corridor is short again
     (if (and hall (and (> (Variables|Default|GetS) 0.0) (> fwdY 0.35))) (Variables|Default|SetS 0.0))
     ; ---------------- half way round, both ends out of sight: the call is counted and the hall is changed ----------------
-    (if (and inX (or (and (== (Variables|Default|GetEntry) 1) (< px -95.0)) (and (== (Variables|Default|GetEntry) 2) (> px -105.0))))
+    (if (or (and (== (Variables|Default|GetEntry) 1) in2) (and (== (Variables|Default|GetEntry) 2) in1))
       (Variables|Default|SetOk (or (and (>= (Variables|Default|GetK) 0) (== (Variables|Default|GetEntry) 2)) (and (< (Variables|Default|GetK) 0) (== (Variables|Default|GetEntry) 1))))
       (Variables|Default|SetEntry 3)
       (Variables|Default|SetStreak (select (Variables|Default|GetOk) (+ (Variables|Default|GetStreak) 1) 0))
@@ -119,7 +119,7 @@
       (Variables|Default|SetStretch (< (Math|Random|RandomFloatinRange :Min 0.0 :Max 1.0) 0.45))
       (Variables|Default|SetSMax (Math|Random|RandomFloatinRange :Min 380.0 :Max 900.0)))
     ; ---------------- put the moving parts where the corridor's length says they are ----------------
-    (bind face (- -540.0 (Variables|Default|GetS)))
+    (bind face (- -950.0 (Variables|Default|GetS)))
     (bind gW (Actor|GetAllActorswithTag :Tag "ax_capw"))
     (for aW gW (Transformation|SetActorLocation :self aW :NewLocation (Math|Vector|MakeVector :X (.x (Transformation|GetActorLocation :self aW)) :Y (- face 6.0) :Z (.z (Transformation|GetActorLocation :self aW)))))
     (bind gC (Actor|GetAllActorswithTag :Tag "ax_cap"))
@@ -128,12 +128,12 @@
     (for aL gL (Transformation|SetActorLocation :self aL :NewLocation (Math|Vector|MakeVector :X (.x (Transformation|GetActorLocation :self aL)) :Y (+ face 55.0) :Z (.z (Transformation|GetActorLocation :self aL)))))
     (bind gD (Actor|GetAllActorswithTag :Tag "ax_div"))
     (for aD gD
-      (Transformation|SetActorLocation :self aD :NewLocation (Math|Vector|MakeVector :X (.x (Transformation|GetActorLocation :self aD)) :Y (- -387.0 (* 0.5 (Variables|Default|GetS))) :Z (.z (Transformation|GetActorLocation :self aD))))
-      (Transformation|SetActorScale3D :self aD :NewScale3D (Math|Vector|MakeVector :X (.x (Transformation|GetActorScale3D :self aD)) :Y (/ (+ 86.0 (Variables|Default|GetS)) 100.0) :Z (.z (Transformation|GetActorScale3D :self aD)))))
+      (Transformation|SetActorLocation :self aD :NewLocation (Math|Vector|MakeVector :X (.x (Transformation|GetActorLocation :self aD)) :Y (- -820.0 (* 0.5 (Variables|Default|GetS))) :Z (.z (Transformation|GetActorLocation :self aD))))
+      (Transformation|SetActorScale3D :self aD :NewScale3D (Math|Vector|MakeVector :X (.x (Transformation|GetActorScale3D :self aD)) :Y (/ (+ 20.0 (Variables|Default|GetS)) 100.0) :Z (.z (Transformation|GetActorScale3D :self aD)))))
     (bind gL1 (Actor|GetAllActorswithTag :Tag "ax_l1"))
-    (for aL1 gL1 (Rendering|SetActorHiddenInGame :self aL1 :bNewHidden (> face -890.0)))
+    (for aL1 gL1 (Rendering|SetActorHiddenInGame :self aL1 :bNewHidden (> face -1310.0)))
     (bind gL2 (Actor|GetAllActorswithTag :Tag "ax_l2"))
-    (for aL2 gL2 (Rendering|SetActorHiddenInGame :self aL2 :bNewHidden (> face -1310.0)))
+    (for aL2 gL2 (Rendering|SetActorHiddenInGame :self aL2 :bNewHidden (> face -1710.0)))
     ; the hall clock: its second hand runs backward when that is the thing that is wrong
     (Variables|Default|SetClockA (+ (Variables|Default|GetClockA) (* DeltaSeconds (select (== (Variables|Default|GetK) 3) -42.0 6.0))))
     (Transformation|SetActorRotation :self (Variables|Default|GetClock) :NewRotation (Math|Rotator|MakeRotator :Roll (Variables|Default|GetClockA) :Pitch 0.0 :Yaw 90.0))

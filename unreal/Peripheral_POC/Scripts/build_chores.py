@@ -30,6 +30,9 @@ for i in range(5):
     P("plate_dirty", sx, sy, F1 + 80 + i * 1.4, (1, i * 0.4 - 1), r, collide=False, tags=["ch_plate"], movable=True)
 (rx, ry), f = HP.at("kitchen", "x1", 106, 30)
 P("dish_rack", rx, ry, F1 + 91, (0, 1), r, collide=False, tags=["ch_rack"])
+for i in range(5):                                           # the same plates, clean, standing in the rack: shown one by one as they are washed
+    c = hidden(P("plate", rx, ry - 12 + i * 6, F1 + 103, (1, 0), r, collide=False, tags=["ch_plate_clean"], movable=True))
+    c.set_actor_rotation(unreal.Rotator(roll=82.0, pitch=0.0, yaw=0.0), False)
 # 5. laundry: a basket of clothes by the washer
 P("laundry_basket", 808, 642, F1, (1, 0), r, tags=["ch_basket"]); P("clothes_floor", 808, 642, F1 + 16, (0.3, 1), r, collide=False, tags=["ch_clothes"], movable=True)
 # 6. water the garden bed: three patches of dry soil, each with a wet twin

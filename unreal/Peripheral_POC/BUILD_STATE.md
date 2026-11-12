@@ -308,3 +308,71 @@ Joel: the loop "wasn't how I envisioned": no teleporting; the hallway should exp
 - The anomaly: while the loop is running, if he stands still for four seconds the shadow stops copying him. Over about two seconds it turns 40 degrees, slides 28 cm to his right and lifts its right arm with its head tilted. The moment he takes a step it is his shadow again. `H` forces it anywhere after one second of standing still, for testing. Call 57: this one also happens in view, by design (Joel: "the shadow will move out of place, maybe if they stand still").
 - Tested in editor play mode by script: no figure on the title screen; exact match while walking; loose after four still seconds in the loop; back within a frame of a step. Pictures (editor, night, upstairs hall light): `screenshots/shadow/`.
 - Not verified: seen only in editor pictures, not played by hand or in the packaged app. The arm pose switches at once part-way through the drift rather than rising smoothly. The flashlight is at the camera, so it shows no shadow of Jack; lamps and sunlight do. The figure does not crouch or walk-cycle.
+
+## Playtest round 1 (Nov 11): bigger house, colour theme, chores, anomaly test day, real menus
+Joel's eight-point list after first playing the demo. The layout change was approved in that list.
+
+### 1. House scale and layout
+- The house is rebuilt from a room table: `Scripts/house_plan.py`. Walls, floors, ceilings, doors, windows, baseboards, the fit check and `HOUSE_BLUEPRINT.md` are all made from it (`build_shell.py`, `build_openings.py`, `fit_check.py`, `plan_doc.py`). Floor plans: `screenshots/playtest_round1/plans/`.
+- Centre-hall two-storey with basement, attic loft and attached two-car garage. Clear floor inside the rooms on floors 1 and 2: 3,069 sq ft. Measured outside wall to outside wall those two floors are 3,421 sq ft.
+- Floor 1: entry, hall, living room, dining room, kitchen with nook, laundry / mudroom, half bath, family room / den. Floor 2: upstairs hall (a gallery beside the stairwell, then a 10 m back hall round a corner), parents' bedroom with bath and closet, sibling's room, Jack's room, guest / sewing room, hall bath, two hall closets. A stair off the gallery climbs to the attic loft under the roof.
+- The stair rules are kept: the sunken entry landing, up flight turning left, basement flight straight ahead, and the same flight to floor 2. Ceilings stay 244 cm; rooms grew wider and longer, not taller.
+- Walking speed is now 135 cm/s (it was 260). At that pace the living room takes about 4 seconds to cross and Jack's room to the garage about 20.
+- Lines of sight are broken by the L-shaped hall, the loop through dining room, den and kitchen, the stair core, and the corner in the upstairs hall.
+
+### 2 and 3. Colour theme and floors ("warm Americana family home, late 90s to 2000s")
+- Painted walls, white trim and white ceilings everywhere. Entry, halls and stairwell: warm greige, one treatment from the basement flight to the loft. Living room: antique white with honey oak trim. Den: tan with a deep burgundy accent wall behind the television. Kitchen and mudroom: butter cream and almond, with a fruit border under the kitchen ceiling. Parents: dusty sage. Jack: denim blue with a space border. Sibling: lavender. Half bath: powder blue. Hall bath: dusty rose with a matching shower curtain. Parents' bath: seafoam.
+- Wallpaper in two rooms only: the cream damask in the dining room and a small floral in the guest / sewing room.
+- Floors: honey oak in the entry, halls, living and dining rooms. Kitchen and mudroom: almond-and-brown sheet vinyl printed as tiles with small brown diamonds, scuffed. Bathrooms: small white hex tile and a 5 cm mosaic, both with dingy grout. Carpets: Jack's room a bold multicolour kids' pattern, parents' room mauve, den a dark burgundy and green multi-tone, sibling's room teal, guest room dusty blue, loft burnt orange, upstairs hall and stairs tan.
+- New texture sets are made by `Scripts/tex/gen_surfaces2.py`.
+
+### 4. Outside
+- The driveway is clear concrete with cracks, a control joint and oil stains, leading to the two-car garage. Street trees are kept out of its mouth.
+- Garage: workbench, pegboard of tools, second fridge, shelving, holiday decoration tubs, two bikes, ladder, gas can, paint cans, hose reel, the push mower, a broom, the wheeled bin. Its big door rolls up with E. A doorway in its back wall leads to the yard.
+- Back yard: wood privacy fence, small shed, swing set, concrete patio with a gas grill, plastic chairs and table, a raised garden bed, sprinkler, hose. Neighbour houses show over the fence on three sides.
+
+### 5. Chores (`BP_Chores`, logic in `Scripts/bp/gen_chores.py`, objects in `build_chores.py`)
+All use E. A list of them shows in the corner during the chore day.
+1. Mow the back lawn: E on the mower to push it; the long grass is cut short wherever it passes. Engine sound while pushing.
+2. Trash: carry the kitchen bag to the wheeled bin in the garage (it drops in), then push the bin to the curb and let go.
+3. Mail: E at the mailbox (the door drops, the flag goes up), carry the mail indoors.
+4. Dishes: E at the sink, one plate per press, from the dirty stack to the rack.
+5. Laundry: E at the washer (it runs and shakes for 18 seconds, then buzzes), E again to move the load to the dryer.
+6. Water the garden: carry the watering can and stand at each of the three dry patches until it darkens.
+7. Sweep the garage: E on the broom to push it through the eight piles of dust and leaves.
+8. Hall bulb: carry the new bulb from the laundry shelf to under the dead hall fixture; the light comes on.
+9. Make the bed in Jack's room: E at the bed.
+- New in the player: things tagged `push` (mower, bin, broom) roll along the ground an arm's length ahead until E lets go.
+
+### 6. Anomaly test day (F5, or "Play - Chore day" on the title menu) (`BP_Day`, `Scripts/bp/gen_day.py`, `build_day.py`)
+- One in-game day, 8:00 to 18:00 over 20 real minutes, with the sun crossing the sky. It ends when every chore is done or the clock runs out.
+- Every 35 to 75 seconds it tries to fire one anomaly picked at random. It fires only if that spot is out of the player's view: outside the field of view (with a margin) or behind a wall, and at least 2.5 m away. Nothing changes on screen.
+- The fifteen in the pool: family photo (everyone now faces away), THANKFUL banner reads THANKFU, a fridge magnet slid down and the kid's drawing gained a tall figure, every clock shows 3:17, the parents' door is ajar, washed dishes are back in the sink, a strip of mown lawn is long again, the television is on to static, a dining chair is pulled out, a light that was off is on, the upstairs back hall is 80 cm longer, two coats on the rail instead of one, the answering machine blinks with a new message, a height mark above Jack's last one, shoes by the door.
+- F6 shows the list of what has fired, in order, with the in-game time and whether the player has looked straight at it since.
+
+### 7. Menus, input and settings
+- The menus are now real widgets (`WBP_Menu`, layout in `Scripts/ui_menu.py`, logic in `Scripts/bp/gen_menu.py`). Mouse hover, click and wheel scroll work; so do the keyboard (arrows, Enter) and a controller. The earlier finding that "the editor exposes no menu tool" was wrong: its UMG toolset does this.
+- Any menu frees the mouse: the pointer shows and is not locked to the window. Esc pauses and releases it; Resume (or Esc again) captures it again. The game no longer grabs the mouse at launch.
+- Settings, five pages. Display: window mode, resolution, V-sync, frame rate cap, field of view. Graphics: overall preset and separate shadows, global illumination, reflections, textures, effects, post-processing, anti-aliasing, resolution scale. Audio: master, music, sound effects, ambience. Controls: mouse sensitivity, invert Y, seven rebindable keys. Accessibility: camera motion intensity, unease effect cap, subtitles (captions for the main sound cues).
+- Settings are kept in a save file (`settings` slot) and applied at start-up.
+- The in-game overlay (`WBP_Overlay`, `Scripts/ui_overlay.py`) draws the chore list, the clock, the F6 list and captions. On-screen text is no longer pre-made images.
+
+### 8. Music
+- Six named slots, each a looping file in `SourceArt/Audio`: `music_title`, `music_day1_calm`, `music_unease_low`, `music_unease_mid`, `music_unease_high`, `music_loop_sequence`. The director crossfades between them by unease level (under 15, 15 to 45, 45 to 75, above 75), with the title and the loop sequence on their own slots.
+- The files there now are placeholder pads made by `Scripts/audio/gen_sounds2.py`. To use a real track, replace the WAV of the same name and run `Scripts/import_audio.py`.
+- Sounds are sorted into classes (Music, SFX, Ambience) so the Audio sliders work.
+
+### Judgment calls
+58. Walking speed lowered to 135 cm/s. The size limit and the "4 to 6 seconds to cross a main room" target cannot both be met at the old 260 cm/s.
+59. Clear floor area is inside the 2,800 to 3,200 range; outside-wall area is about 220 sq ft over it. Kept, because the complaint was that rooms felt cramped.
+60. The split entry is kept, so floor 1 sits 140 cm above the yard. The garage is at ground level with steps up to the mudroom door, which makes the garage 3.8 m tall inside.
+61. The parents' bath is seafoam (the brief names two bathroom colours and there are three bathrooms).
+62. The fireplace moved to the living room's garage-side wall; its chimney rises through the garage.
+63. "Fewer people in the family photo" is the peripheral anomaly from before (upstairs hall); the anomaly-day version of the photo is "everyone faces away".
+64. Clocks cannot tick, so normally they show slightly different times and the anomaly sets them all to 3:17.
+65. Mowing counts as done with up to two squares missed.
+66. The chore day starts in the front hall when started from the title menu; started with F5 during play, Jack stays where he is.
+67. Key rebinding covers walk, use, crouch and flashlight. The test keys (unease levels, F1, F5, F6, N, H, L) are fixed.
+68. Subtitles caption sound cues, since the game has no speech.
+69. The parents' room is open during the chore day and the loop; on Day One it still shows "Not yet."
+70. The loop corridor now leaves by the two closets at the far end of the upstairs back hall and runs out through the side wall behind them.
