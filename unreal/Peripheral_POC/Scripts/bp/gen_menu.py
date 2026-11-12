@@ -65,18 +65,21 @@ gus = "\n      ".join(["(bind gus (Settings|GetGameUserSettings))", "(bind wm %s
     + ["(Settings|ApplySettings :self gus :bCheckForCommandLineOverrides false)", S("GusDirty", "false")])
 mix = " ".join('(Audio|SetSoundMixClassOverride :InSoundMixModifier "/Game/Audio/Mix_Settings.Mix_Settings" :InSoundClass "/Game/Audio/SC_%s.SC_%s" :Volume (* %s %s) :Pitch 1.0 :FadeInTime 0.05 :bApplyToChildren true)'
                % (c, c, SG("Master"), SG(v)) for c, v in (("Music", "Music"), ("SFX", "Sfx"), ("Ambience", "Amb")))
-finds = "\n  ".join('(bind f_%s (Actor|GetAllActorswithTag :Tag "%s")) (for a_%s f_%s %s)' % (k, t, k, k, S(k, "a_" + k)) for k, t in (("UB", "ub"), ("BB", "bb"), ("SB", "sb"), ("CP", "cp")))
+finds = "\n  ".join('(bind f_%s (Actor|GetAllActorswithTag :Tag "%s")) (for a_%s f_%s %s)' % (k, t, k, k, S(k, "a_" + k)) for k, t in (("UB", "ub"), ("BB", "bb"), ("SB", "sb"), ("CP", "cp"), ("QB", "qb")))
 BTN = {"BtnDay1": 1, "BtnChore": 2, "BtnLoop": 3, "BtnResume": 4, "BtnTitle": 5, "BtnQuit": 6, "BtnPQuit": 6}
 events = []
 for b_, cmd in BTN.items():
     events.append("(event OnClicked(%s)\n  (bind l %s)\n  %s)" % (b_, LOC(V("UB")), SETLOC(V("UB"), VEC("(.x l)", "%d.0" % cmd, "(.z l)"))))
-for b_, scr in (("BtnSettings", 3), ("BtnPSettings", 3), ("BtnHow", 4), ("BtnPHow", 4)):
+for b_, scr in (("BtnSettings", 3), ("BtnPSettings", 3), ("BtnHow", 4), ("BtnPHow", 4), ("BtnChapters", 5), ("BtnPChapters", 5)):
     events.append("(event OnClicked(%s)\n  (bind l %s)\n  %s)" % (b_, LOC(V("UB")), SETLOC(V("UB"), VEC("%d.0" % scr, "0.0", "(.x l)"))))
-for b_ in ("BtnSetBack", "BtnHowBack"):
+for b_ in ("BtnSetBack", "BtnHowBack", "BtnChapBack"):
     events.append("(event OnClicked(%s)\n  (bind l %s)\n  %s)" % (b_, LOC(V("UB")), SETLOC(V("UB"), VEC("(.z l)", "0.0", "(.z l)"))))
 for i in range(len(PAGES)):
     events.append("(event OnClicked(BtnTab%d)\n  %s)" % (i, S("Page", str(i))))
-ALLBTN = list(BTN) + ["BtnSettings", "BtnPSettings", "BtnHow", "BtnPHow", "BtnSetBack", "BtnHowBack"] + ["BtnTab%d" % i for i in range(len(PAGES))]
+REQ = {"BtnContinue": 9, "BtnDay_1": 1, "BtnDay_2": 2, "BtnDay_3": 3, "BtnDay_4": 4, "BtnDay_5": 5}
+for b_, q in REQ.items():          # the story controller picks these up from the request board
+    events.append("(event OnClicked(%s)\n  %s)" % (b_, SETLOC(V("QB"), VEC("%d.0" % q, "0.0", "0.0"))))
+ALLBTN = list(BTN) + list(REQ) + ["BtnSettings", "BtnPSettings", "BtnHow", "BtnPHow", "BtnSetBack", "BtnHowBack", "BtnChapters", "BtnPChapters", "BtnChapBack"] + ["BtnTab%d" % i for i in range(len(PAGES))]
 
 dsl = f"""(event UserInterface|EventConstruct
   {finds}
@@ -94,6 +97,7 @@ dsl = f"""(event UserInterface|EventConstruct
   {VIS(W("PauseBox"), "(== screen 2)")}
   {VIS(W("SettingsBox"), "(== screen 3)")}
   {VIS(W("HowBox"), "(== screen 4)")}
+  {VIS(W("ChapterBox"), "(== screen 5)")}
   {VIS(W("Dim"), "(> screen 1)")}
   (bind page {V("Page")})
   {" ".join(VIS(W("Page%d" % i), "(== page %d)" % i) for i in range(len(PAGES)))}
@@ -142,7 +146,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "apply":
     import bp_tool as B
     from mcp_tool import call
     WB = {"refPath": "/Game/UI/WBP_Menu.WBP_Menu"}
-    for k in ("UB", "BB", "SB", "CP"):
+    for k in ("UB", "BB", "SB", "CP", "QB"):
         call(B.BT, "add_object_variable", {"blueprint": WB, "name": k, "object_class": {"refPath": "/Script/Engine.Actor"}, "graph": None, "container_type": None})
     call(B.BT, "add_object_variable", {"blueprint": WB, "name": "Save", "object_class": {"refPath": "/Game/Blueprints/BP_SaveSettings.BP_SaveSettings_C"}, "graph": None, "container_type": None})
     call(B.BT, "add_object_variable", {"blueprint": WB, "name": "PlayerRef", "object_class": {"refPath": "/Game/Blueprints/BP_Player.BP_Player_C"}, "graph": None, "container_type": None})

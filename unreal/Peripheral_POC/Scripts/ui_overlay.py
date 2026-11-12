@@ -10,6 +10,7 @@ CHORES = ["Mow the back lawn", "Take out the trash, bin to the curb", "Get the m
           "Water the garden bed", "Sweep the garage", "Change the hall light bulb", "Make the bed in Jack's room"]
 CAPTIONS = ["", "[lawn mower running]", "[washing machine running]", "[buzzer]", "[water pouring]", "[dishes clink in the sink]", "[the house groans]", "[a breaker clunks; the power hums]"]
 N_LOG = 15
+CHORE_DAY = {0: 3, 1: 4, 2: 2, 3: 2, 4: 2, 5: 3, 6: 4, 7: 3, 8: 2}           # as in bp/gen_story.py
 BUILD = "layout" in sys.argv
 if BUILD:
   b = Builder("/Game/UI", "WBP_Overlay")
@@ -30,6 +31,8 @@ if BUILD:
   b.text("LogFoot", lv, "Each change happened while that spot was out of your view.", 12, slot={"padding": pad(0, 10, 0, 0)}, color=(0.7, 0.68, 0.62))
   b.text("DayOver", root, "The day is over.  F6 shows what changed and whether you looked at it.", 22, "Bold", C(0, 90, 900, 40, 0.5, 0, 0.5, 0, 0.5, 0), var=True, just="Center")
   b.text("Caption", root, "", 22, slot=C(0, -120, 1000, 40, 0.5, 1, 0.5, 1, 0.5, 0), var=True, just="Center")
+  b.text("Note", root, "", 24, "Italic", C(46, -130, 900, 80, 0, 1, 0, 1, 0, 0), var=True, color=(0.93, 0.9, 0.82), wrap=860)
+  b.text("Card", root, "", 54, "Bold", C(0, -40, 1400, 90, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5), var=True, just="Center")
   b.finish()
 
 W = lambda n: "(Variables|WBP_Overlay|Get%s)" % n
@@ -67,7 +70,9 @@ dsl = f"""(event UserInterface|EventConstruct
   (bind days (Actor|GetAllActorsOfClass :ActorClass "/Game/Blueprints/BP_Day.BP_Day_C"))
   (for d days {S("DayRef", "d")})
   (bind chs (Actor|GetAllActorsOfClass :ActorClass "/Game/Blueprints/BP_Chores.BP_Chores_C"))
-  (for c chs {S("ChoreRef", "c")}))
+  (for c chs {S("ChoreRef", "c")})
+  (bind sts (Actor|GetAllActorsOfClass :ActorClass "/Game/Blueprints/BP_Story.BP_Story_C"))
+  (for st0 sts {S("StoryRef", "st0")}))
 
 (event UserInterface|EventTick (MyGeometry InDeltaTime)
   (bind cbl {LOC(V("CB"))})
@@ -80,9 +85,16 @@ dsl = f"""(event UserInterface|EventConstruct
   (bind daylen (Class|BPDay|GetDayLen :self day))
   (if (Game|Player|WasInputKeyJustPressed :self (Widget|GetOwningPlayer) :Key "F6") {S("ShowLog", "(not " + V("ShowLog") + ")")})
   (if (and over (not {V("WasOver")})) {S("WasOver", "true")} {S("ShowLog", "true")})
-  {VIS(W("ChoreBox"), "active")}
+  (bind st {V("StoryRef")})
+  (bind sday (Class|BPStory|GetDay :self st))
+  {VIS(W("ChoreBox"), "(and active (or (== sday 0) (and (and (>= sday 2) (<= sday 4)) (== (Class|BPStory|GetPhase :self st) 1))))")}
   {VIS(W("LogBox"), "(and active " + V("ShowLog") + ")")}
-  {VIS(W("DayOver"), "over")}
+  {VIS(W("DayOver"), "(and over (== sday 0))")}
+  {VIS(W("Clock"), "(== sday 0)")}
+  {VIS(W("Card"), "(> (Class|BPStory|GetCardT :self st) 0.0)")}
+  {STR(W("Card"), "(Class|BPStory|GetCard :self st)")}
+  {STR(W("Note"), APP("(Class|BPStory|GetNote :self st)", '(select (Class|BPStory|GetLoopOn :self st) ' + APP(APP('"     something changed: go back the way you came. nothing changed: keep going.   "', ISTR("(Class|BPStory|GetCount :self st)")), APP('" of "', ISTR("(Class|BPStory|GetNeed :self st)"))) + ' "")'))}
+  {" ".join(VIS(W("Ch%d" % i), "(or (== sday 0) (== sday %d))" % CHORE_DAY[i]) for i in range(len(CHORES)))}
   (bind now (Utilities|Time|GetGameTimeinSeconds))
   (bind cap (Math|Float|Round :A (.x cpl)))
   {VIS(W("Caption"), "(and (> (.z cpl) 0.5) (and (> cap 0) (< (- now (.y cpl)) 3.5)))")}
@@ -106,6 +118,7 @@ print("day compile:", json.dumps(call(B.BT, "compile_blueprint", {"blueprint": B
 for k in ("CB", "DB", "CP"):
     call(B.BT, "add_object_variable", {"blueprint": WB, "name": k, "object_class": {"refPath": "/Script/Engine.Actor"}, "graph": None, "container_type": None})
 call(B.BT, "add_object_variable", {"blueprint": WB, "name": "DayRef", "object_class": {"refPath": "/Game/Blueprints/BP_Day.BP_Day_C"}, "graph": None, "container_type": None})
+call(B.BT, "add_object_variable", {"blueprint": WB, "name": "StoryRef", "object_class": {"refPath": "/Game/Blueprints/BP_Story.BP_Story_C"}, "graph": None, "container_type": None})
 call(B.BT, "add_object_variable", {"blueprint": WB, "name": "ChoreRef", "object_class": {"refPath": "/Game/Blueprints/BP_Chores.BP_Chores_C"}, "graph": None, "container_type": None})
 for k in ("ShowLog", "WasOver"):
     call(B.BT, "add_variable", {"blueprint": WB, "name": k, "type_name": "bool", "graph": None, "container_type": None})

@@ -7,7 +7,7 @@ N = "BP_HUD"
 for k in ("UB", "SB", "CB"):
     B.add_obj_var(N, k, "/Script/Engine.Actor")
 for i in range(6):
-    B.add_obj_var(N, "M%d" % i, "/Script/Engine.AudioComponent"); B.add_var(N, "W%d" % i, "float")
+    B.add_obj_var(N, "Mus%d" % i, "/Script/Engine.AudioComponent"); B.add_var(N, "Vol%d" % i, "float")
 for k in ("Screen", "Cmd"):
     B.add_var(N, k, "int")
 B.add_var(N, "ChoreStart", "bool")

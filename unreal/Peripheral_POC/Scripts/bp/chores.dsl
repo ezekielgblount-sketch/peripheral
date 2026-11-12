@@ -76,7 +76,7 @@
         (if (< (Math|Vector|Distance2D(Vector) :V1 (Transformation|GetActorLocation :self g) :V2 mloc) 78.0)
           (Transformation|SetActorScale3D :self g :NewScale3D (Math|Vector|MakeVector :X 1.0 :Y 1.0 :Z 0.16))
           (else (Variables|Default|SetLeft (+ (Variables|Default|GetLeft) 1))))))
-    (if (and (== (Variables|Default|GetLeft) 0) (not (Variables|Default|GetD0))) (Variables|Default|SetD0 true) (Audio|PlaySound2D :Sound "/Game/Audio/click.click" :VolumeMultiplier 0.5))
+    (if (and (< (Variables|Default|GetLeft) 3) (not (Variables|Default|GetD0))) (Variables|Default|SetD0 true) (Audio|PlaySound2D :Sound "/Game/Audio/click.click" :VolumeMultiplier 0.5))
     (if (> (- now (Variables|Default|GetCapT)) 4.0) (Variables|Default|SetCapT now) (Transformation|SetActorLocation :self (Variables|Default|GetCP) :NewLocation (Math|Vector|MakeVector :X 1.0 :Y now :Z 0.0))))
   ; the day can ask for one strip to grow back (request 2)
   (if (and (> (.z cbl) 1.5) (< (.z cbl) 2.5))

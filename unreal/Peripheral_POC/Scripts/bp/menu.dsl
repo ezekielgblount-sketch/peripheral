@@ -3,6 +3,7 @@
   (bind f_BB (Actor|GetAllActorswithTag :Tag "bb")) (for a_BB f_BB (Variables|Default|SetBB a_BB))
   (bind f_SB (Actor|GetAllActorswithTag :Tag "sb")) (for a_SB f_SB (Variables|Default|SetSB a_SB))
   (bind f_CP (Actor|GetAllActorswithTag :Tag "cp")) (for a_CP f_CP (Variables|Default|SetCP a_CP))
+  (bind f_QB (Actor|GetAllActorswithTag :Tag "qb")) (for a_QB f_QB (Variables|Default|SetQB a_QB))
   (if (not (SaveGame|DoesSaveGameExist :SlotName "settings" :UserIndex 0))
     (SaveGame|SaveGametoSlot :SaveGameObject (SaveGame|CreateSaveGameObject :SaveGameClass "/Game/Blueprints/BP_SaveSettings.BP_SaveSettings_C") :SlotName "settings" :UserIndex 0))
   (bind sv0 (Utilities|Casting|CastToBP_SaveSettings :Object (SaveGame|LoadGamefromSlot :SlotName "settings" :UserIndex 0))
@@ -17,6 +18,7 @@
   (if (== screen 2) (Widget|SetVisibility :self (Variables|WBP_Menu|GetPauseBox) :InVisibility "Visible") (else (Widget|SetVisibility :self (Variables|WBP_Menu|GetPauseBox) :InVisibility "Collapsed")))
   (if (== screen 3) (Widget|SetVisibility :self (Variables|WBP_Menu|GetSettingsBox) :InVisibility "Visible") (else (Widget|SetVisibility :self (Variables|WBP_Menu|GetSettingsBox) :InVisibility "Collapsed")))
   (if (== screen 4) (Widget|SetVisibility :self (Variables|WBP_Menu|GetHowBox) :InVisibility "Visible") (else (Widget|SetVisibility :self (Variables|WBP_Menu|GetHowBox) :InVisibility "Collapsed")))
+  (if (== screen 5) (Widget|SetVisibility :self (Variables|WBP_Menu|GetChapterBox) :InVisibility "Visible") (else (Widget|SetVisibility :self (Variables|WBP_Menu|GetChapterBox) :InVisibility "Collapsed")))
   (if (> screen 1) (Widget|SetVisibility :self (Variables|WBP_Menu|GetDim) :InVisibility "Visible") (else (Widget|SetVisibility :self (Variables|WBP_Menu|GetDim) :InVisibility "Collapsed")))
   (bind page (Variables|Default|GetPage))
   (if (== page 0) (Widget|SetVisibility :self (Variables|WBP_Menu|GetPage0) :InVisibility "Visible") (else (Widget|SetVisibility :self (Variables|WBP_Menu|GetPage0) :InVisibility "Collapsed"))) (if (== page 1) (Widget|SetVisibility :self (Variables|WBP_Menu|GetPage1) :InVisibility "Visible") (else (Widget|SetVisibility :self (Variables|WBP_Menu|GetPage1) :InVisibility "Collapsed"))) (if (== page 2) (Widget|SetVisibility :self (Variables|WBP_Menu|GetPage2) :InVisibility "Visible") (else (Widget|SetVisibility :self (Variables|WBP_Menu|GetPage2) :InVisibility "Collapsed"))) (if (== page 3) (Widget|SetVisibility :self (Variables|WBP_Menu|GetPage3) :InVisibility "Visible") (else (Widget|SetVisibility :self (Variables|WBP_Menu|GetPage3) :InVisibility "Collapsed"))) (if (== page 4) (Widget|SetVisibility :self (Variables|WBP_Menu|GetPage4) :InVisibility "Visible") (else (Widget|SetVisibility :self (Variables|WBP_Menu|GetPage4) :InVisibility "Collapsed")))
@@ -221,11 +223,23 @@
   (bind l (Transformation|GetActorLocation :self (Variables|Default|GetUB)))
   (Transformation|SetActorLocation :self (Variables|Default|GetUB) :NewLocation (Math|Vector|MakeVector :X 4.0 :Y 0.0 :Z (.x l))))
 
+(event OnClicked(BtnChapters)
+  (bind l (Transformation|GetActorLocation :self (Variables|Default|GetUB)))
+  (Transformation|SetActorLocation :self (Variables|Default|GetUB) :NewLocation (Math|Vector|MakeVector :X 5.0 :Y 0.0 :Z (.x l))))
+
+(event OnClicked(BtnPChapters)
+  (bind l (Transformation|GetActorLocation :self (Variables|Default|GetUB)))
+  (Transformation|SetActorLocation :self (Variables|Default|GetUB) :NewLocation (Math|Vector|MakeVector :X 5.0 :Y 0.0 :Z (.x l))))
+
 (event OnClicked(BtnSetBack)
   (bind l (Transformation|GetActorLocation :self (Variables|Default|GetUB)))
   (Transformation|SetActorLocation :self (Variables|Default|GetUB) :NewLocation (Math|Vector|MakeVector :X (.z l) :Y 0.0 :Z (.z l))))
 
 (event OnClicked(BtnHowBack)
+  (bind l (Transformation|GetActorLocation :self (Variables|Default|GetUB)))
+  (Transformation|SetActorLocation :self (Variables|Default|GetUB) :NewLocation (Math|Vector|MakeVector :X (.z l) :Y 0.0 :Z (.z l))))
+
+(event OnClicked(BtnChapBack)
   (bind l (Transformation|GetActorLocation :self (Variables|Default|GetUB)))
   (Transformation|SetActorLocation :self (Variables|Default|GetUB) :NewLocation (Math|Vector|MakeVector :X (.z l) :Y 0.0 :Z (.z l))))
 
@@ -243,3 +257,21 @@
 
 (event OnClicked(BtnTab4)
   (Variables|Default|SetPage 4))
+
+(event OnClicked(BtnContinue)
+  (Transformation|SetActorLocation :self (Variables|Default|GetQB) :NewLocation (Math|Vector|MakeVector :X 9.0 :Y 0.0 :Z 0.0)))
+
+(event OnClicked(BtnDay_1)
+  (Transformation|SetActorLocation :self (Variables|Default|GetQB) :NewLocation (Math|Vector|MakeVector :X 1.0 :Y 0.0 :Z 0.0)))
+
+(event OnClicked(BtnDay_2)
+  (Transformation|SetActorLocation :self (Variables|Default|GetQB) :NewLocation (Math|Vector|MakeVector :X 2.0 :Y 0.0 :Z 0.0)))
+
+(event OnClicked(BtnDay_3)
+  (Transformation|SetActorLocation :self (Variables|Default|GetQB) :NewLocation (Math|Vector|MakeVector :X 3.0 :Y 0.0 :Z 0.0)))
+
+(event OnClicked(BtnDay_4)
+  (Transformation|SetActorLocation :self (Variables|Default|GetQB) :NewLocation (Math|Vector|MakeVector :X 4.0 :Y 0.0 :Z 0.0)))
+
+(event OnClicked(BtnDay_5)
+  (Transformation|SetActorLocation :self (Variables|Default|GetQB) :NewLocation (Math|Vector|MakeVector :X 5.0 :Y 0.0 :Z 0.0)))

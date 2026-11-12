@@ -25,8 +25,8 @@ ROWS = [
 PAGES = ["Display", "Graphics", "Audio", "Controls", "Accessibility"]
 HOW = ("W A S D  walk          Mouse  look          E  use, pick up, push, put down\n"
        "C  crouch              F  flashlight         Esc  pause (frees the mouse)\n\n"
-       "Day One: follow the note in the corner.\n"
-       "Chore day (F5): do the list. Things in the house change when you are not looking.\n"
+       "Five days. Follow the note in the corner; from day 2 there is a chore list too. Things change when you are not looking.\n"
+       "Go to bed (E at Jack's bed) to end a day. Each new day is saved; Chapter select starts any day.\n"
        "F6 shows what has changed so far, and whether you have looked at it since.\n"
        "The Loop (L): something in the hall changed: go back the way you came. Nothing changed: keep going.\n\n"
        "Test keys: 1-0 and minus set the unease level, F1 shows the unease bar, N day / night, H loosens the shadow.")
@@ -37,17 +37,24 @@ if __name__ == "__main__":
     root = b.add("CanvasPanel", "Root")
     b.add("Border", "Dim", root, {"brushColor": {"r": 0, "g": 0, "b": 0, "a": 0.66}}, C(0, 0, 0, 0, 0, 0, 1, 1), True)
     # ---- title ----
-    tb = b.add("VerticalBox", "TitleBox", root, None, C(120, -230, 620, 560, 0, 0.5, 0, 0.5), True)
+    tb = b.add("VerticalBox", "TitleBox", root, None, C(120, -290, 660, 680, 0, 0.5, 0, 0.5), True)
     b.text("TitleLogo", tb, "PERIPHERAL", 64, "Bold", {"padding": pad(0, 0, 0, 6)})
     b.text("TitleSub", tb, "visual proof of concept  -  playtest round 1", 16, slot={"padding": pad(4, 0, 0, 34)}, color=(0.7, 0.68, 0.62))
-    for n, lab in (("BtnDay1", "Play  -  Day One"), ("BtnChore", "Play  -  Chore day (anomaly test)"), ("BtnLoop", "Play  -  The Loop"), ("BtnSettings", "Settings"), ("BtnHow", "How to play"), ("BtnQuit", "Quit")):
+    for n, lab in (("BtnDay1", "New game"), ("BtnContinue", "Continue"), ("BtnChapters", "Chapter select"), ("BtnSettings", "Settings"), ("BtnHow", "How to play"), ("BtnChore", "Test: chore day with random anomalies (F5)"), ("BtnLoop", "Test: the loop (L)"), ("BtnQuit", "Quit")):
         b.button(n, tb, lab, 24, {"padding": pad(0, 5)})
     # ---- pause ----
     pb = b.add("VerticalBox", "PauseBox", root, None, C(-230, -220, 460, 460, 0.5, 0.5, 0.5, 0.5), True)
     b.text("PauseTitle", pb, "Paused", 44, "Bold", {"padding": pad(0, 0, 0, 24), "horizontalAlignment": "HAlign_Center"})
-    for n, lab in (("BtnResume", "Resume"), ("BtnPSettings", "Settings"), ("BtnPHow", "How to play"), ("BtnTitle", "Back to the title"), ("BtnPQuit", "Quit")):
+    for n, lab in (("BtnResume", "Resume"), ("BtnPSettings", "Settings"), ("BtnPChapters", "Chapter select"), ("BtnPHow", "How to play"), ("BtnTitle", "Back to the title"), ("BtnPQuit", "Quit")):
         b.button(n, pb, lab, 24, {"padding": pad(0, 5)})
     b.text("PauseHint", pb, "The mouse is free while this menu is open.\nResume (or Esc) takes it back.", 15, slot={"padding": pad(0, 18, 0, 0)}, color=(0.7, 0.68, 0.62), just="Center")
+    # ---- chapter select ----
+    cbx = b.add("Border", "ChapterBox", root, {"brushColor": {"r": 0.03, "g": 0.03, "b": 0.035, "a": 0.92}, "padding": pad(34, 26)}, C(-300, -260, 600, 520, 0.5, 0.5, 0.5, 0.5), True)
+    cv = b.add("VerticalBox", "ChapterV", cbx)
+    b.text("ChapterTitle", cv, "Chapter select", 36, "Bold", {"padding": pad(0, 0, 0, 16)})
+    for i, lab in enumerate(("Day 1   -   Move-in", "Day 2   -   Settling in", "Day 3   -   Things move", "Day 4   -   Losing grip", "Day 5   -   Facing it")):
+        b.button("BtnDay_%d" % (i + 1), cv, lab, 24, {"padding": pad(0, 5)})
+    b.button("BtnChapBack", cv, "Back", 22, {"padding": pad(0, 14, 0, 0), "horizontalAlignment": "HAlign_Left"})
     # ---- how to play ----
     hb = b.add("Border", "HowBox", root, {"brushColor": {"r": 0.03, "g": 0.03, "b": 0.035, "a": 0.92}, "padding": pad(34, 26)}, C(-520, -300, 1040, 600, 0.5, 0.5, 0.5, 0.5), True)
     hv = b.add("VerticalBox", "HowV", hb)
