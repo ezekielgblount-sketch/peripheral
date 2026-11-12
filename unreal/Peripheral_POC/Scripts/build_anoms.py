@@ -28,11 +28,15 @@ if __name__ == "__main__":
         o, e = a.get_actor_bounds(False); return (o.x - e.x, o.y - e.y, o.z - e.z, o.x + e.x, o.y + e.y, o.z + e.z)
     solid = [(a.get_actor_label(), bx(a)) for a in before]
     solid = [(n, c) for (n, c) in solid if c[3] - c[0] < 700 and c[4] - c[1] < 700]            # leave out the merged shell pieces
+    solid = [(n, (c[0] - 1, c[1] - 1, c[2], c[3] + 1, c[4] + 1, c[5])) for (n, c) in solid]     # flat things (posters, charts) have no thickness of their own
     def hits(b):
-        return [n for (n, c) in solid if min(b[3], c[3]) - max(b[0], c[0]) > 2 and min(b[4], c[4]) - max(b[1], c[1]) > 2 and min(b[5], c[5]) - max(b[2], c[2]) > 2]
+        return [n for (n, c) in solid if min(b[3], c[3]) - max(b[0], c[0]) > 0.1 and min(b[4], c[4]) - max(b[1], c[1]) > 0.1 and min(b[5], c[5]) - max(b[2], c[2]) > 2]
     def near_opening(x, y, z, pad=80):
         for o in HP.OPENINGS:
-            if o["kind"] == "window" or not (o["z0"] - 30 <= z <= o["z0"] + 30):
+            if o["kind"] == "window":                       # nothing tall or framed goes in front of a window
+                if not (z - 30 <= o["z0"] <= z + 250):
+                    continue
+            elif not (o["z0"] - 30 <= z <= o["z0"] + 30):
                 continue
             (ox0, ox1, oy0, oy1) = (o["t0"], o["t1"], o["a0"], o["a1"]) if o["axis"] == "x" else (o["a0"], o["a1"], o["t0"], o["t1"])
             if ox0 - pad < x < ox1 + pad and oy0 - pad < y < oy1 + pad:
@@ -61,8 +65,8 @@ if __name__ == "__main__":
     # ---- false positives ----
     free("draped_boxes", "b_rec", ("x1", "y1"), 64, 56, 170); free("draped_boxes", "guest", ("y1", "x0"), 64, 56, 170)
     free("mop_bucket", "kitchen", ("y0", "x0", "y1"), 40, 44, 172, collide=False); free("mop_bucket", "b_mid", ("x0", "y1"), 40, 44, 172, collide=False)
-    free("coat_chair", "den", ("y1", "x1"), 64, 48, 110); free("tall_plant", "hall_main", ("y0", "y1", "x1"), 50, 42, 180, collide=False)
-    free("box_stack_tall", "sibling", ("x1", "y1", "y0"), 56, 56, 172); free("box_stack_tall", "b_east", ("y1", "x0"), 56, 56, 172)
+    free("coat_chair", "den", ("y1", "x1", "x0"), 64, 48, 110) or free("coat_chair", "living", ("x1", "y1", "x0"), 64, 48, 110); free("tall_plant", "hall_main", ("y0", "y1", "x1"), 50, 42, 180, collide=False)
+    free("box_stack_tall", "sibling", ("x1", "y1", "y0", "x0"), 56, 56, 172) or free("box_stack_tall", "pcloset", ("x1", "y1", "y0"), 56, 56, 172) or free("box_stack_tall", "b_rec", ("y0", "x1"), 56, 56, 172); free("box_stack_tall", "b_east", ("y1", "x0"), 56, 56, 172)
     free("curtain_bunched", "b_store", ("x0", "y0"), 52, 30, 196, collide=False); free("curtain_bunched", "dining", ("x0", "y1"), 52, 30, 196, collide=False)
     lamp_at = free("empty_spot", "den", ("x0", "y1", "x1"), 46, 46, 170, collide=False)
 

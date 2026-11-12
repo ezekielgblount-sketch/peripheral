@@ -55,8 +55,8 @@ def tall_plant():
 def box_stack_tall():
     """Three moving boxes, each smaller than the one below, with a lampshade left on top."""
     k = K.Kit()
-    k.add(carton(52, 46, 62)); k.add(carton(44, 40, 52), T(4, 0, 62, yaw=7)); k.add(carton(34, 30, 36), T(9, 0, 114, yaw=-5))
-    k.cone("fabric_cream", 26, 0, 150, 13, 9, 20, 14)
+    k.add(carton(52, 46, 62), T(25, 0, 0)); k.add(carton(44, 40, 52), T(27, 0, 62, yaw=7)); k.add(carton(34, 30, 36), T(30, 0, 114, yaw=-5))
+    k.cone("fabric_cream", 30, 0, 150, 13, 9, 20, 14)
     return k
 
 
