@@ -403,7 +403,7 @@ All use E. A list of them shows in the corner during the chore day.
 - Fit check: ALL PASS, 52 routes, with furniture.
 
 ### Not done or not verified
-- **Jack as a visible character is not built.** MetaHuman needs an Epic sign-in inside the editor to assemble a character, which I do not have; the only other human mesh on this Mac is Epic's test mannequin, which the brief rules out. The plain shadow figure from before is still what casts his shadow. No hands, no legs when looking down, no mirror reflection, no `screenshots/player_character`.
+- Jack as a visible character was not built in this pass. It was built afterwards without MetaHuman: see "Jack, the player character" below.
 - Nothing in this pass has been played by a person or run as the packaged app: not the widgets on screen, mouse clicks on buttons, key rebinding, resolution changes, the save file, or how the days feel at walking pace. Script tests press "use" through a test hook and place the test pawn.
 - Room expansion exists only as the stretching corridor (day 3 onward). No ceiling that rises, no other room that stretches.
 - "Home videos" on day 5 is one tape and one line of text; nothing plays on a screen.
@@ -423,3 +423,39 @@ All use E. A list of them shows in the corner during the chore day.
 77. Waking beside the bed each morning is the only time the story places the player.
 78. The entity's coat stands are in the house from the start as ordinary furniture.
 79. Jack's character is left out rather than built from the test mannequin.
+
+## Jack, the player character (Nov 11, late)
+
+Joel's answer on MetaHuman: go without it first, he was not at the computer to sign in.
+
+### What was built
+- **Body** (`Scripts/build_jack.py`, `/Game/Jack/SK_Jack`). A skinned mesh on Epic's mannequin skeleton, so it plays the motion-captured walk, idle, crouch and crouch-walk that ship with the engine (MoverExamples plugin, now enabled in the project). The mesh starts as a copy of Epic's plain mannequin and is reshaped by script: clothes pushed out from the body and smoothed until the mannequin's panel lines are gone, the visor face smoothed flat and a simple nose, eye sockets, brow and chin pushed into it, the scalp roughed up into messy hair. Six materials: skin, stubble, brown hair, grey hoodie, blue jeans, off-white sneakers. Scaled to 178 cm.
+- **What the player sees** (`BP_Body`, `Scripts/bp/body.dsl`, placed by `build_shadow.py`). Three copies follow the player: one he sees when he looks down (head hidden so the camera is not inside it, chest, arms, hands, jeans and shoes visible); one that is never drawn and only casts his shadow, head and hair included; one that only the mirrors see. All three switch between idle, walk, crouch and crouch-walk with the player.
+- **Hands** (`BP_Arms`, `Scripts/bp/arms.dsl`). His two forearms, cut from the same body, come up in front of the camera while he carries, pushes or inspects something, and the right one reaches out for a moment when he presses Use. The hanging arms of the body are put away while they are up.
+- **Mirrors** (`BP_Mirror`, `Scripts/bp/mirror.dsl`, `build_mirror.py`). The two wall mirrors (living room, parents' room) now show the room and Jack. A camera behind the wall sits where his eye would be if the wall were a window and films into a small picture drawn on the glass; the picture is small on purpose so his face stays soft. Each mirror films only while he is in front of the glass, on the same floor, within 4.5 m, and the glass is in his view.
+- **The shadow that stops copying him** is kept: in the corridor loop, after four still seconds (or `H` anywhere after one), the shadow turns 40 degrees, slides 28 cm aside and starts walking on the spot while he stands still. A step makes it his again.
+- Pictures: `screenshots/player_character/` (third-person idle / walk / crouch in the editor; in play mode: shadow while walking, looking down standing and walking, hands, the parents' room mirror).
+
+### Tested
+- Editor play mode, by script: the body follows the pawn, the head is hidden for the player only, the shadow is a clean human shadow with a walk cycle, the forearms rise while carrying, both mirrors show him. The five-day story test was run again afterwards: days 2 to 5, loops, memories, climax, release and the start of the unpacking all pass.
+- Not tested: the packaged app, by a person or otherwise. Animation changes were seen in stills, not in motion.
+
+### A bug this turned up, fixed
+- The day 5 climax only counted the player's gaze when he looked at the figure's feet: the check measured to the point the figure stands on, and from eye height its body sat just outside the 24 degree limit. A player looking at the figure itself could have been stuck there. It now measures to the figure's chest, within 28 degrees (`gen_story.py`). Re-tested: 2.2 seconds of looking releases it.
+
+### Known limits
+- The body shape under the clothes is still Epic's mannequin: broad shoulders, a lump at each shoulder, hoodie hem with a ragged edge, no hood, no flannel. The face is a soft suggestion of a face, not a likeness. It is the closest thing to realistic available without MetaHuman, not the MetaHuman the brief asks for.
+- Animations switch at once (idle to walk, stand to crouch); there is no blend, so the shadow pops between poses. The walk is played at its authored speed, so feet may slide a little against his 135 cm/s pace.
+- Hands are one relaxed, open pose for everything. They do not grip the box, turn a door knob or hold the flashlight; the flashlight still has no hand on it.
+- While carrying, the shadow still shows his arms at his sides.
+- The mirror picture is brighter and flatter than the room around it (the mirror camera does not get the room's bounce light) and its perspective is approximate when viewed from the side. Bathroom mirrors (the small steel-framed ones) do not reflect; only the two large wall mirrors do. Each active mirror draws the room a second time, so frame rate drops while standing at one.
+- MoverExamples is an experimental Epic plugin; it is enabled only for its animations and skeleton.
+
+### Judgment calls
+80. No MetaHuman, on Joel's word. Jack is a reshaped and re-skinned copy of Epic's mannequin body rather than something built from boxes, because that keeps real hands, real proportions and motion-captured movement. This overrides call 79.
+81. Three bodies instead of one: the first-person body has no head, the shadow needs one, and the mirror needs one the player cannot see from inside.
+82. The loose shadow now walks on the spot instead of lifting an arm (the old lifted-arm pose was a second static figure and no longer exists).
+83. Mirrors are filmed pictures, not true reflections: Lumen on this Mac does not reflect a skinned character that is off screen.
+84. Face detail was kept low on purpose ("face hard to read").
+85. The living-room mirror hangs over the sofa, so from the floor it mostly shows the room behind him; the parents' room mirror is the one that shows him head to hips.
+

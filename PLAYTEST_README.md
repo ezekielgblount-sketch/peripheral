@@ -49,7 +49,7 @@ Nothing can hurt Jack. A wrong call in a corridor only resets the count.
 | F6 | During the F5 test: the list of what has changed, and whether you have looked at it since |
 | N | Day / night |
 | L | The loop test |
-| H | Lets the shadow drift loose after one second of standing still |
+| H | Lets Jack's shadow stop copying him after one second of standing still |
 | B, M | Head bob on / off; camera motion full / half / off |
 
 ## What to look for and tell me
@@ -59,6 +59,7 @@ Nothing can hurt Jack. A wrong call in a corridor only resets the count.
 - Do the menus behave with the mouse, and does Esc reliably give the mouse back?
 - Chores: is any one fiddly or unclear?
 - Did you notice the changes on Days 2 to 4 without being told?
+- Jack now has a body: look down, watch his shadow in sunlight or lamplight, pick something up to see his hands, and stand at the big mirror in the living room or the parents' room. Does he read as a person? What looks wrong first?
 - The six music tracks were written by code and have not been heard by a person. They are in `unreal/Peripheral_POC/Music/` if you want to listen outside the game.
 
 See `unreal/Peripheral_POC/BUILD_STATE.md` for what was tested by script, what was not tested at all, and every judgment call.

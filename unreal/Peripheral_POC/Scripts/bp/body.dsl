@@ -1,0 +1,63 @@
+; Jack's body. Two of these stand where the player stands, both the SK_Jack mesh on Epic's motion-captured animations.
+; Role 0 is the body the player sees looking down (head hidden so the camera is not inside it, casts no shadow).
+; Role 1 is never drawn and only casts his shadow, head included. Role 2 is the whole body for mirrors: it belongs to the
+; player, and is set so its owner never sees it, so only the mirror cameras do. When the house is unstable (the loop is running) and he
+; stands still for a few seconds, the shadow stops copying him: it turns, steps aside and starts walking on the spot.
+; H forces the same thing anywhere, for testing.
+(event EventBeginPlay
+  (bind f_LB (Actor|GetAllActorswithTag :Tag "lb"))
+  (for a_LB f_LB (Variables|Default|SetLB a_LB))
+  (bind f_P (Actor|GetAllActorsOfClass :ActorClass "/Game/Blueprints/BP_Player.BP_Player_C"))
+  (for a_P f_P (Variables|Default|SetPlayerRef a_P))
+  (if (== (Variables|Default|GetKind) 0)
+    (Components|SkinnedMesh|HideBonebyName :self (Variables|SkeletalMeshActor|GetSkeletalMeshComponent) :BoneName "head")))
+
+(event EventTick (DeltaSeconds)
+  (bind pc (Game|GetPlayerController :PlayerIndex 0))
+  (bind ch (Game|GetPlayerCharacter :PlayerIndex 0))
+  (bind p (Transformation|GetActorLocation :self ch))
+  (bind speed (Math|Vector|VectorLengthXY (Transformation|GetVelocity :self ch)))
+  (bind crouched (Class|Character|GetIsCrouched :self ch))
+  (bind frozen (Input|IsMoveInputIgnored :self pc))
+  (bind sk (Variables|SkeletalMeshActor|GetSkeletalMeshComponent))
+  (if (== (Variables|Default|GetKind) 2) (Actor|SetOwner :NewOwner ch))
+  (if (Game|Player|WasInputKeyJustPressed :self pc :Key "H") (Variables|Default|SetForce (not (Variables|Default|GetForce))))
+  ; no body and no shadow while the camera is not Jack: title screen, the drive in, cut scenes
+  (Rendering|SetActorHiddenInGame :bNewHidden frozen)
+  (Variables|Default|SetStill (select (and (< speed 5.0) (not frozen)) (+ (Variables|Default|GetStill) DeltaSeconds) 0.0))
+  (bind loose (and (== (Variables|Default|GetKind) 1)
+                   (or (and (Variables|Default|GetForce) (> (Variables|Default|GetStill) 1.0))
+                       (and (> (.x (Transformation|GetActorLocation :self (Variables|Default|GetLB))) 0.5) (> (Variables|Default|GetStill) 4.0)))))
+  (Variables|Default|SetA (Math|Interpolation|FInterpTo :Current (Variables|Default|GetA) :Target (select loose 1.0 0.0) :DeltaTime DeltaSeconds :InterpSpeed (select loose 0.7 7.0)))
+  (bind a (Variables|Default|GetA))
+  (bind yaw (.yaw (Transformation|GetActorRotation :self ch)))
+  (bind rt (Transformation|GetActorRightVector :self ch))
+  (bind fw (Transformation|GetActorForwardVector :self ch))
+  (bind back (Variables|Default|GetBack))
+  (Transformation|SetActorLocationAndRotation
+    :NewLocation (Math|Vector|MakeVector :X (+ (.x p) (- (* (.x rt) (* 28.0 a)) (* (.x fw) back))) :Y (+ (.y p) (- (* (.y rt) (* 28.0 a)) (* (.y fw) back))) :Z (- (.z p) (select crouched (Variables|Default|GetCrouchH) 92.0)))
+    :NewRotation (Math|Rotator|MakeRotator :Roll 0.0 :Pitch 0.0 :Yaw (+ (- yaw 90.0) (* 40.0 a))))
+  ; while his forearms are up in front of the camera (BP_Arms), the hanging arms of the body he sees are put away
+  (bind pl (Variables|Default|GetPlayerRef))
+  (bind busy (or (Class|BPPlayer|GetCarrying :self pl) (or (Class|BPPlayer|GetPushing :self pl) (Class|BPPlayer|GetInspecting :self pl))))
+  (bind kind0 (== (Variables|Default|GetKind) 0))
+  (if (and kind0 (and busy (not (Variables|Default|GetArmsHid))))
+    (Variables|Default|SetArmsHid true)
+    (Components|SkinnedMesh|HideBonebyName :self sk :BoneName "upperarm_l")
+    (Components|SkinnedMesh|HideBonebyName :self sk :BoneName "upperarm_r"))
+  (if (and kind0 (and (not busy) (Variables|Default|GetArmsHid)))
+    (Variables|Default|SetArmsHid false)
+    (Components|SkinnedMesh|UnHideBonebyName :self sk :BoneName "upperarm_l")
+    (Components|SkinnedMesh|UnHideBonebyName :self sk :BoneName "upperarm_r"))
+  (bind st (select (> a 0.45) 4 (select crouched (select (> speed 10.0) 3 2) (select (> speed 10.0) 1 0))))
+  (if (!= st (Variables|Default|GetState))
+    (Variables|Default|SetState st)
+    (if (== st 0)
+      (Components|Animation|PlayAnimation :self sk :NewAnimToPlay "/MoverExamples/Characters/Mannequins/Animations/Manny/MM_Idle.MM_Idle" :bLooping true)
+      (else (if (== st 1)
+        (Components|Animation|PlayAnimation :self sk :NewAnimToPlay "/MoverExamples/Characters/Mannequins/Animations/Manny/MM_Walk_Fwd.MM_Walk_Fwd" :bLooping true)
+        (else (if (== st 2)
+          (Components|Animation|PlayAnimation :self sk :NewAnimToPlay "/MoverExamples/Characters/Mannequins/Animations/Manny/MM_Unarmed_Crouch_Idle.MM_Unarmed_Crouch_Idle" :bLooping true)
+          (else (if (== st 3)
+            (Components|Animation|PlayAnimation :self sk :NewAnimToPlay "/MoverExamples/Characters/Mannequins/Animations/Manny/MM_Unarmed_Crouch_Walk_Fwd.MM_Unarmed_Crouch_Walk_Fwd" :bLooping true)
+            (else (Components|Animation|PlayAnimation :self sk :NewAnimToPlay "/MoverExamples/Characters/Mannequins/Animations/Manny/MM_Walk_InPlace.MM_Walk_InPlace" :bLooping true)))))))))))

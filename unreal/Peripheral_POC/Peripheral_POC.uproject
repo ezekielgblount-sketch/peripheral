@@ -10,6 +10,7 @@
 		{ "Name": "EditorScriptingUtilities", "Enabled": true },
 		{ "Name": "ModelContextProtocol", "Enabled": true },
 		{ "Name": "AllToolsets", "Enabled": true },
-		{ "Name": "EditorToolset", "Enabled": true }
+		{ "Name": "EditorToolset", "Enabled": true },
+		{ "Name": "MoverExamples", "Enabled": true }
 	]
 }

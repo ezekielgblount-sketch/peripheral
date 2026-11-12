@@ -200,14 +200,14 @@ dsl = f"""(event EventBeginPlay
     (bind pcm (Game|GetPlayerCameraManager :PlayerIndex 0))
     (bind cam (Camera|GetCameraLocation :self pcm))
     (bind fwd (Math|Vector|GetForwardVector :InRot (Camera|GetCameraRotation :self pcm)))
-    (bind to (- {LOC(V("Climax"))} cam))
+    (bind to (- (+ {LOC(V("Climax"))} (Math|Vector|MakeVector :X 0.0 :Y 0.0 :Z 110.0)) cam))
     (bind dist (+ (Math|Vector|VectorLength :A to) 0.001))
     (bind ang (Math|Trig|Acos(Degrees) :A (/ (Math|Vector|DotProduct :A fwd :B to) dist)))
     (if (and (not {V("Shown")}) (and (> t 6.0) (> ang 95.0)))
       {S("Shown", "true")} {HIDE(V("Climax"), "false")} {S("T", "0.0")} {S("Look", "0.0")}
       {HUD("Target", "Target", "100.0")} {SND("house_groan", 0.55)} {NOTE("")})
     (if {V("Shown")}
-      (if (< ang 24.0) {S("Look", "(+ " + V("Look") + " DeltaSeconds)")})
+      (if (< ang 28.0) {S("Look", "(+ " + V("Look") + " DeltaSeconds)")})
       (if (> {V("Look")} 2.2)
         {HIDE(V("Climax"), "true")}
         {HUD("Target", "Target", "0.0")}
