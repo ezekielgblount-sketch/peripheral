@@ -66,6 +66,13 @@ Nothing can hurt Jack. A wrong call in a corridor only resets the count.
   - From Day 3, the big living room mirror, and from Day 4 the parents' room mirror: someone standing behind Jack who is not in the room.
   - Six more things that change while you are out of the room: an extra door upstairs, the SOLD sign's smile, the wedding photo, a kitchen cabinet, the kitchen tap, the half-bath door.
   - Sounds from somewhere else in the house every minute or so (doorbell, phone, a knock, pipes, footsteps overhead), and now and then the lights dip.
+- Added after that (third pass), the last of your lists:
+  - From Day 2, from Jack's bedroom window or the yard: someone standing in the trees behind the house.
+  - From Day 3 the upstairs bathroom cabinet mirror, from Day 4 the half-bath one: a head and shoulders in the glass after you have looked away.
+  - Three more out-of-sight changes: the mud room jacket hangs as if someone is in it, a kitchen chair is pulled out facing the hall, the WELCOME HOME board under the SOLD sign goes blank.
+  - More person-shaped things: a dress form in the sewing room, robes on hooks in the upstairs bathrooms, coveralls on a nail in the basement, an ironing board with a shirt on it.
+  - More sounds: steps on gravel outside, the porch boards, a door closing, a drip.
+  - From Day 4, in the corridor behind the upstairs closets: on some trips the ceiling lifts as you walk out.
 - Family snapshots now hang around the house. They are drawn stand-ins; your own photos (no faces) would replace them.
 - Day 5: the tape now plays on the old television in the parents' room.
 - The six music tracks were written by code and have not been heard by a person. They are in `unreal/Peripheral_POC/Music/` if you want to listen outside the game.

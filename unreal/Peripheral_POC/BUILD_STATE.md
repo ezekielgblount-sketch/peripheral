@@ -535,3 +535,10 @@ Joel asked why the anomalies were not all built. The second pass had left out a 
 
 ### Judgment call
 92. The sign had no buyer's name to blank, so a rider board carries the line that disappears.
+
+### The corridor's ceiling rises (room expansion, second kind)
+- `BP_Rise` (`Scripts/bp/rise.dsl`, made by `gen_rise.py`, placed by `build_annex.py`). From day 4, on about half his trips into the corridor that should not exist, the ceiling lifts as Jack walks out along it, by 0.9 to 2.1 m over five metres of walking, and the ceiling lights go up with it. It never comes down while he is in there. Once he is back in the hall and looking away it is put back.
+- The corridor's walls now run 2.4 m past the normal ceiling so there is wall to uncover. The two closets at its start keep their own ceiling, so the lift begins where the house ends.
+- It is not one of the loop's "something is wrong in the hall" calls, the same as the stretching: it does not count for or against him.
+- Tested in editor play mode by script: ceiling and corridor lights rose 2.03 m, closet lights stayed, reset on leaving; days 4 and 5 run to the end card with no Blueprint errors. Picture: `screenshots/anomalies/corridor_ceiling_raised.png`. Not seen in motion, not seen in the packaged app.
+- Still not done: a room inside the house that stretches (the shell is one fixed mesh per floor); unease and colour re-tune; animation blending for Jack; family pictures with faces; MetaHuman Jack (waits on Joel's Epic licence page).

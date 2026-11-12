@@ -9,6 +9,7 @@ sys.path.insert(0, unreal.Paths.convert_relative_path_to_full(unreal.Paths.proje
 import poc_lib as L, meshkit as K, props_furniture as PF, props_loop, house_plan as HP
 importlib.reload(L); importlib.reload(props_loop); importlib.reload(HP)
 F2, C2 = HP.F2, HP.C2
+TOP = C2 + 240           # the walls go on up past the ceiling, so the ceiling can rise (BP_Rise)
 AX = HP.ANNEX
 (X1A, X1B), (X2A, X2B) = AX["leg1"], AX["leg2"]          # leg 1 (closet B) and leg 2 (closet A): clear widths
 WY, CAP0, YEND = AX["wall_y"], AX["cap0"], AX["yend"]
@@ -33,29 +34,31 @@ def prop(mesh, name, x, y, z, face, tags=(), movable=False):
 
 
 def light(name, x, y, lumens, tags=(), shadows=False, radius=420):
+    rise = ["ax_rise"] if y > WY else []          # the closets keep their own ceiling
     a = eas.spawn_actor_from_class(unreal.PointLight, L.to_ue(x, y, C2 - 24))
-    a.set_actor_label(name); a.set_folder_path(F); a.tags = ["annex"] + list(tags); a.set_actor_hidden_in_game(True)
+    a.set_actor_label(name); a.set_folder_path(F); a.tags = ["annex"] + rise + list(tags); a.set_actor_hidden_in_game(True)
     c = a.light_component
     c.set_mobility(unreal.ComponentMobility.MOVABLE); c.set_editor_property("intensity_units", unreal.LightUnits.LUMENS)
     c.set_editor_property("intensity", lumens); c.set_editor_property("use_temperature", True); c.set_editor_property("temperature", 2700.0)
     c.set_editor_property("attenuation_radius", radius); c.set_editor_property("source_radius", 4.0); c.set_editor_property("soft_source_radius", 6.0)
     c.set_editor_property("cast_shadows", shadows)
-    prop(PF.variant("ceiling_light", True), name + "_fixture", x, y, C2, (1, 0), tags)
+    prop(PF.variant("ceiling_light", True), name + "_fixture", x, y, C2, (1, 0), rise + list(tags), movable=True)
 
 
 # ---- past the house wall: floor, ceiling, the two outer walls, the far plug ----
 box("Floor_out", X2A - 12, WY, F2 - 15, X1B + 12, YEND, F2, "f_c_hall")
-box("Ceiling_out", X2A - 12, WY, C2, X1B + 12, YEND, C2 + 15, "ceiling")
-box("Wall_leg2_outer", X2A - 12, WY, F2, X2A, YEND, C2, "w_hall")
-box("Wall_leg1_outer", X1B, WY, F2, X1B + 12, YEND, C2, "w_hall")
-box("End_plug", X2A - 12, YEND, F2 - 15, X1B + 12, YEND + 12, C2 + 15, "w_hall")
+box("Ceiling_out", X2A - 12, WY, C2, X1B + 12, YEND, C2 + 15, "ceiling", ["ax_rise"], movable=True)
+box("Wall_back_upper", X2A - 12, WY, C2, X1B + 12, WY + 3, TOP, "w_hall")
+box("Wall_leg2_outer", X2A - 12, WY, F2, X2A, YEND, TOP, "w_hall")
+box("Wall_leg1_outer", X1B, WY, F2, X1B + 12, YEND, TOP, "w_hall")
+box("End_plug", X2A - 12, YEND, F2 - 15, X1B + 12, YEND + 12, TOP, "w_hall")
 box("Base_leg2_outer", X2A, WY, F2, X2A + 1.3, YEND, F2 + 9, "white", collide=False)
 box("Base_leg1_outer", X1B - 1.3, WY, F2, X1B, YEND, F2 + 9, "white", collide=False)
 # ---- the parts the game moves (BP_Loop): the far wall, and the wall between the two legs ----
-box("Cap_wall", X2A - 12, CAP0, F2, X1B + 12, CAP0 + 12, C2, "w_hall", ["ax_capw"], movable=True)
+box("Cap_wall", X2A - 12, CAP0, F2, X1B + 12, CAP0 + 12, TOP, "w_hall", ["ax_capw"], movable=True)
 prop("frame_landscape_a", "Cap_picture", (X1A + X1B) / 2.0, CAP0, F2 + 150, (0, -1), ["ax_cap"], movable=True)
 box("Cap_base", X2A, CAP0 - 1.3, F2, X1B, CAP0, F2 + 9, "white", ["ax_cap"], movable=True, collide=False)
-box("Divider_moving", X2B, WY, F2, X1A, CAP0 - AX["turn"], C2, "w_hall", ["ax_div"], movable=True)
+box("Divider_moving", X2B, WY, F2, X1A, CAP0 - AX["turn"], TOP, "w_hall", ["ax_div"], movable=True)
 # ---- what the retreating wall uncovers: more doors, more pictures, more ceiling lights ----
 for i, y in enumerate((2300, 2700)):
     prop("false_door", "Door_leg1_%d" % i, X1B, y, F2, (-1, 0))
@@ -80,6 +83,8 @@ for a in eas.get_all_level_actors():
 ctl = eas.spawn_actor_from_class(unreal.EditorAssetLibrary.load_blueprint_class("/Game/Blueprints/BP_Loop"), unreal.Vector(0, 0, -500))
 ctl.set_actor_label("Loop_controller"); ctl.set_folder_path(F); ctl.tags = ["annex"]
 ctl.static_mesh_component.set_mobility(unreal.ComponentMobility.MOVABLE)
+rise = eas.spawn_actor_from_class(unreal.EditorAssetLibrary.load_blueprint_class("/Game/Blueprints/BP_Rise"), unreal.Vector(0, 0, -520))
+rise.set_actor_label("Rise_controller"); rise.set_folder_path(F); rise.tags = ["annex"]
 lb = eas.spawn_actor_from_class(unreal.StaticMeshActor, unreal.Vector(0, 0, 0))      # loop blackboard: X = running, Y = right calls in a row, Z = finished
 lb.set_actor_label("Loop_blackboard"); lb.set_folder_path(F); lb.tags = ["annex", "lb"]
 lb.static_mesh_component.set_mobility(unreal.ComponentMobility.MOVABLE)
