@@ -18,8 +18,13 @@ try:
     importlib.reload(PP)
 except ImportError:
     pass
+import props_loop, props_r1, props_yard
+importlib.reload(props_loop); importlib.reload(props_r1); importlib.reload(props_yard)
+ONLY = [m.strip() for m in os.environ.get('POC_PROPS', '').split(',') if m.strip()] or globals().get('ONLY')
 bad = []
 for name in sorted(PF.REG):
+    if ONLY and name not in ONLY and getattr(PF.REG[name], '__module__', '') not in ONLY:
+        continue
     try:
         PF.get(name, rebuild=True)
     except Exception as e:
