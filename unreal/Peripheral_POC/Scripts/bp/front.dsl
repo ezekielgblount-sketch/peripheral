@@ -7,7 +7,13 @@
   (Variables|Default|SetMus2 (Audio|SpawnSound2D :Sound "/Game/Audio/music_unease_low.music_unease_low" :VolumeMultiplier 0.01 :bAutoDestroy false))
   (Variables|Default|SetMus3 (Audio|SpawnSound2D :Sound "/Game/Audio/music_unease_mid.music_unease_mid" :VolumeMultiplier 0.01 :bAutoDestroy false))
   (Variables|Default|SetMus4 (Audio|SpawnSound2D :Sound "/Game/Audio/music_unease_high.music_unease_high" :VolumeMultiplier 0.01 :bAutoDestroy false))
-  (Variables|Default|SetMus5 (Audio|SpawnSound2D :Sound "/Game/Audio/music_loop_sequence.music_loop_sequence" :VolumeMultiplier 0.01 :bAutoDestroy false)))
+  (Variables|Default|SetMus5 (Audio|SpawnSound2D :Sound "/Game/Audio/music_loop_sequence.music_loop_sequence" :VolumeMultiplier 0.01 :bAutoDestroy false))
+  ; the menu and the in-game overlay are widgets: they have to be made and put on screen here, nothing else does it
+  (bind pc0 (Game|GetPlayerController :PlayerIndex 0))
+  (Variables|Default|SetMenuW (UserInterface|CreateWidget :Class "/Game/UI/WBP_Menu.WBP_Menu_C" :OwningPlayer pc0))
+  (UserInterface|Viewport|AddtoViewport :self (Variables|Default|GetMenuW) :ZOrder 10)
+  (Variables|Default|SetOverlayW (UserInterface|CreateWidget :Class "/Game/UI/WBP_Overlay.WBP_Overlay_C" :OwningPlayer pc0))
+  (UserInterface|Viewport|AddtoViewport :self (Variables|Default|GetOverlayW) :ZOrder 5))
 
 (event EventTick (DeltaSeconds)
   (bind hud (Variables|Default|GetHudRef))

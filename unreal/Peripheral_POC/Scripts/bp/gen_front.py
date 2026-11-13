@@ -40,7 +40,13 @@ dsl = f"""(event EventBeginPlay
   {TAGS("UB", "ub")} {TAGS("SB", "sb")} {TAGS("CB", "cb")}
   (bind huds (Actor|GetAllActorsOfClass :ActorClass "/Game/Blueprints/BP_HUD.BP_HUD_C"))
   (for h huds {S("HudRef", "h")})
-  {music0})
+  {music0}
+  ; the menu and the in-game overlay are widgets: they have to be made and put on screen here, nothing else does it
+  (bind pc0 (Game|GetPlayerController :PlayerIndex 0))
+  {S("MenuW", '(UserInterface|CreateWidget :Class "/Game/UI/WBP_Menu.WBP_Menu_C" :OwningPlayer pc0)')}
+  (UserInterface|Viewport|AddtoViewport :self {V("MenuW")} :ZOrder 10)
+  {S("OverlayW", '(UserInterface|CreateWidget :Class "/Game/UI/WBP_Overlay.WBP_Overlay_C" :OwningPlayer pc0)')}
+  (UserInterface|Viewport|AddtoViewport :self {V("OverlayW")} :ZOrder 5))
 
 (event EventTick (DeltaSeconds)
   (bind hud {V("HudRef")})
@@ -143,6 +149,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "apply":
     for k in ("Screen", "Cmd", "CursorOn", "MenuV"):
         B.add_var(N, k, "int")
     B.add_var(N, "MenuT", "float")
+    B.add_obj_var(N, "MenuW", "/Script/UMG.UserWidget"); B.add_obj_var(N, "OverlayW", "/Script/UMG.UserWidget")
     for k in ("Init", "ChoreStart"):
         B.add_var(N, k, "bool")
     B.call(B.BT, "set_variable_instance_editable", {"blueprint": B.bp_ref(N), "variable_name": "ChoreStart", "instance_editable": True})
