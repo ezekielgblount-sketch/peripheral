@@ -14,7 +14,7 @@ git lfs install
 ```
 
 ```bash
-git clone -b poc/visual-slice https://github.com/ezekielgblount-sketch/peripheral.git
+git clone https://github.com/UnoriginalComedian/peripheral.git
 ```
 
 The project file is `unreal/Peripheral_POC/Peripheral_POC.uproject`.

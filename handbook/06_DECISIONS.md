@@ -11,7 +11,9 @@ builder made on its own are numbered in `unreal/Peripheral_POC/BUILD_STATE.md`.
 **Share everything in the repo so others can build on it.** "Put everything, all the changes, all the stories,
 information... in a place that I can easily share... so that a model of Claude from someone else's computer knows
 everything that it needs to know about the game." People join the GitHub repo and add instructions and updates; the
-builder (Fable) reads them and makes the changes. Result: this handbook and the `requests/` folder.
+builder (Fable) reads them and makes the changes. Result: this handbook and the `requests/` folder. Asked whether to keep
+it in the team's existing repo or make a new one, Joel chose "New repo, my account": `UnoriginalComedian/peripheral`,
+private.
 
 **The look is camcorder footage; realistic underneath, low-res on top.** "Like if they were filmed on a camcorder."
 "I want the graphics to be realistic tho just low res." Main reference Freddys_House; from Your Happy Place only the

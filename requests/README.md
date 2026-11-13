@@ -8,11 +8,11 @@ You do not need to know Unreal or how the game is built. If you want background 
 
 ## Two ways to send a request
 
-**1. Open an issue.** Works for anyone with a GitHub account, no invitation needed.
-[Start one here](https://github.com/ezekielgblount-sketch/peripheral/issues/new?labels=request&title=Request%3A+&body=%23%23+What+I+want%0A%0A%0A%23%23+Why%0A%0A%0A%23%23+How+I%27ll+know+it%27s+done%0A%0A%0A%23%23+Pictures+or+references%0A)
+**1. Open an issue.** Works for anyone Joel has invited to the repo.
+[Start one here](https://github.com/UnoriginalComedian/peripheral/issues/new?labels=request&title=Request%3A+&body=%23%23+What+I+want%0A%0A%0A%23%23+Why%0A%0A%0A%23%23+How+I%27ll+know+it%27s+done%0A%0A%0A%23%23+Pictures+or+references%0A)
 and make sure it has the `request` label. You can drag pictures straight into the issue.
 
-**2. Add a file here.** For people with write access to the repo. Copy [`TEMPLATE.md`](TEMPLATE.md), name it
+**2. Add a file here.** Also for anyone invited (collaborators can write). Copy [`TEMPLATE.md`](TEMPLATE.md), name it
 `YYYY-MM-DD-short-title.md` (for example `2026-11-14-attic-window-figure.md`), fill it in, and commit it to the
 `poc/visual-slice` branch. You can do this on github.com: open this folder, "Add file" → "Create new file".
 
@@ -50,6 +50,6 @@ and make sure it has the `request` label. You can drag pictures straight into th
 
 ## Please do not
 
-- Put passwords, keys, private photos or personal details in a request. This repo is public.
+- Put passwords, keys, private photos or personal details in a request. The repo is private, but it is shared.
 - Edit the game files directly unless you are set up to build it; send a request instead.
-- Push to the `main` branch.
+- Create or push to a `main` branch. The game lives on `poc/visual-slice`.

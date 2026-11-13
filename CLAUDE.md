@@ -5,6 +5,7 @@
 > Everything below this box is the earlier `unreal/Isolation` guidance from August 2026. Its art rules (the five-colour
 > palette; no bloom, grain, chromatic aberration, motion blur or auto-exposure; a single post-process pass) were retired
 > by Joel on 2026-11-12 in favour of the camcorder look: see `handbook/06_DECISIONS.md`. Never push to `main`.
+> Home repo: `UnoriginalComedian/peripheral` (private, Joel's). The older public team repo is `ezekielgblount-sketch/peripheral`.
 
 # Isolation — Unreal Engine build (formerly Peripheral)
 
@@ -85,6 +86,14 @@ Apply this to every room bound, anchor point, door, and window in §5 and §6 �
 not just the hallway.
 
 ## Unreal's defaults violate our art direction
+
+> **Art direction update, 2026-11-12 (Joel's decision, from "VHS Camcorder Style Brief").**
+> The VHS camcorder look replaces the old art rules. The five-colour matte palette and the bans on bloom, film grain,
+> chromatic aberration, motion blur, auto-exposure and extra post-processing are **retired**. Target look: an 80s/90s
+> consumer camcorder tape ("Freddys_House" reference): wide-angle lens with dark corners, faded green-grey colour, lifted
+> blacks, a low-res soft picture, modest bloom, in an ordinary, realistic-looking house. Handheld shake stays adjustable.
+> The list below and the "no post-processing beyond the single peripheral pass" rule further down are superseded; where the text says otherwise, it is kept for history only. What is built is described in
+> `unreal/Peripheral_POC/BUILD_STATE.md` under "Found-footage look and worn materials".
 
 UE5 ships these **on by default**, and spec §13 forbids every one:
 

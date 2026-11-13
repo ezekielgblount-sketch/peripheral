@@ -6,8 +6,9 @@ game and keep building it. It also explains how to ask for a change so the build
 **The game in two sentences.** Peripheral is a first-person psychological horror game about grief. Jack, in his mid-20s,
 moves back into his late parents' house for five days, and the house quietly changes whenever he is not looking at it.
 
-**Where the game lives.** This repo, branch `poc/visual-slice`, folder `unreal/Peripheral_POC` (Unreal Engine 5.8, Mac
-first). The `main` branch holds the older browser prototype; it is not the current game.
+**Where the game lives.** This repo (`UnoriginalComedian/peripheral`, private, Joel's account), branch `poc/visual-slice`,
+folder `unreal/Peripheral_POC` (Unreal Engine 5.8, Mac first). It was copied on 2026-11-12 from the team's public repo,
+`ezekielgblount-sketch/peripheral`, whose `main` branch holds the older browser prototype.
 
 ## Read in this order
 
@@ -46,8 +47,8 @@ in [05_CURRENT_STATE.md](05_CURRENT_STATE.md).
 
 You do not need to know Unreal. Write what you want in plain words. Two ways:
 
-1. **Open an issue** (easiest, works for anyone with a GitHub account):
-   [new request](https://github.com/ezekielgblount-sketch/peripheral/issues/new?labels=request&title=Request%3A+&body=%23%23+What+I+want%0A%0A%0A%23%23+Why%0A%0A%0A%23%23+How+I%27ll+know+it%27s+done%0A%0A%0A%23%23+Pictures+or+references%0A).
+1. **Open an issue** (easiest; you need to have been invited to the repo, see below):
+   [new request](https://github.com/UnoriginalComedian/peripheral/issues/new?labels=request&title=Request%3A+&body=%23%23+What+I+want%0A%0A%0A%23%23+Why%0A%0A%0A%23%23+How+I%27ll+know+it%27s+done%0A%0A%0A%23%23+Pictures+or+references%0A).
    Give it the `request` label if the link did not.
 2. **Add a file** to [`requests/`](../requests/) (for people who have been given write access). Copy
    `requests/TEMPLATE.md`, fill it in, commit it to `poc/visual-slice`.
@@ -66,5 +67,9 @@ checked with Joel first. So is anything that conflicts with an earlier decision.
 
 ## Who decides
 
-Joel has the final say on the game. Ezekiel owns this GitHub repo and can add people to it. If two requests disagree, the
-builder asks Joel.
+Joel has the final say on the game and owns this repo. If two requests disagree, the builder asks Joel.
+
+## Joining
+
+The repo is private. Joel invites people: on github.com open the repo → Settings → Collaborators → Add people, and enter
+their GitHub username. They accept the email invitation and can then read everything, open issues and add request files.
