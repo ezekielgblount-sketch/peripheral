@@ -204,3 +204,76 @@ Standing content rules: invented brands, titles and logos only; no copied artwor
 - Builds: a standalone Mac app (Apple Silicon) in `Builds/` that opens with a double-click.
 - Screenshots: each room from 3 angles, day and night, in `screenshots/<room>`; plus the themed folders asked for along the way (`unease_stages`, `lighting_pass`, `drive_session`, `playtest_round1` before / after, `player_character`).
 - `BUILD_STATE.md` carries a "How to play" note: controls, debug keys, and anything that did not make it in.
+
+## 22. Playtest 2 update (Joel, Nov 12 2026)
+
+Where this section conflicts with anything above, this section wins. It replaces parts of sections 5 (scale), 11 (camera feel), 13 (controls and interaction), 15 (unease), 16 (story), 18 (anomalies), 19 (objectives) and 20 (sound).
+
+### 22.1 Space and scale (top priority)
+- The house still feels cramped. Rebuild for generous, walkable space:
+  - Interior doors 213 cm tall (7 ft) and 91 cm wide (36 in). Front door 97 cm wide.
+  - Hallways at least 122 cm wide (4 ft). Main hallways 137 cm.
+  - At least 90 cm of clear walking space around all furniture. In the living room the player can walk comfortably between the sofa, coffee table and TV.
+  - Main rooms 20 to 30% bigger than they are now.
+- Shrink or fix the player's collision so it never snags on door frames, furniture edges or trim.
+- Walk-test every room and doorway. Log anywhere the player has to squeeze.
+
+### 22.2 Camera: stabilized camcorder
+- Replace the head bob with a stabilized-camcorder feel: smooth, floaty motion with gentle inertia and a subtle lag when turning. The weight of the movement is felt, but there is no up-and-down bounce.
+- Soft sway on starting, stopping and turning. Tiny micro-jitter, like a camera held steadily by hand.
+- Settings: Camera Motion (Off / Stabilized (default) / Handheld / Bodycam).
+
+### 22.3 Doors and hardware
+- Physics doors: hold E on the handle to grab it, then move the mouse to swing it open or closed. Walking into a partly open door pushes it further open. Doors never block or trap the player.
+- Doors swing with real weight, creak and settle. Latches click shut.
+- Hardware theme: polished brass round doorknobs on all interior doors (90s builder standard), a brass lever handleset on the front door, and brass hinges. Consistent everywhere.
+
+### 22.4 Detail and imperfections (fix the "matured Roblox" look)
+- Fix all z-fighting, flickering and clipping. Every knob, button, switch and decal sits slightly off its surface, with no overlapping faces. Check the kitchen stove, microwave, appliances and light switches first.
+- Replace low-poly flat clutter (books, papers, mail) with proper models: books with page edges and slightly curled covers, papers that lie with small bends and shadows.
+- Imperfections everywhere: scuffs on baseboards, dust in corners, smudges on glass, worn paint on door edges, crooked frames, curled rug corners, light-switch grime, small wall dings, water rings on tables, faded sun spots.
+- Lighting: no flickering or popping light on small objects. Check shadows on tiny props.
+
+### 22.5 Interactivity
+- Almost everything can be interacted with: every drawer and cabinet opens, windows open, lights switch, faucets run, appliances turn on, small props can be picked up and inspected.
+- Daily-life actions: sit on chairs and couches, make a simple meal (fridge, stove, plate), sit at the table and eat, wash the dish after.
+
+### 22.6 Hidden stress system
+- Jack has a hidden stress level. There is no meter on screen. The player reads it through the visuals, peripheral activity and sound.
+- Stress rises from darkness, being alone too long, anomalies, entering the parents' room, and night.
+- Ways to calm down: step outside for fresh air, sit on the porch or in the back yard, turn on lights, eat a meal, take a shower, play the radio or a CD, sit somewhere quiet, ride the bike around the block.
+- High stress unlocks stress hallucinations beyond the subtle anomalies:
+  - In the dark or out of focus, objects look like a person: a coat rack, a robe on a door, a hanging jacket, a tall lamp. At high stress they move a little: turning, stepping, leaning.
+  - Figures standing in dark doorways or at the end of hallways.
+  - Rule: the moment the player looks straight at one, it is an ordinary object again. Direct focus is still trustworthy.
+- Avoid poltergeist-style tricks (taps turning on, things sliding) as the main scares. Use them sparingly.
+
+### 22.7 Sound
+- Anomalies and stress get sound: low whooshes, soft breaths, distant footsteps upstairs, a door clicking shut somewhere else, a muffled voice in another room.
+- Day and night ambience: birds, distant traffic and lawn mowers by day; crickets, frogs, wind and the house settling at night.
+
+### 22.8 Objective guide
+- Replace the bottom-left box with Jack's handwritten notepad. Press a key (Tab) to raise it into view in his hand. A small pencil tick appears when a task is done.
+- It updates live with what the player is doing and is never stuck on an old task.
+- As stress rises the handwriting gets messier, and lines get crossed out or rewritten.
+- Optional subtle waypoint: a faint glow on the target object, at low stress only, with a setting to turn it off.
+
+### 22.9 Outside
+- The outdoors is a breather: brighter, calmer sound, and stress slowly drops.
+- Walkable neighbourhood: the full street block, neighbour houses, sidewalks, mailboxes, a small park or cul-de-sac at the end.
+- A bike in the garage that the player can ride around the block.
+- No free driving for now. The car is only used in cinematics.
+
+### 22.10 Story update
+- Jack is the last of his family. Everyone else died, and he does not remember what happened. The truth is only revealed at the end.
+- The game opens on the drive to the house: Jack half-remembers something, with short flashes on the road.
+- Flashbacks:
+  - Triggered by specific objects, rooms or moments (a song on the radio, a photo, a smell like cooking).
+  - The screen shifts smoothly into the memory: the same house, but warmer, brighter and furnished as it was years ago, with soft, out-of-focus family members who have no clear faces and muffled voices.
+  - Each flashback reveals one small piece of what happened. They get longer and clearer as the game goes on.
+  - Each one ends by snapping back to the present, with stress up slightly.
+  - The final flashback, at the end, shows the full truth.
+- The truth itself is a placeholder for now. Joel will decide it later.
+
+### 22.11 Deliverables
+- Rebuild and package a new playable build. Screenshots in `screenshots/playtest2_fixes`.
