@@ -1,3 +1,11 @@
+> **Start with [`handbook/README.md`](handbook/README.md).** The current game is the Unreal build in
+> `unreal/Peripheral_POC` on branch `poc/visual-slice`. The handbook holds its story, look, settings, how it is built, its
+> current state and Joel's decisions, and [`handbook/FOR_THE_BUILDER.md`](handbook/FOR_THE_BUILDER.md) is the session routine:
+> pull, read the open requests (issues labelled `request` and files in `requests/`), do them, write back.
+> Everything below this box is the earlier `unreal/Isolation` guidance from August 2026. Its art rules (the five-colour
+> palette; no bloom, grain, chromatic aberration, motion blur or auto-exposure; a single post-process pass) were retired
+> by Joel on 2026-11-12 in favour of the camcorder look: see `handbook/06_DECISIONS.md`. Never push to `main`.
+
 # Isolation — Unreal Engine build (formerly Peripheral)
 
 Horror game about the gap between what you're **looking at** and what you can **see**.

@@ -1,3 +1,7 @@
+> **Looking for the current game, or want to ask for a change?** Start with [`handbook/README.md`](handbook/README.md)
+> and [`requests/README.md`](requests/README.md). The current game is the Unreal Engine 5.8 build in
+> `unreal/Peripheral_POC` on the `poc/visual-slice` branch. What follows describes the original browser prototype.
+
 # PERIPHERAL
 
 A first-person horror game about the difference between what you're **looking at**
